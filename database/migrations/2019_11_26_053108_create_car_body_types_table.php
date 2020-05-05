@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateCarBodyTypesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('car_body_types', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('BodyTypeNo');
+            $table->string('BodyTypeName');
+            $table->string('Description');
+            $table->boolean('Active');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('car_body_types');
+    }
+}
