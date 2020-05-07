@@ -491,7 +491,7 @@
                                     ->select('*')  
                                     ->where('AccountNo', Auth::user()->AccountNo)  
                                     ->where('active', 1)  
-                                    //->where('UnderSubMenu',$GetRoles['acctType']) 
+                                    //->where('',$GetRoles['acctType']) 
                                     ->groupBy('acctTypeName','acctType','UnderSubMenu','icon_display')  
                                     ->get();
                                      foreach ($GetRole as $GetRoles){
@@ -501,6 +501,7 @@
                                             ->where('UnderSubMenu','!=', $GetRoles['UnderSubMenu'] )  
                                             ->where('active',1)  
                                             //->groupBy('UnderSubMenu')  
+                                            ->orderBy('order','DESC')
                                             ->first();
 
                                        if ( !empty($GetRoleTypes['UnderSubMenu'] )  ) {
@@ -513,7 +514,7 @@
                                         <i class="{{ $GetRoles['icon_display'] }}"></i>
                                         <?php  }  ?>  
                                         
-                                        {{ $GetRoles['acctTypeName'] }}
+                                        {{ $GetRoles['acctTypeName'] }}   <!-------Agent Menu-------->
                                       <span class="pull-right-container">
                                         <i class="fa fa-angle-left pull-right"></i>
                                       </span>
@@ -532,7 +533,7 @@
                                             ->get();
                                         foreach ($GetSubMenu as $GetSubMenus){
                                         ?>
-                                                  <li><router-link to="{{ $GetSubMenus['role_number_url'] }}"> <?php if ( !empty($GetSubMenus['icon_display'])) {?><i class="{{ $GetSubMenus['icon_display'] }}"></i><?php }?>{{ $GetSubMenus['role_name_access']  }}</router-link></li>  <!---ok-->
+                                                  <li><router-link to="{{ $GetSubMenus['role_number_url'] }}"> <?php if ( !empty($GetSubMenus['icon_display'])) {?><i class="{{ $GetSubMenus['icon_display'] }}"></i><?php }?>{{ $GetSubMenus['role_name_access'] }}</router-link></li>  <!---ok-->
                                         <?php }  ?>
 
 

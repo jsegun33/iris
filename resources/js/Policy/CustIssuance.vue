@@ -238,7 +238,7 @@
                                     <tr >
                                         <th style="width:200px;"></th>
                                         <th style="width:650px;">
-                                            PERILS
+                                            PERILS  
                                         </th>
                                         <th style="width:150x;text-align:center;">
                                             AMOUNT
@@ -763,7 +763,8 @@ export default {
 	  SplitDescription(){ 
 
                let Desc           =  this.form.CoverageDescPA.trim();
-               if (!(Desc)){
+               
+               //if (!(Desc)){
                     let SplitData       = Desc.split('.');
                     let NoPassengers    = parseFloat(this.form.PassengerNo) + 1 ;
                     let Split2Compute   = parseFloat(this.form.ClausesStatementAmount)  / parseFloat(NoPassengers) ;
@@ -776,13 +777,14 @@ export default {
                     this.form.DisplayDescriptionVal4 = parseFloat(Split3Compute).toFixed(2)  + '@' ;
                     this.form.DisplayDescription5 = SplitData[4] ;
                     this.form.DisplayDescription6 = SplitData[5] ;
-               }
+              // }
         },
 		
 		 SplitStatementClauses(){ 
 		          let PremiumAmount = this.form.PremiumAmount;
                    let Desc            = this.form.ClausesStatementPA;
-            if (!(Desc)){
+                   
+            //if (!(Desc)){
 				   let SplitData       = Desc.split('.');
                 let NoPassengers    = parseFloat(this.form.PassengerNo) + 1 ;
                let SplitCompute1   = parseFloat(this.form.ClausesStatementAmount)  / parseFloat(NoPassengers) ;
@@ -864,7 +866,7 @@ export default {
                      this.form.DisplayStatementClausesTD13       = SplitData[15]  + "."  ;
                      this.form.DisplayStatementClausesTD14       = SplitData[16]   + "." ;
                      this.form.DisplayStatementClausesTD15       =  SplitData[17]   + "." ;
-            }
+            //}
        },
         
 
@@ -983,8 +985,8 @@ export default {
 				            
                  })
                  
-                      //  this.SplitStatementClauses();
-                     // this.SplitDescription();
+                     this.SplitStatementClauses();
+                   this.SplitDescription();
 				  
 				 }, 1000);
 				 

@@ -273,6 +273,13 @@ let routes = [
     },
 
     {
+        path: '/dragonpay_return',
+        component: require('./Payment/PaymentReturnURL.vue').default
+    },
+
+
+
+    {
         path: '/authentication-Internal-list',
         component: require('./Payment/InternalAuthList.vue').default
     },

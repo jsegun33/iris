@@ -10,7 +10,9 @@
                     <table class="table table-hover text-center" >
                         <tbody>
                              <tr>
-                                <th style="text-align:right">Account # :</th>
+                                <th style="text-align:right" v-if="this.UserDetails.department === 'Agent'" >Agent Code :</th>
+                                <th style="text-align:right" v-if="this.UserDetails.department === 'NONE'" >Account # :</th>
+                                <th style="text-align:right" v-if="this.UserDetails.department !== 'NONE' && this.UserDetails.department !== 'Agent'" >Employee No.:</th>
                                 <td style="text-align:left">{{ this.UserDetails.AccountNo }} </td>
                             </tr>
 

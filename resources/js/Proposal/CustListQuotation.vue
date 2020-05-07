@@ -142,13 +142,11 @@ export default {
             axios.get("api/GetRequestQuotationCustomer/" + NewPassID).then(({ data }) => {
                     (this.RequestQuotations = data)
 
-                   
-             
                   }).catch((response) => {
-                       alert(response  + " pls. try to refresh ");
-                        this.RetrieveTimeInterval3 = setInterval(() => {
-                              this.$router.go() ;
-                       },10000) 
+                    //    alert(response  + " pls. try to refresh ");
+                    //     this.RetrieveTimeInterval3 = setInterval(() => {
+                    //           this.$router.go() ;
+                    //    },10000) 
 
                 });
              }, 1000)

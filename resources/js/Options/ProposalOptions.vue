@@ -100,12 +100,12 @@
                                                 <th  style="text-align:right;border: 1px solid black;border-left:transparent;border-top:transparent;border-right:transparent">W/ AOG <br/>Premium</th>
                                             </tr>
                                             <tbody>
-                                                <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id">
+                                                <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id" >
                                                 
-                                                    <td>{{  coverage.PerilsName }} </td>
+                                                    <td>{{  coverage.PerilsName  }} </td>
                                                     <td style="text-align:right" >{{  coverage.CoveragesAmount | Peso }}</td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  ==='AOG' && form.NoAOG  ==='YES'"> NONE </td>
-                                                    <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' && form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
+                                                    <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' &&  form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
                                                     <td style="text-align:right" >{{  coverage.CoveragesPremium | Peso }}</td>
                                                 </tr>
                                                 <!---------Total Premium--------------------->
@@ -213,7 +213,7 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Additional Details  </h4>
+                <h4 class="modal-title">Additional Details {{ form.NoAOG}} </h4>
               </div>
               <div class="modal-body">
 			 <div class="row">
@@ -463,7 +463,7 @@ export default {
         axios.get("api/CustomerRequestQuotation/" + PassID ) .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data)  );
         axios.get("api/GetListBanks/") .then(({ data }) => (this.GetListBanks = data)  );
        axios.get("api/URLQueryRequestModify/" + PassID).then(({ data })  => (this.ResultQueryRequest = data)  );
-       
+        
        
        
        
@@ -697,6 +697,7 @@ export default {
            
                axios.get("api/GetAgentComReport/" + PassIDCom ) .then(({ data }) => (this.AgentComm = data)  );     
        //alert(PassIDCom);
+      
         
         },
 
@@ -814,9 +815,8 @@ export default {
 
     created() {
         axios.get('api/wordings').then(({data}) => this.Wordings = data)
+       // axios.get("api/GetAOGOnly/" + PassID ) .then(({ data }) => (this.AgentComm = data)  );
       this.RetrieveTimeInterval = setInterval(() => {
-           
-       
 
                 this.form.TINNumber          =this.ResultQueryRequest.TINNumber;
                 this.form.RequestNo          =this.ResultQueryRequest.RequestNo;
@@ -847,7 +847,7 @@ export default {
                  this.form.AcctNo            = this.ResultQueryRequest.CustAcctNO;
                 this.form.AcctName           = this.ResultQueryRequest.CName ;
                 this.form.AssignCRD          = this.ResultQueryRequest.AssignCRD;
-               // this.form.NoAOG              = this.ResultQueryRequest.WithAOG;
+                 this.form.NoAOG             = this.ResultQueryRequest.WithAOG;
                 this.form.Denomination       =this.ResultQueryRequest.Denomination;
                 this.$forceUpdate();   
           
@@ -869,13 +869,15 @@ export default {
                                             DisplayText = " " ;
                                             this.isShowing =true;
                                         }
+                                       
+                                         
 
-                                         if ( ListCoveragesURL.PerilsCode === "AOG"){
+                                         if ( ListCoveragesURL.PerilsCode == "AOG"){
                                              CompCoveragesAmountNoAOG  = parseFloat(ListCoveragesURL.CoveragesPremium );
-                                              this.form.NoAOG              = "YES";
+                                             /// this.form.NoAOG              = "YES"; 
                                          }else{
                                               CompCoveragesAmountNoAOG  = CompCoveragesAmount ;
-                                              this.form.NoAOG              = "NO";
+                                             // this.form.NoAOG              = "NO";
                                          }
                               
                               

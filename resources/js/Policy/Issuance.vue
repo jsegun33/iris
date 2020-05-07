@@ -1417,7 +1417,7 @@ export default {
                     this.form.PremiumAmount             = this.ResultQueryRequest.PremiumAmount;
                     this.form.PassengerNo               =this.ResultQueryRequest.Passengers;
                     this.form.Renewal                   = this.ResultQueryRequest.Renewal;
-                  //   this.form.InsuranceAmount          =   parseFloat(detail.TotalCoverages).toFixed(2) ;    
+                     this.form.InsuranceAmount          =   this.ResultQueryRequest.TotalCoverages ;    
 
                     let GetDenoSplit                    = this.ResultQueryRequest.Denomination.split('-');
                     let DenoSplit                       = GetDenoSplit[1].trim();

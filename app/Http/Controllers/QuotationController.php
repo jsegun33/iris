@@ -3296,8 +3296,7 @@ public function  ListCoveragesForApproval($id, request $request)
               $RequestCoveragess->Status                 = 4 ; //user accepted
               $RequestCoveragess->ClientRemarks          = $AcceptData[2];
               $RequestCoveragess->ClientRemarksDate      = $CurrentDate ;
-           
-             $RequestCoveragess->save(); 
+              $RequestCoveragess->save(); 
          
     }
 
@@ -3326,7 +3325,7 @@ public function  ListCoveragesForApproval($id, request $request)
     if ( !empty($RequestCoveragesAOG->PerilsCode) &&  !empty($RequestCoveragesODTF->PerilsCode)){  ///with AOG and OD/TF   --ok
          
            if (trim($request['OptionWithAOG']) === "NO") {   //no AOG
-            $TotalCoverages        = $RequestCoveragesODTF->CAmountODTF  ; 
+            $TotalCoverages        = $RequestCoveragesODTF->NoAOGCoveragesTotal  ; 
 
           }else{      //yes AOG
             $TotalCoverages        = $RequestCoveragesODTF->TotalCoverages   ;
@@ -3449,12 +3448,12 @@ public function  ListCoveragesForApproval($id, request $request)
          $CoveragesForComm     = RequestCoverages::where('OptionNo',round($AcceptData[0]))->where('RequestNo',$AcceptData[1])->where('PerilsCode','!=','TF')->get();
           
         // $CoveragesForComm     = RequestCoverages::where('OptionNo',round(1) )->where('RequestNo','2020-0001')->where('PerilsCode','!=','TF')->get();
-         
+       // return response()->json(['success' =>    $CoveragesForComm ], 200);  
         
            
             foreach($CoveragesForComm as $CoveragesForComms){ 
                 $AgentComs        = AgentCom::where('AccountNo',$RequestDetails1->CustAcctNO)->where('PerilsCode',$CoveragesForComms->PerilsCode)->where('Class',$CoveragesForComms->DenominationType)->first();
-                //return response()->json(['success' =>    $AgentComs ], 200);  
+               // return response()->json(['success' =>    $AgentComs ], 200);  
                       $AgentComReport = new AgentComReport;
                       $AgentComReport->AccountNo            = $RequestDetails1->CustAcctNO;
                       $AgentComReport->ClassName            = $AgentComs->ClassName ;
@@ -4699,6 +4698,7 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('ProductLine'
                           'ClientRemarksDate'     => $GetAllRequestCoveragess->ClientRemarksDate,
                           'ClientReemarks'        => $GetAllRequestCoveragess->ClientRemarks,  
                           'RequestModify'         => $GetAllRequestCoveragess->RequestModify,  
+                          'WithAOG'               => $GetAllRequestCoveragess->WithAOG,  
                           
                         ];
                       
@@ -4745,6 +4745,7 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('ProductLine'
                       'TotalChargesAOG'	                => $GetAllRequestChargess->TotalChargesAOG,
                       'StatusCovetages'                => $GetAllRequestCoveragess->Status,
                       'Deductible'                      => $GetAllRequestCoveragess->Deductible,
+                      
 
                       'CoverageRates'	        		      => $GetAllRequestCoveragess->CoverageRates,
                       'ListCoverages' 		              => $Coverages,
@@ -5645,7 +5646,7 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                       $Section                        =  "IV" ;
                       $CoverageAmountSave             = $DefaultPremiumAmount->CoverageAmount;
                       $CoveragesName                  = $DefaultPremiumAmount->PerilsNo;
-                      $DenominationType               =  $FindSurcharge->SubLinesNo;
+                      $DenominationType               =  $DefaultPremiumAmount->SubLinesNo;
           }else{    ///CTPL ---OD/TF---AOG
                     $DefaultPremiumAmount     = DefaultData::select('*')->where('LinesNo',trim($Denomination[0]))->where('PerilsClass',$PerilsName)->where('Converter',"PremiumComp")->where('Active',"1")->first();
                     
@@ -5712,6 +5713,10 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                   $RequestCoverages->save();
     
           }   ///close for Loop Coverages
+          
+           $GetRequestDetails   = RequestDetails::where('RequestNo',$PassData)->first();  ///update WithAOG used in the Condition w/ AOG
+           $GetRequestDetails->WithAOG     = 'YES' ;   //default YES when ADD new Option because it's include always the AOG
+           $GetRequestDetails->save(); 
 
           $RequestCoverages   = RequestCoverages::where('RequestNo',trim($PassData))->where('OptionNo',$Option)->get();
           $TotalPremium = 0;  $TotalCoverages = 0; 
@@ -7573,6 +7578,12 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
 
                           
 
+    }
+
+    public function dragonpay_return()
+    {
+        return view('ReturnBackURL');
+       
     }
 	
    

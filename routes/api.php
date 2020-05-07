@@ -361,6 +361,9 @@ Route::get('URLQueryRequestNew/{id}', 'QuotationController@URLQueryRequestNew');
 
 
 
+Route::get('dragonpay_return', 'QuotationController@dragonpay_return');
+
+
 
 
 
