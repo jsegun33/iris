@@ -183,7 +183,7 @@
 export default {
     mounted: function(){ 
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-         //this.loadLogs();
+          this.loadCommission();
     },
 
 
@@ -195,6 +195,8 @@ export default {
              logsNotPaid: {},
              UserValPassword: {},
                isDisabled:true,
+               RetrieveTimeInterval:null,
+               RetrieveTimeInterval1:null,
 
               form: new Form({
                  StartDate:'',
@@ -221,7 +223,13 @@ export default {
 
 
         PasswordInput(){
-            alert();
+            alert(this.logsNotPaid.length);
+            for (let k = 0; k < this.logsNotPaid.length; k++) {
+               this.form.PassRequestNo.push(this.logsNotPaid[k].RequestNo);
+               this.form.PassRequestNoCashOut.push(this.logsNotPaid[k].CashOutAmount);
+             
+            }
+
 
 
         },
@@ -299,48 +307,52 @@ export default {
 
 
         },
-      
-
-
-
          loadCommission() {
-            let PassData;
-            if (this.form.StartDate == '' || this.form.EndDate == ''){
-            let date = new Date();
-            let day = date.getDate();
-            let month = date.getMonth() + 1;
-            let monthMinus = date.getMonth();
-            let year = date.getFullYear();
-            let EndDate = `${year}-${month < 10 ? '0' + month : '' + month}-${day < 10 ? '0' + day : '' + day}`;
-            let StartDate = `${year}-${monthMinus < 10 ? '0' + monthMinus : '' + monthMinus}-${day < 10 ? '0' + day : '' + day}`;
-                PassData =  this.UserDetails.AccountNo  + ";;" + StartDate  + ";;" +  EndDate; 
-            }else{
-                 PassData =  this.UserDetails.AccountNo  + ";;" + this.form.StartDate + ";;" + this.form.EndDate ;
-             
-            }
-           // alert(PassData);
-            axios.get('api/ListCashOutAgent/' + PassData ).then(({data}) => {
-                this.logs = data
-                       //  this.form.RequestNo = this.logs.RequestNo;
-            }).catch(() => {
-                  Swal.fire(
-                        " No Record !",
-                         " FOUND ",
-                        "warning"
-                     );
+               this.RetrieveTimeInterval =  setInterval(() => {
+                        let PassData;
+                        if (this.form.StartDate == '' || this.form.EndDate == ''){
+                        let date = new Date();
+                        let day = date.getDate();
+                        let month = date.getMonth() + 1;
+                        let monthMinus = date.getMonth();
+                        let year = date.getFullYear();
+                        let EndDate = `${year}-${month < 10 ? '0' + month : '' + month}-${day < 10 ? '0' + day : '' + day}`;
+                        let StartDate = `${year}-${monthMinus < 10 ? '0' + monthMinus : '' + monthMinus}-${day < 10 ? '0' + day : '' + day}`;
+                            PassData =  this.UserDetails.AccountNo  + ";;" + StartDate  + ";;" +  EndDate; 
+                        }else{
+                            PassData =  this.UserDetails.AccountNo  + ";;" + this.form.StartDate + ";;" + this.form.EndDate ;
+                        
+                        }
+                    // alert(PassData);
+                        axios.get('api/ListCashOutAgent/' + PassData ).then(({data}) => {
+                            this.logs = data
+                                //  this.form.RequestNo = this.logs.RequestNo;
+                        }).catch(() => {
+                            Swal.fire(
+                                    " No Record !",
+                                    " FOUND ",
+                                    "warning"
+                                );
 
-            })
+                        })
 
-             axios.get('api/ListCashOutAgentPaid/' + PassData ).then(({data}) => {
-                this.logsNotPaid = data
-                       //  this.form.RequestNo = this.logs.RequestNo;
-            }).catch(() => {
+                        axios.get('api/ListCashOutAgentPaid/' + PassData ).then(({data}) => {
+                            this.logsNotPaid = data
+                                //  this.form.RequestNo = this.logs.RequestNo;
+                        }).catch((response) => {
+                           // alert(PassData);
 
-            })
-           // alert(this.logs.length);
-            console.log();
+                        })
+                    // alert(this.logs.length);
+                        console.log();
+                   
+         } , 1000)
+           this.RetrieveTimeInterval2 = setInterval(() => {
+                clearInterval(this.RetrieveTimeInterval);  
+                  
+            },3000) 
+
         }
-
     },  
 
     created() {
@@ -352,16 +364,16 @@ export default {
         //     .then(({ data }) => (this.details = data));
 
 
-        this.RetrieveTimeInterval =  setInterval(() => {
-            this.loadCommission();
-            console.log(this.loadCommission());
-        }
-        , 1000)
+        //this.RetrieveTimeInterval =  setInterval(() => {
+           // this.loadCommission();
+            //console.log(this.loadCommission());
+        //}
+        //, 1000)
 
-      this.RetrieveTimeInterval2 = setInterval(() => {
-                clearInterval(this.RetrieveTimeInterval);  
+    //   this.RetrieveTimeInterval2 = setInterval(() => {
+    //             clearInterval(this.RetrieveTimeInterval);  
                   
-            },3000) 
+    //         },3000) 
     },
 
     computed: {

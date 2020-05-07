@@ -94,10 +94,12 @@ export default {
             //this.getResults();
             // axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
              axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
-             this.loadRequestQuotation() ;
+            this.loadRequestQuotation() ;
         },
          data() {
             return {
+                RetrieveTimeInterval:null,
+                RetrieveTimeInterval2:null,
               
                 url: '/proposal?2019-0001',
                 editmode: false,
@@ -123,7 +125,7 @@ export default {
                  }, 1000)
 
                   this.RetrieveTimeInterval2 = setInterval(() => {
-                           // clearInterval(this.RetrieveTimeInterval);  
+                            clearInterval(this.RetrieveTimeInterval);  
                     },2000) 
             },
             ViewRequest() {
@@ -137,14 +139,12 @@ export default {
 
             
           
-           created() {
-            this.loadRequestQuotation();
-            Fire.$on('AfterCreate',() => {
-                this.loadRequestQuotation();
-            });
-
-
-        }
+        //    created() {
+        //     this.loadRequestQuotation();
+        //     Fire.$on('AfterCreate',() => {
+        //         this.loadRequestQuotation();
+        //     });
+      //  }
     
 }
 </script>

@@ -160,9 +160,13 @@
                                         >Manila City</option
                                     >
                                 </select> -->
+                                
                             </div>
+                            
                         </div>
+                       
                     </div>
+                     <button type="button" class="btn btn-primary no-print" @click="UpdatePersonalDetails()"  >Update Personal Details </button>
                 </div>
 
                 <!-- Coverage -->
@@ -170,10 +174,28 @@
                     <h3 class="box-title">
                         <strong>Motor Car Details</strong>
                     </h3>
-                </div>
+                
                 <div class="box-body">
                     <div class="row" style="margin-bottom: 10px;">
-                        <div class="col-md-3">
+                             <div class="col-sm-3" > 
+                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Denomination: </label>
+                                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select DENOMINATION on the list otherwise SPECIFY ">
+                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
+                                            </a>
+
+                                 <input type="text" v-model="form.DenominationDis" @change="ChangeDenomination()" autocomplete="off" @focus="filterDen = true"  class="form-control" placeholder="Enter / Select Denomination" required>
+                                <div v-if="DataDenominations && filterDen" class="custom">
+                                    <ul>
+                                    <li v-for="value in DataDenominations" :key="value._id" @click="setValueDenomination(value)">{{value.SubLinesName}}</li>
+                                    </ul>
+                                </div>
+                                <small class="label label-danger">Selected : {{ form.Denomination }} </small>
+
+
+                             </div>
+
+
+                        <!-- <div class="col-md-3">
                             <div class="form-goup">
                                 <label for="rate">Denomination:</label>
                                 <input
@@ -186,9 +208,9 @@
                                     readonly
                                 />
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-goup">
                                 <label for="surcharge">USAGE:</label>
                                 <select   v-model="form.OptSurcharge"
@@ -210,17 +232,17 @@
                             <!-- <label for="surcharge">Selected:</label>
                              <small> {{ form.OptSurcharge }}</small> -->
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-goup">
                                 <label for="surcharge">PO AMNT:</label>
                                 <input
-                                    type="text"
-                                    v-model="form.MotorPOAmount"
+                                    type="number"
+                                    v-model.number="form.MotorPOAmount" @change="ChangeAmountPO()"
                                     class="form-control"
                                 />
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <!-- <div class="col-md-2">
                             <div class="form-goup">
                                 <label for="surcharge"
                                     >Depreciative AMNT:</label
@@ -232,11 +254,11 @@
                                     readonly
                                 />
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-goup">
-                                <label for="surcharge">COVERAGE:</label>
+                                <label for="surcharge">COVERAGE / Depreciative Amount:</label>
                                 <input
                                     type="text"
                                     v-model="form.CoverageAmount"
@@ -248,7 +270,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-2">
+                        <!-- <div class="col-md-2">
                             <div class="form-goup">
                                 <label for="type">TYPE:</label>
                                 <input
@@ -261,40 +283,26 @@
                                     disabled
                                 />
                             </div>
-                        </div>
-                        <div class="col-md-10">
-                            <div class="col-md-3">
-                                <div class="form-goup">
-                                    <label for="year">Year:</label>
-                                     <!-- <input
-                                        v-model="form.MotorYear"
-                                        type="text"
-                                        class="form-control"
-                                        name="MotorYear"
-                                        id="MotorYear"
-                                        placeholder="Enter Motor Year"
-                                     
-                                    />
-                                     -->
+                        </div> -->
+                        <div class="col-md-12">
+                           
+                                 <div class="col-sm-3">
+                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Year</label>
+                                        <a data-toggle="tooltip" data-placement="right" title="Pls. Select YEAR Purchased  on the list otherwise SPECIFY ">
+                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
+                                         </a>
+                              
 
-                                    <select
-                                    class="form-control"
-                                    name="MotorYear"
-                                    id="MotorYear"
-                                    v-model="form.MotorYear"
-                                  >
-                                   <option selected disabled>
-                                        {{ form.MotorYear }}
-                                    </option>
-                                    <option value="2018">2018 </option>
-                                    <option value="2019"  >2019</option
-                                    >
-                                </select>
-
-
-                                   
+                                  <input type="number" v-model="form.YearPO" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filterYear = true"  class="form-control" placeholder="Enter / Select Year Purchased" required>
+                                <div v-if="yearD && filterYear" class="custom">
+                                    <ul>
+                                    <li  v-for="yearDs in yearD" :value="yearDs" :key="yearDs" @click="setValueYear(yearDs)">{{ yearDs }} </li>
+                                    </ul>
                                 </div>
+                                <small class="label label-danger">Selected : {{ form.MotorYear }} </small>
                             </div>
+                                  
+
                             <div class="col-md-3">
                                 <div class="form-goup">
                                     <label for="brand">Brand:</label>
@@ -349,10 +357,16 @@
                                    
 
                                 </div>
+                                
                             </div>
+                            
                         </div>
+                         
                     </div>
-                </div>
+                    
+                </div> <br/>
+                     <button type="button" class="btn btn-primary no-print" @click="UpdateMotorDetails()" >Update Motor Details </button> 
+                </div>     
                 <!------------New Design------------------------>
               <div class="box box-success "   v-for="ProposalFormEdits  in ProposalFormEdit"   :key="ProposalFormEdits._id"> 
                  <div class="box-header with-border box box-success">
@@ -485,7 +499,7 @@
                             form.QuoteExpiryStatus == 2
                     "
                 >
-                    Update
+                    UPDATE OPTION
                 </button>
               
                 <button
@@ -493,7 +507,7 @@
                     class="btn btn-primary pull-right"
                     style="margin-right: 5px;"
                 >
-                    ADD
+                    ADD NEW OPTION
                 </button>
             </div>
         </div>
@@ -620,6 +634,11 @@ export default {
             UserDetails:{},
             GetPerils:{},
 
+
+            filterDen: false,
+            filterYear: false,
+            DataDenominations: {},
+
             ///OLD--------
             
             
@@ -644,6 +663,7 @@ export default {
             CheckNameTrue: true,
             CheckNamefalse: false,
             LoopTR: [],
+            GreatherValue:1000,
 
             form: new Form({
                 TINNumber: "",
@@ -770,6 +790,14 @@ export default {
 
                 CoveragesAmountChk:[],
                 TxtCoveragesPremium: [],
+
+                ///--for Update
+                DenominationDis: "",
+                DenominationPass: "",
+                DepreciativeAmountPass: "",
+                POAMount: "",
+                DepreciativeNumberYear: "",
+                YearPO: "",
   
                 
             })
@@ -778,6 +806,72 @@ export default {
     
 
     methods: {
+
+            async LoadDenomination() {
+             await axios.get("api/GetDenomination").then(({ data }) => (this.DataDenominations = data));
+           
+        },
+
+
+        ChangeDenomination(){
+
+            this.form.DenominationPass    = '2019-PC-0001;;' + this.form.DenominationDis    ///default value
+            this.filter = false;
+             this.filterDen =false;
+            // this.filterYear =false;
+            // this.filterCarBrands =false;
+            // this.filterCarModels =false;
+            // this.filterCarBodyType =false;
+            // this.filterPropertyCity =false;
+            //  this.filterPropertyBrgy = false;
+        },
+
+          setValueDenomination(value) {
+            this.form.DenominationPass         = value.Class + ';;' + value.SubLinesName
+            this.form.DenominationDis          = value.SubLinesName
+            this.filterDen = false
+    },
+     setValueYear(yearDs) {
+         this.form.YearPO = yearDs;
+           this.filterYear = false;
+           this.ComputeDepreciativeAmount();
+    },
+
+    ChangeAmountPO() {
+           this.form.YearPO = this.form.MotorYear;
+           this.filterYear = false;
+           this.ComputeDepreciativeAmount();
+    },
+
+
+  ComputeDepreciativeAmount(){
+          let POAmount = this.form.MotorPOAmount
+         const CurrentYear = new Date().getFullYear(); let NumberYear ;
+          if( !(this.form.YearPO )){   ///if YearPO is Empty
+               NumberYear  = 1 ; //default amount for current
+          }else{
+                NumberYear  = parseFloat(CurrentYear - this.form.YearPO );
+               
+          }  
+         
+         let  DepreciativeAmount = 0;
+         if( !(POAmount)){ ///if POamount is Empty
+                POAmount = 100000;  //default amount
+               DepreciativeAmount =  parseFloat( POAmount  - (POAmount * ( NumberYear * 0.10 )) );
+         
+         }else{
+                DepreciativeAmount =  parseFloat( POAmount  - (POAmount * ( NumberYear * 0.10 )) );
+                
+         }
+       //  alert(DepreciativeAmount);
+         this.form.CoverageAmount                   =  parseFloat(DepreciativeAmount,2);
+         this.form.DepreciativeAmountPass           =  parseFloat(DepreciativeAmount,2);
+         this.form.DepreciativeNumberYear           =  parseFloat(NumberYear,2);
+
+    },
+
+
+
   async UsageChange(e){
         let Usage                       =  e.target.value.trim();
         let UsageAmount                 =   this.GetDefaultSurcharge[0].Amount ;
@@ -894,6 +988,7 @@ export default {
           }
    },         
 async ChangeRateAmount(ProposalFormEdits){
+                    this.isShowing = true; 
                      let RatePercentage             = this.form.PassCoverageRate[ProposalFormEdits.OptionNo];
                      let ArrayIndex                 =  parseFloat(ProposalFormEdits.OptionNo) - 1;
                      this.ListCoveragesOption       =  this.ProposalFormEdit[ArrayIndex].ListCoverages ;
@@ -1015,7 +1110,7 @@ LoadResultData(){
                  let ArrayIndex                 =  parseFloat(CoverageEdit.OptionNo) - 1;
                  this.ListChargesOption         =  this.ProposalFormEdit[ArrayIndex].ListCharges ;
                  let UsageAmount                =   this.GetDefaultSurcharge[0].Amount ;
-
+  
 		if (this.form.TxtSelectAmount[CoverageEdit._id] != false) { //if the textbox is uncheck
                  let passQuery     = this.form.Denomination.trim() +   ";;" +   CoverageEdit.CoveragesAmount.trim() +     ";;" +   CoverageEdit.PerilsNo.trim();
                  let passQuery2    = this.form.Denomination.trim() +   ";;" +    CoverageEdit.PerilsNo.trim();
@@ -1034,10 +1129,11 @@ LoadResultData(){
                     const response = await axios.get('api/GetPerilsDefaultData/'+passQuery2.trim()).then(  ({ data }) => (this.GetPerilsDefaultData = data)  );
                     console.log(response);
                              let PAFormula  = this.GetPerilsDefaultData[0].Amount;
-                            if (this.form.UsageCar.trim() === "Commercial Use"){
-                                    CoverageEdit.CoveragesPremium                       = (parseFloat(CoverageEdit.CoveragesAmount) *  parseFloat(PAFormula) )  * parseFloat(UsageAmount);      
+                            if (this.form.OptSurcharge.trim() === "Commercial Use"){
+                                    CoverageEdit.CoveragesPremium                       = parseFloat(CoverageEdit.CoveragesAmount * PAFormula * UsageAmount);      
                                     this.form.PassCoveragePremium[CoverageEdit._id]		=  CoverageEdit.CoveragesPremium ;
                                     this.form.PassCoverageAmount[CoverageEdit._id]  	=  parseFloat(CoverageEdit.CoveragesAmount);
+                                    
                             }else{
                                     CoverageEdit.CoveragesPremium                       = parseFloat(CoverageEdit.CoveragesAmount) *  parseFloat(PAFormula);      
                                     this.form.PassCoveragePremium[CoverageEdit._id]		=  CoverageEdit.CoveragesPremium ;
@@ -1083,7 +1179,7 @@ LoadResultData(){
                     const response = await axios.get('api/GetPerilsCoverageUsingTxtBox/'+passQuery.trim()).then(  ({ data }) => (this.GetPerilsTaripaByAmount = data)  );
                     console.log(response);
 						  
-						 if (this.form.UsageCar.trim() === "Commercial Use"){
+						 if (this.form.OptSurcharge.trim() === "Commercial Use"){
                                  CoverageEdit.CoveragesPremium                          =  parseFloat( this.GetPerilsTaripaByAmount[0].PremiumAmount) *  parseFloat(UsageAmount) ;
 						         this.form.PassCoverageAmount[CoverageEdit._id]  		=  this.GetPerilsTaripaByAmount[0].CoverageAmount; 
 						         this.form.PassCoveragePremium[CoverageEdit._id]	    =  CoverageEdit.CoveragesPremium ;
@@ -1092,7 +1188,7 @@ LoadResultData(){
                                 CoverageEdit.CoveragesPremium   =  this.GetPerilsTaripaByAmount[0].PremiumAmount;
 						        this.form.PassCoverageAmount[CoverageEdit._id]  		=  this.GetPerilsTaripaByAmount[0].CoverageAmount; 
 						        this.form.PassCoveragePremium[CoverageEdit._id]	    =  CoverageEdit.CoveragesPremium ;
-
+                                //();
                          }
                         
                 } catch (error) {
@@ -1100,7 +1196,7 @@ LoadResultData(){
                     console.error(error);
                      Swal.fire(
                                 "Failed",
-                                "No Taripa  Record Found ",
+                                "No Taripa  Record Found Max = 1M",
                                 "warning"
                             );
                 }
@@ -1181,7 +1277,7 @@ LoadResultData(){
                              console.log(response);
                             let PAFormula  =  this.GetPerilsDefaultData[0].Amount;
                             
-                            if (this.form.UsageCar.trim() === "Commercial Use"){
+                            if (this.form.OptSurcharge.trim() === "Commercial Use"){
                                         CoverageEdit.CoveragesPremium                       = (parseFloat(CoverageEdit.CoveragesAmount) *  parseFloat(PAFormula) )* parseFloat(UsageAmount);       
 						                this.form.PassCoveragePremium[CoverageEdit._id]		=  CoverageEdit.CoveragesPremium ;
 						                this.form.PassCoverageAmount[CoverageEdit._id]  	=  parseFloat(CoverageEdit.CoveragesAmount);
@@ -1228,7 +1324,7 @@ LoadResultData(){
                                 let passQuery   = this.form.Denomination.trim() +   ";;" +   TxtAmountInput +     ";;" +   CoverageEdit.PerilsNo.trim();
                                     const response = await axios.get('api/GetPerilsCoverageUsingTxtBox/'+passQuery.trim()).then(  ({ data }) => (this.GetPerilsTaripaByAmount = data)  );
                                     console.log(response);
-                                      if (this.form.UsageCar.trim() === "Commercial Use"){
+                                      if (this.form.OptSurcharge.trim() === "Commercial Use"){
                                             CoverageEdit.CoveragesPremium                           =  parseFloat(this.GetPerilsTaripaByAmount[0].PremiumAmount ) *  parseFloat(UsageAmount);
                                             this.form.PassCoverageAmount[CoverageEdit._id]  		=  this.GetPerilsTaripaByAmount[0].CoverageAmount; 
                                             this.form.PassCoveragePremium[CoverageEdit._id]		    =  CoverageEdit.CoveragesPremium ;
@@ -1247,7 +1343,7 @@ LoadResultData(){
                                     console.error(error);
                                     Swal.fire(
                                                 "Failed",
-                                                "No Taripa  Record Found ",
+                                                "No Taripa  Record Found Max = 1M",
                                                 "warning"
                                             );
                                 }
@@ -1299,14 +1395,129 @@ LoadResultData(){
            
         },
 
+         async  UpdateMotorDetails(){
+       
+      if ( !this.form.MotorPOAmount || this.form.MotorPOAmount ===" ") {
+         Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Pls. Motor PO Amount.',
+          
+          })
+            
+          
+      }else if (!this.form.MotorBrand || this.form.MotorBrand ===" ") {
+         Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Pls. Select Motor Brand.',
+          
+          })
+      }else if (!this.form.MotorModel || this.form.MotorModel ===" ") {
+         Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Pls. Motor Model.',
+          
+          })
+      }else if (!this.form.MotorType || this.form.MotorType ===" ") {
+         Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Pls. Motor Type.',
+          
+          })
+      }else{
+            
+             const { value: text } = await Swal.fire({
+                title: "CONFIRMED?",
+                text: "Update Motor Details",
+                icon: "success",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes!"
+            }).then(result => {
+                  //  let GetRequestNo =  this.form.RequestNoPass  + ';;'  + this.form.Denomination + ';;'  + this.form.RequestNoOptionNo  ;
+                 if (result.value) {
+
+                          //this.LoadDataForUpdata(); 
+                             this.form.post("api/UpdateMotorDetails/" )
+                            .then(() => {
+                                Swal.fire(
+                                    " Successfull....",
+                                    " Motor Details Updated",
+                                    "success"
+                                );
+                                   this.LoadResultData();
+								   this.AutoLoad() ;
+                                   this.load();
+                                   //this.isShowing = false; 
+                            })
+
+                       
+                             .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was something wrong",
+                                "warning"
+                            );
+                        });
+                }
+           })
+               
+             }        
+        },
+
+        async  UpdatePersonalDetails(){
+            
+             const { value: text } = await Swal.fire({
+                title: "CONFIRMED?",
+                text: "Update Personal Details",
+                icon: "success",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes!"
+            }).then(result => {
+                  //  let GetRequestNo =  this.form.RequestNoPass  + ';;'  + this.form.Denomination + ';;'  + this.form.RequestNoOptionNo  ;
+                 if (result.value) {
+
+                          //this.LoadDataForUpdata(); 
+                             this.form.post("api/UpdatePersonalDetails/" )
+                            .then(() => {
+                                Swal.fire(
+                                    " Successfull....",
+                                    " Personal Details Updated",
+                                    "success"
+                                );
+                                   this.LoadResultData();
+								   this.AutoLoad() ;
+                                   this.load();
+                                   //this.isShowing = false; 
+                            })
+
+                       
+                             .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was something wrong",
+                                "warning"
+                            );
+                        });
+                }
+           })
+               
+                 
+        },
         
 
 
         async  UpdateQuotationOption(){
                     
              const { value: text } = await Swal.fire({
-                title: "Are you sure?",
-                text: "Update Quotation ",
+                title: " CONFIRMED ?",
+                text: " Update Quotation ",
                 icon: "success",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -1350,8 +1561,8 @@ LoadResultData(){
         async SubmitNewCoveragesOption() {
             this.clearPerilsData();        
              const { value: text } = await Swal.fire({
-                title: "Are you sure ?",
-                text: "Add New Quotation Option",
+                title: " CONFIRMED ?",
+                text: " Add New Quotation Option",
                 icon: "success",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -1447,6 +1658,7 @@ LoadDataForUpdata(){
             axios
                 .get("api/URLQueryRequestModify/" + PassID)
                 .then(({ data }) => (this.ResultQueryRequest = data));
+                this.LoadDenomination() ;
            
         },
 
@@ -1541,10 +1753,16 @@ LoadDataForUpdata(){
            let month = date.getMonth() + 1
            let year = date.getFullYear()
            return `${month} / ${day} / ${year}`
-        }
+        },
+        yearD () {
+                const year = new Date().getFullYear()
+                let MinusYear = year - 10;
+                return Array.from({length: year - MinusYear}, (value, index) => year - index)
+       
+         },
     },
 
-   
+
     created() {
         this.load()
         //this.RetrieveTimeInterval     = setInterval(this.fetchEventsList, 1000) ;
@@ -1635,3 +1853,109 @@ LoadDataForUpdata(){
     width: 125px;
 }
 </style>
+
+
+<style scoped>
+.custom {
+  overflow: auto;
+  max-height: 200px;
+  position: absolute;
+  z-index: 10;
+  background: #fff;
+  width: 95%;
+  color: black;
+  margin-right: 1rem;
+}
+
+ul {
+  list-style: none;
+  padding: 1rem;
+  cursor: pointer;
+}
+
+li:hover {
+    color: red;
+    background-color: #a5b1c2;
+}
+
+/* Button used to open the chat form - fixed at the bottom of the page */
+.open-button {
+  background-color: green;
+  color: white;
+  padding: 10px 10px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 50px;
+  right: 28px;
+  width: 280px;
+  border-radius: 25px;
+}
+
+/* The popup chat - hidden by default */
+.chat-popup {
+  display: none;
+  position: fixed;
+  bottom: 50px;
+  right: 15px;
+  border: 1px solid #f1f1f1;
+  z-index: 9;
+  border-radius: 10px;
+}
+
+/* Add styles to the form container */
+.form-container {
+  width: 550px;
+  max-width: 500px;
+  padding: 10px;
+  background-color: white;
+  display: inline-block;
+}
+
+/* Full-width textarea */
+/* .form-container textarea {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+  resize: none;
+  min-height: 200px;
+} */
+
+/* When the textarea gets focus, do something */
+/* .form-container textarea:focus {
+  background-color: #ddd;
+  outline: none;
+} */
+
+/* Set a style for the submit/send button */
+.form-container .btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 10px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom:10px;
+  opacity: 0.8;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background-color: red;
+  border-radius: 25px;
+}
+
+/* Add some hover effects to buttons */
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}
+
+#quoteslogo {
+    width: 125px;
+}
+</style>
+
+

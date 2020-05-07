@@ -246,7 +246,7 @@ export default {
         this.RetrieveTimeInterval = setInterval(() => {
      //   alert(this.ResultQueryRequest.AccountNo);
                      this.form.RequestNo1         = this.ResultQueryRequest.RequestNo;
-                    this.form.RequestNo          =this.ResultQueryRequest.RequestNo + this.ResultQueryRequest.AcceptedOption;
+                    this.form.RequestNo          =this.ResultQueryRequest.RequestNo + "-" + this.ResultQueryRequest.AcceptedOption;
                    this.form.PaymentMode       =this.ResultQueryRequest.PaymentGateway;
                     this.form.PaymntDescription   = "Payment for Denomination " + this.ResultQueryRequest.SubLinesName + " under the name " +  this.ResultQueryRequest.CName  + " with Plate No. " + this.ResultQueryRequest.PlateNumber;
                     this.form.AmountDue             =this.ResultQueryRequest.AmountDue;

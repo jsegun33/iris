@@ -153,20 +153,14 @@ class RegistrationController extends Controller
 		  
       }
 if ( !empty($request['AgentType'] ) ){
-
-
       ///-------Commission----------------------
       $TotalLines        = $request['ClassName'];
-      //for($iL=0;$iL <  count($TotalLines) ;$iL++)
-      //{
-
+     
              $totalAmountComm        = $request['PassDataClassName'];
              for($kL=0 ;$kL < count($totalAmountComm)  ;$kL++)
             { 
 
                      $ClassName                  = explode(";;",$request['PassDataClassName'][$kL]);
-                  //  $AmountComm                 = explode(";;",$request['PassDataAmountPerils'][$iL]);
-                   // $AmountCommInput
                         AgentCom::create([
                         'AccountNo'        =>  $AccountNo,
                         'ClassName'        =>  $ClassName[0], //$request['select_authority'][$i][$k],
@@ -181,9 +175,7 @@ if ( !empty($request['AgentType'] ) ){
                         
                     ]);
 
-           //  }
-
-      }
+             }
 
 
     } //condition close if AGENT    
@@ -531,6 +523,74 @@ public function AddNewPrivileges(Request $request)
         
     }
 }
+
+
+public function AddNewCommission(Request $request)
+{ 
+            $TotalLines        = $request['ClassName'];
+             $totalAmountComm        = $request['PassDataClassName'];
+             for($kL=0 ;$kL < count($totalAmountComm)  ;$kL++)
+            { 
+
+                     $ClassName                  = explode(";;",$request['PassDataClassName'][$kL]);
+                        AgentCom::create([
+                        'AccountNo'        =>   $request['AccountNo'] ,
+                        'ClassName'        =>  $ClassName[0], //$request['select_authority'][$i][$k],
+                        'Class'            =>  $ClassName[1], //$request['select_authority'][$i][$k], 
+                        'active'           => '1',
+                        'status'           => '1',
+                        'PerilsName'       =>  $request['PassDataPerilsName'][$kL],  
+                        'PerilsNo'         =>  $request['PassDataPerilsNo'][$kL], 
+			            'PerilsCode'	   =>  $request['PassDataPerilsCode'][$kL],  
+                        'AmountCom'        =>  round($request['PassDataAmountPerils'][$kL]),  
+                       				
+                        
+                    ]);
+
+             }
+
+}
+
+
+public function RemoveUserCommission(Request $request)
+    { 
+        date_default_timezone_set('Asia/Hong_Kong');
+        $CurrentDate    = date('Y-m-d H:i:s');
+
+        $GetAgentCom =  AgentCom::select('*') ->where('_id',$request['UserCommissionID'])->first();
+        $GetAgentCom->status                        = $request['RemarksCom'] ;
+        $GetAgentCom->RemarksRemove                 = $request['RemarksCom'] ;
+        $GetAgentCom->RemarksRemoveDate             = $CurrentDate ;
+        $GetAgentCom->save(); 
+    }
+
+    public function RestoreUserCommission(Request $request)
+    { 
+        date_default_timezone_set('Asia/Hong_Kong');
+        $CurrentDate    = date('Y-m-d H:i:s');
+
+        $GetAgentCom =  AgentCom::select('*') ->where('_id',$request['UserCommissionID'])->first();
+        $GetAgentCom->status                        = '1';
+        $GetAgentCom->RemarksRemove                 = $request['RemarksCom'] ;
+        $GetAgentCom->RemarksRemoveDate             = $CurrentDate ;
+        $GetAgentCom->save(); 
+    }
+
+
+    public function EditUserCommission(Request $request)
+    { 
+        date_default_timezone_set('Asia/Hong_Kong');
+        $CurrentDate    = date('Y-m-d H:i:s');
+        if (!empty($request['NewAmountCom'] )  || round($request['NewAmountCom']) > 0) {
+            $GetAgentCom =  AgentCom::select('*') ->where('_id',$request['UserCommissionID'])->first();
+            $GetAgentCom->AmountCom                 = round($request['NewAmountCom'],2) ;
+            $GetAgentCom->save(); 
+
+        }
+            
+    }
+
+
 
 
 

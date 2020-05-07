@@ -456,17 +456,8 @@ export default {
                 }
         },
         PushDataIntoArray(){
-           
-            //  this.form.AmountaCommInput.push(this.form.AmountCommInputArray) ;
-
-                //let PerilsNameDisp          =  this.form.GetPerilsbyClick;
-                //let SplitPerilsName          = PerilsNameDisp[0].split(";;");
-                //this.form.DisplayPerils.push(SplitPerilsName[0]  + " :" + this.form.AmountCommInputArray); 
             let perilscode =  this.GetPerilsComm.length;
             let IndexLength = this.LoopTR1.length;
-          // alert(IndexLength);
-
-
            for (let index = 0; index < IndexLength; index++){
                    for (let k = 0; k < perilscode; k++) { 
                           this.form.AssignLoopVal.push(this.GetPerilsComm[k]._id + index) ;

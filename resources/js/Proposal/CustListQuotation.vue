@@ -57,18 +57,23 @@
                                         <br/> <span class="label label-primary"  v-if="RequestQuotationss.CustMessage != null ">{{ RequestQuotationss.CustMessage}}</span>
                                 </td>
                                 <td>
-                                    <span class="label label-warning">{{ RequestQuotationss.Status  }}</span>
+                                    <span class="label label-warning">{{ RequestQuotationss.Status  }}</span><br/>
+                                     <span class="label label-danger" v-if="RequestQuotationss.PaymentMode != '0'">{{ RequestQuotationss.PaymentMode  }}</span>
                                     
                                 </td>
                                
                                 <td>
-                                    <router-link :to="'/ProposalOptions?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.AcceptedOption == 0 || RequestQuotationss.RequestModify == 1 "  class="btn btn-success" style="text-decoration: none;">
+                                    <router-link :to="'/ProposalOptions?'+ RequestQuotationss.RequestNo" v-if=" RequestQuotationss.RequestModify > 0  || RequestQuotationss.OktoAccept  == 1"  class="btn btn-success" style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
                                         Accept
                                     </router-link>
-                                    <router-link  :to="'/CustAcceptedView?'+ RequestQuotationss.RequestNo"  v-if="RequestQuotationss.AcceptedOption >= 1 && RequestQuotationss.RequestModify == 0" class="btn btn-info"  style="text-decoration: none;">
+                                    <router-link  :to="'/CustAcceptedView?'+ RequestQuotationss.RequestNo"  v-if="RequestQuotationss.AcceptedOption > 0 || RequestQuotationss.RequestModify > 0" class="btn btn-info"  style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
                                         View
+                                    </router-link>
+                                    <router-link  :to="'/Payment-Mode?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.PaymentMode !== 'Paid' && RequestQuotationss.AcceptedOption > 0"    class="btn btn-danger"  style="text-decoration: none;">
+                                        <i class="fa fa-money"></i> 
+                                       Pay
                                     </router-link>
 
                                      <router-link  :to="'/Customer-Issuance?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.PaymentMode != '0' && RequestQuotationss.PolicyApproverSignature != ' '"    class="btn btn-warning"  style="text-decoration: none;">
@@ -82,7 +87,7 @@
                 </div>
             </div>
         </section>
-    <!----------<pre>{{ $data }}</pre>------->
+    <!-- --------<pre>{{ $data }}</pre>----- -->
      
       
     </div>
@@ -103,18 +108,18 @@ export default {
      mounted() {
             console.log('Component mounted.')
             //this.getResults();
-            axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
-            
-            //this.loadRequestQuotation();
-          
+           axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
+          // this.loadRequestQuotation();
         },
          data() {
             return {
-              
-                url: '/proposal?2019-0001',
                 editmode: false,
                 RequestQuotations: {},
                 UserDetails:{},
+                RetrieveTimeInterval:null,
+                RetrieveTimeInterval2:null,
+                 RetrieveTimeInterva3:null,
+                RetrieveTimeInterval4:null,
                 //counter:1,
          
                     form: new Form({
@@ -127,45 +132,78 @@ export default {
 
 
         methods: {
-           /* getResults(page = 1) {
-                axios.get('api/GetRequestQuotationCustomer?page=' + page).then(response => {
-                    this.RequestQuotations = response.data;
-                });
-            },*/
-          loadRequestQuotation() {
-              this.RetrieveTimeInterval = setInterval(() => {
-                        let PassNO            = this.UserDetails.AccountNo;
-                        let PassEmail         = this.UserDetails.email;	    		
-                        let NewPassID         = PassNO.trim() +  ';;' +  PassNO.trim();  
-                        axios.get("api/GetRequestQuotationCustomer/" + NewPassID).then(({ data }) => (this.RequestQuotations = data));
-                 
-                 
-                 }, 1000)
 
-                   this.RetrieveTimeInterval2 = setInterval(() => {
+         loadRequestQuotation() {
+         this.RetrieveTimeInterval = setInterval(() => {   
+               let PassNO            = this.UserDetails.AccountNo;
+                let PassEmail         = this.UserDetails.email;	    		
+                let NewPassID         = PassNO.trim() ; 
+           //alert(NewPassID);
+            axios.get("api/GetRequestQuotationCustomer/" + NewPassID).then(({ data }) => {
+                    (this.RequestQuotations = data)
+
+                   
+             
+                  }).catch((response) => {
+                       alert(response  + " pls. try to refresh ");
+                        this.RetrieveTimeInterval3 = setInterval(() => {
+                              this.$router.go() ;
+                       },10000) 
+
+                });
+             }, 1000)
+             this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                    },3000) 
-            },
-            ViewRequest() {
-             window.open("request"); 
-               //window.location.hostname + '/request' 
+                      },3000) 
+         } 
+
+            //     let PassNO            = this.UserDetails.AccountNo;
+            //     let PassEmail         = this.UserDetails.email;	    		
+            //     let NewPassID         = PassNO.trim() +  ';;' +  PassNO.trim(); 
+
+            //  axios.get('api/GetRequestQuotationCustomer/'+ NewPassID).then(() => {
+            //       this.RequestQuotations = data
+            //          Swal.fire(
+            //             ' Successful! ',
+            //             `Quotation Accepted.`,
+            //             'success'
+            //         )
                
-            },
+                //   this.$router.push('/CustAcceptedView?' + PassID); 
+                //   let route = this.$router.resolve({path: '/Payment-Mode?' + PassID});
+                //   window.open(route.href, '_blank');
+                  
+                 
+                // }).catch((response) => {
+                //         alert(response);
+
+                // });
+        //  }
+
+
+
+            // this.RetrieveTimeInterval = setInterval(() => {
+            //             let PassNO            = this.UserDetails.AccountNo;
+            //             let PassEmail         = this.UserDetails.email;	    		
+            //             let NewPassID         = PassNO.trim() +  ';;' +  PassNO.trim();  
+            //             axios.get("api/GetRequestQuotationCustomer/" + NewPassID).then(({ data }) => (this.RequestQuotations = data));
+                
+                 
+            //      }, 1000)
+
+            //        this.RetrieveTimeInterval2 = setInterval(() => {
+            //                 clearInterval(this.RetrieveTimeInterval);  
+            //          },5000) 
+            // },
+           
          
           },
-           created() {
-                
-                    //let response = await axios.get('/GetUserData')
-                    //this.UserDetails = response.data;
-
-                 this.loadRequestQuotation();
-                        Fire.$on('AfterCreate',() => {
-                            this.loadRequestQuotation();
-                        });
-               
-                 
-                 
-                },
+            created() {
+            this.loadRequestQuotation();
+            Fire.$on('AfterCreate',() => {
+                this.loadRequestQuotation();
+            });
+        },   
           
          
     

@@ -30,8 +30,8 @@
 
     <!-- Main content -->
 	
-    <!-- <section class="content" v-if="form.AcctNo.trim() ===  UserDetails.AccountNo.trim()"  > -->
-      <section class="content"  >
+    <section class="content" v-if="form.AcctNo.trim() ===  UserDetails.AccountNo.trim()"  >
+      <!-- <section class="content"  > -->
        <!-- <section class="content" > -->
         <div class="row" >
             <div class="col-md-6" v-for="URLQueryPerilsCoveragesGroups in URLQueryPerilsCoveragesGroup" :key="URLQueryPerilsCoveragesGroups._id" >
@@ -172,12 +172,12 @@
                                 </div> 
                             </div>
                       
-                            <div class="row text-center no-print" id="AcceptWhenApproved"  v-if="(form.QuoteExpiryStatus === 1 || form.QuoteExpiryStatus === 3) && URLQueryPerilsCoveragesGroups.StatusCovetages ===3"    >
+                            <!-- <div class="row text-center no-print" id="AcceptWhenApproved"  v-if="(form.QuoteExpiryStatus === 1 || form.QuoteExpiryStatus === 3) && URLQueryPerilsCoveragesGroups.StatusCovetages ===3"    > -->
                             
 
-                            <!-- <div class="row text-center no-print"  id="AcceptWhenApproved"  > 
-                           -->
-                             <!-- <div class="row text-center no-print"    > -->
+                            <!-- <div class="row text-center no-print"  id="AcceptWhenApproved"  >  -->
+                          
+                             <div class="row text-center no-print"    >
                            
                                 <!-- <button class="btn btn-lg btn-success" @click='QueryByOPtion()'  @mouseover="QueryByOPtion1($event)"  :value="URLQueryPerilsCoveragesGroups.OptionNo + ';;' + URLQueryPerilsCoveragesGroups.RequestNo + ';;' + form.RemarksCustomer[URLQueryPerilsCoveragesGroups.OptionNo] + ';;' + URLQueryPerilsCoveragesGroups.TotalAmountDue"    > ACCEPT    </button>
                                 <br> -->
@@ -213,29 +213,34 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Additional Details</h4>
+                <h4 class="modal-title">Additional Details  </h4>
               </div>
               <div class="modal-body">
 			 <div class="row">
 			 <div class="col-md-12">
                      
 					 <div class="col-md-11">
-                          <div class="form-group">
-                              <input v-model="form.OptionWithAOG" v-if='form.NoAOG === "NO" || form.NoAOG === "YES"' @click="ShowDiscount($event)" type="radio" id="ds" value="YES">
-                              <label for="">With Acts of Nature	</label><br/>
+                          <div class="form-group" v-if='form.NoAOG === "YES"'>
+                              <input v-model="form.OptionWithAOG" @click="ShowDiscount($event)" type="radio" id="ds" value="YES">
+                              <label for="" >With Acts of Nature	</label>  <br/>
 							                   <small><strong>(if selected,Your Policy Total Amount Due: {{ form.ModalDisplayTotalAmountDue  | Peso}})</strong></small>
-                              <br>
+                             </div>
+                             <div class="form-group" v-if='form.NoAOG === "NO" || form.NoAOG === "YES" ' >
 							
-                              <input v-model="form.OptionWithAOG" v-if='form.NoAOG === "YES"'  @click="ShowDiscount($event)"  type="radio" id="dsd" value="NO" >
+                              <input v-model="form.OptionWithAOG"  @click="ShowDiscount($event)"  type="radio" id="dsd" value="NO"  >
                               <label for="">Without Acts of Nature</label>
-							  <br/>
+							              <br/>
 							                 <small><strong>(if selected,Your Policy Total Amount Due: {{  form.ModalDisplayWithAOG  | Peso}} )</strong></small>
                           </div>
+
+
+                         
+
            
-                <div class="col-md-12" v-show="isShowingDiscount" v-if="UserDetails.department == 'Agent'">
+                <div class="col-md-12" v-show="isShowingDiscount" v-if="form.TotalAmountComm >= 1 ">
                        <div class="form-group form-inline">
                             <label for="Discount">Discount: </label>
-                            <input  v-model="form.DiscountDeduct" @change="DiscountDeduct()" type="text" class="form-control input-sm" placeholder="Amount Discount">
+                            <input  v-model="form.DiscountDeduct" @change="DiscountDeduct()" type="number" class="form-control input-sm" placeholder="Amount Discount">
                             <br/> <small>Max. Commission : {{ form.TotalAmountComm  | Peso}}</small>
                              <br/> <small v-if="UserDetails.CashOutDiscount > 0">CashOut Discount : {{ UserDetails.CashOutDiscount | Peso}}</small>
                              <br/> <label style="color: red; padding: 0px;" v-if="UserDetails.CashOutDiscount > 0">Total Discount  : {{ parseFloat(UserDetails.CashOutDiscount) + parseFloat(form.TotalAmountComm) | Peso}}</label >
@@ -257,7 +262,7 @@
 				 <div class="row">	
                   <div class="form-group">
                       <div class="col-md-4">
-                          <label for=""><span class="label" style="color: red; padding: 0px;" v-if="!form.mvFileNo">*</span> MV File No. : </label>
+                          <label for=""><big class="label" style="color: red; padding: 0px;" v-if="!form.mvFileNo">*</big> MV File No. : </label>
                             <input v-model="form.mvFileNo" type="text" class="form-control input-sm" placeholder="Enter MV File No."/>
                       </div>
                   
@@ -278,7 +283,7 @@
           <div class="row">	
                   <div class="form-group">
                       <div class="col-md-4">
-                          <label for=""><span class="label" style="color: red; padding: 0px;" v-if="!form.color"></span>Car Color :</label>
+                          <label for=""><span class="label" style="color: red; padding: 0px;" v-if="!form.color">*</span>Car Color :</label>
                              <input v-model="form.color" type="text" class="form-control input-sm" placeholder="Enter Car Color"/>
                       </div>
                   
@@ -289,7 +294,7 @@
 
                         <div class="col-md-4">
                             <input v-model="form.mortgage" type="checkbox" id="mortgaged">
-                          <label for=""> <span class="label" style="color: red; padding: 0px;" v-if="!form.bankName">*</span> Mortgaged ?</label>
+                          <label for=""> Mortgaged ?</label>
                              <select class="form-control" v-model="form.bankName" :disabled="!form.mortgage" required >
                                     <option value="" selected disabled >Select Banks</option>
 									                  <option    v-for="GetListBankss in GetListBanks" :key="GetListBankss._id"  v-bind:value="GetListBankss.BankName"  >{{ GetListBankss.BankName}}</option>
@@ -347,10 +352,10 @@
                 <div class="row">
                     <div class="col-md-12">
                       <div class="form-group">
-                      <label for=""> Mode of Delivery :</label>
+                      <!-- <label for=""> Mode of Delivery :</label> -->
                       </div>
                         <div class="col-md-1"> </div>
-                        <div class="col-md-12">
+                        <!-- <div class="col-md-12">
                           <div class="form-group"> 
                            
                             <div class="col-md-4" style="padding: 0px 2px;">
@@ -383,7 +388,7 @@
                               </div>
                                
                           </div>
-                        </div>
+                        </div> -->
 
 
                       <div class="row">
@@ -480,6 +485,7 @@ export default {
             image: '',
             
             form: new Form({
+              RequestNo:'',
                 TINNumber:'',
                 EmailAddress:'',
                 ContactNumber:'',
@@ -561,6 +567,7 @@ export default {
           this.isShowingDiscount  =true;
          
           this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountComm ;
+         
            let OptionAmountDue       =  e.target.value.trim(); //this.form.OptionWithAOG;
             let AmountDue;let ComputeDeductedAmount;  let AmountDeduct  = this.form.DiscountDeduct;
             if (OptionAmountDue == "NO"){
@@ -579,7 +586,7 @@ export default {
         let AmountDeduct          = this.form.DiscountDeduct;
         let MaxComm               =  parseFloat(this.form.TotalAmountComm + this.UserDetails.CashOutDiscount);
           let AmountDue; let ComputeDeductedAmount; 
-        //alert(MaxComm);
+       // alert(form.TotalAmountComm );
           if ( AmountDeduct > MaxComm){
              // alert("Entered Amount is Higher to :  " + MaxComm );
                //ComputeDeductedAmount = parseFloat(AmountDue) - parseFloat(AmountDeduct);
@@ -677,30 +684,82 @@ export default {
         },
 
         QueryByOPtion1(e){
-             this.form.AcceptQuotationPassData = e.target.value.trim();
-			 let AmountDue = e.target.value.trim();
-			  let GetAmountDue         = AmountDue.split(';;');
-			 let ModalDisplayTotalAmountDue      = GetAmountDue[3].trim();
-			let ModalDisplayWithAOG     = parseFloat(GetAmountDue[4]) +  parseFloat(GetAmountDue[5]); 
+            this.form.AcceptQuotationPassData = e.target.value.trim();
+	          let AmountDue                     = e.target.value.trim();
+			      let GetAmountDue                  = AmountDue.split(';;');
+			      let ModalDisplayTotalAmountDue    = GetAmountDue[3].trim();
+		      	let ModalDisplayWithAOG           = parseFloat(GetAmountDue[4]) +  parseFloat(GetAmountDue[5]); 
 			
-			this.form.ModalDisplayWithAOG         =ModalDisplayWithAOG.toFixed(2);
-			this.form.ModalDisplayTotalAmountDue  = GetAmountDue[3].trim();
+			      this.form.ModalDisplayWithAOG         =ModalDisplayWithAOG.toFixed(2);
+            this.form.ModalDisplayTotalAmountDue  = GetAmountDue[3].trim();
       
+         let PassIDCom =     this.form.AcctNo + ";;" + this.form.RequestNo + ";;" + GetAmountDue[0].trim();
+           
+               axios.get("api/GetAgentComReport/" + PassIDCom ) .then(({ data }) => (this.AgentComm = data)  );     
+       //alert(PassIDCom);
         
         },
 
          QueryByOPtion(){
-               
-                //axios.get("api/AcceptQuotation/" + e.target.value.trim()  ) .then(({ data }) => (this.AcceptQuotation = data)  ); 
-            //alert(e.target.value);
+         //  alert(); Pls. Select eithe w/ AOG or w/o AOG.
+
+        
+         if (!this.form.OptionWithAOG.length )  {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Pls. Select either w/ AOG or w/o AOG.',
+              
+                })
+           }else if (!this.form.mvFileNo  || this.form.mvFileNo ===" ") {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Oops...',
+                      text: 'Pls. input MV File No.',
+                    
+                    })  
+           }else if (!this.form.engineNo || this.form.engineNo ===" ")  {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Pls. Input Engine No.',
+              
+                })
+           }else if (!this.form.chassisNo || this.form.chassisNo ===" ")  {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Pls. Input Chassis No.',
+              
+                })
+           }else if (!this.form.color || this.form.color ===" ")  {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Pls. Input Color.',
+              
+                })
+          }else{
+         
+             this.loading = true,
+              Swal.fire({
+                title: " CONFIRMED ?",
+                text: " Accept Quotation",
+                icon: "success",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes!"
+            }).then(result => {
+               if (result.value) {
                     let uri         = window.location.href.split('?');
                     let PassID      = uri[1].trim();
                     this.form.UploadORCR = this.image;
 
-            this.form.post('api/AcceptQuotation').then(() => {
+                  this.form.post('api/AcceptQuotation').then(() => {
                     // Success!
                      Swal.fire(
-                        'Successful!',
+                        ' Successful! ',
                         `Quotation Accepted.`,
                         'success'
                     )
@@ -715,7 +774,11 @@ export default {
                         alert(response);
 
                 });
-              
+            }else{
+                  this.$router.push("/ProposalOptions?" + PassID);
+                }
+            })
+          }  
         
         },
 
@@ -752,7 +815,11 @@ export default {
     created() {
         axios.get('api/wordings').then(({data}) => this.Wordings = data)
       this.RetrieveTimeInterval = setInterval(() => {
+           
+       
+
                 this.form.TINNumber          =this.ResultQueryRequest.TINNumber;
+                this.form.RequestNo          =this.ResultQueryRequest.RequestNo;
                 this.form.EmailAddress       =this.ResultQueryRequest.EmailAddress;
                 this.form.MotorBrand         =this.ResultQueryRequest.MotorBrand;
                 this.form.ContactNumber      =this.ResultQueryRequest.ContactNumber;
@@ -780,7 +847,7 @@ export default {
                  this.form.AcctNo            = this.ResultQueryRequest.CustAcctNO;
                 this.form.AcctName           = this.ResultQueryRequest.CName ;
                 this.form.AssignCRD          = this.ResultQueryRequest.AssignCRD;
-                this.form.NoAOG              = this.ResultQueryRequest.WithAOG;
+               // this.form.NoAOG              = this.ResultQueryRequest.WithAOG;
                 this.form.Denomination       =this.ResultQueryRequest.Denomination;
                 this.$forceUpdate();   
           
@@ -803,10 +870,12 @@ export default {
                                             this.isShowing =true;
                                         }
 
-                                         if ( ListCoveragesURL.PerilsCode == "AOG"){
+                                         if ( ListCoveragesURL.PerilsCode === "AOG"){
                                              CompCoveragesAmountNoAOG  = parseFloat(ListCoveragesURL.CoveragesPremium );
+                                              this.form.NoAOG              = "YES";
                                          }else{
                                               CompCoveragesAmountNoAOG  = CompCoveragesAmount ;
+                                              this.form.NoAOG              = "NO";
                                          }
                               
                               

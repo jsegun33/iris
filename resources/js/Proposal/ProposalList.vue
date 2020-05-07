@@ -103,8 +103,6 @@ export default {
         },
          data() {
             return {
-              
-                url: '/proposal?2019-0001',
                 editmode: false,
                 RequestQuotations: {},
                 //counter:1,

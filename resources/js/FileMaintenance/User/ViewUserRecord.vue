@@ -110,14 +110,15 @@
                                                     <tr><th></th><th>PerilsName</th><th></th><th>Denomination</th><th>AmountCom</th></tr>
                                                     <tr v-for="UserCommission in UserProfiles.ListUserCommission" :key="UserCommission._id">
                                                       <td>
-                                                          <button  type="button" class="btn btn-warning" @click="RemoveUserAccess(UserCommission)" v-if="UserCommission.status == '1'"> <i class="fa  fa-trash"></i></button>
-                                                          <button  type="button" class="btn btn-danger" @click="RestoreUserAccess(UserCommission)" v-if="UserCommission.status != '1'"> <i class="fa  fa-mail-forward"></i></button> 
+                                                          <button  type="button" class="btn btn-warning" @click="RemoveUserCommission(UserCommission)" v-if="UserCommission.status == '1'"> <i class="fa  fa-trash"></i></button>
+                                                          <button  type="button" class="btn btn-danger" @click="RestoreUserCommission(UserCommission)" v-if="UserCommission.status != '1'"> <i class="fa  fa-mail-forward"></i></button> 
                                                      
                                                      </td>
                                                  
                                                     <td >{{  UserCommission.PerilsName }} </td> <th >: </th>
                                                     <td>{{   UserCommission.ClassName}}</td>
                                                     <td>{{   UserCommission.AmountCom}}</td>
+                                                     <td> <button  type="button" class="btn btn-primary" @click="EditUserCommission(UserCommission)" v-if="UserCommission.status == '1'"> <i class="fa  fa-pencil"></i></button>   </td>
                                                    
                                                 </tr>
                                         </table>
@@ -173,6 +174,7 @@
                                                     <td>{{   RolesAccess.role_number_url}}</td>
                                                     <td>{{   RolesAccess.acctTypeSubName}}</td>
                                                    
+                                                   
                                                 </tr>
                                         </table>
  <br/><legend v-if="UserDetails.AccountNo == '2019-0001'" >Set Privileges:
@@ -220,7 +222,7 @@
            </legend>
                      
                 </div>
-                <!--------<pre> {{ $data }}</pre>-------->
+                <!-- ------<pre> {{ $data }}</pre>------ -->
                 
             </form>
         </div>
@@ -305,16 +307,20 @@ export default {
                 DisplayPerils: [],
                 GetPerilsbyClick:'',
 
-                // PassDataAmountPerils: [],
-                // PassDataPerilsCode: [],
-                // PassDataClassName: [],
-                // PassDataPerilsNo: [],
-                // PassDataPerilsName: [],
+                PassDataAmountPerils: [],
+                PassDataPerilsCode: [],
+                PassDataClassName: [],
+                PassDataPerilsNo: [],
+                PassDataPerilsName: [],
+                
                 
                 PassDataPerils: [],
                 AssignLoopVal: [],
                 RemarksRemove:'',
                 RemarksRestore:'',
+                UserCommissionID:'',
+                RemarksCom:'',
+                NewAmountCom:'',
              
 
             }),
@@ -322,6 +328,211 @@ export default {
     },
     
     methods: {
+
+      async  EditUserCommission(UserCommission){  
+                this.form.UserCommissionID = UserCommission.UserCommissionID;
+               // alert(EmployeeProfiles.AccountNo);
+                    
+             const { value: text } = await Swal.fire({
+                title: " CONFIRMED ? ",
+                text: " You want to EDIT this USER's Commission ? ",
+                icon: "info",
+                input: 'number',
+                inputPlaceholder: 'NEW amount :',
+               
+                inputAttributes: {
+                    'aria-label': 'Type your NEW amount   here'
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'YES, Input Amount'
+            }).then(result => {
+                    this.form.NewAmountCom = result.value;
+                 if (result.value) {
+
+                         
+                             this.form.post("api/EditUserCommission/" )
+                            .then(() => {
+                                Swal.fire(
+                                    " UPDATED ",
+                                    " USER's Commission has been UPDATED",
+                                    "success"
+                                );
+                                   this.LoadUsersProfileView();
+								   
+                            })
+
+                       
+                             .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was something wrong",
+                                "warning"
+                            );
+                        });
+                }
+           })
+               
+                 
+        },
+
+
+
+           async  RemoveUserCommission(UserCommission){
+                this.form.UserCommissionID = UserCommission.UserCommissionID;
+               // alert(EmployeeProfiles.AccountNo);
+                    
+             const { value: text } = await Swal.fire({
+                title: " CONFIRMED ? ",
+                text: " You want to REMOVE this USER's Commission ?",
+                icon: "info",
+                input: 'textarea',
+                inputPlaceholder: 'Type your message /reason here...',
+                inputAttributes: {
+                    'aria-label': 'Type your message/reason  here'
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, leave remarks!'
+            }).then(result => {
+                    this.form.RemarksCom = result.value;
+                 if (result.value) {
+
+                         
+                             this.form.post("api/RemoveUserCommission/" )
+                            .then(() => {
+                                Swal.fire(
+                                    " REMOVE ",
+                                    " USER's Commission has been REMOVE",
+                                    "success"
+                                );
+                                   this.LoadUsersProfileView();
+								   
+                            })
+
+                       
+                             .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was something wrong",
+                                "warning"
+                            );
+                        });
+                }
+           })
+               
+                 
+        },
+
+
+
+ async  RestoreUserCommission(UserCommission){
+                this.form.UserCommissionID = UserCommission.UserCommissionID;
+               // alert(EmployeeProfiles.AccountNo);
+                    
+             const { value: text } = await Swal.fire({
+                title: " CONFIRMED ? ",
+                text: " You want to RESTORE this USER's Commission ?",
+                icon: "info",
+                input: 'textarea',
+                inputPlaceholder: 'Type your message /reason here...',
+                inputAttributes: {
+                    'aria-label': 'Type your message/reason  here'
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, leave remarks!'
+            }).then(result => {
+                    this.form.RemarksCom = result.value;
+                 if (result.value) {
+
+                         
+                             this.form.post("api/RestoreUserCommission/" )
+                            .then(() => {
+                                Swal.fire(
+                                    " RESTORE ",
+                                    " USER's Commission has been RESTORE",
+                                    "success"
+                                );
+                                   this.LoadUsersProfileView();
+								   
+                            })
+
+                       
+                             .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was something wrong",
+                                "warning"
+                            );
+                        });
+                }
+           })
+               
+                 
+        },
+
+
+         PushDataIntoArray(){
+            let perilscode =  this.GetPerilsComm.length;
+            let IndexLength = this.LoopTR1.length;
+           for (let index = 0; index < IndexLength; index++){
+                   for (let k = 0; k < perilscode; k++) { 
+                          this.form.AssignLoopVal.push(this.GetPerilsComm[k]._id + index) ;
+                          this.form.PassDataClassName.push(this.form.ClassName[index] ); 
+                          this.form.PassDataAmountPerils.push(this.form.AmountCommInput[this.GetPerilsComm[k]._id  + index] ); 
+                          this.form.PassDataPerilsCode.push(this.GetPerilsComm[k].PerilsCode); 
+                          this.form.PassDataPerilsNo.push(this.GetPerilsComm[k].PerilsNo); 
+                          this.form.PassDataPerilsName.push(this.GetPerilsComm[k].PerilsName); 
+                   
+                  } 
+
+           }
+              
+        },
+
+
+      async  AddNewCommission(){
+           const { value: text } = await Swal.fire({
+                title: " CONFIRMED ? ",
+                text: " You want to ADD this USER's Privileges ?",
+                icon: "info",
+               
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes'
+            }).then(result => {
+                  //  this.form.RemarksRemove = result.value;
+                 if (result.value) {
+                     this.PushDataIntoArray();
+                             this.form.post("api/AddNewCommission/" )
+                            .then(() => {
+                                Swal.fire(
+                                    " COMMISSION ",
+                                    " USER's Commission has been UPDATE",
+                                    "success"
+                                );
+                                   this.LoadUsersProfileView();
+								   
+                            })
+
+                       
+                             .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was something wrong",
+                                "warning"
+                            );
+                        });
+                }
+           })
+
+        },
+
 
         async AddNewPrivileges(){
          const { value: text } = await Swal.fire({

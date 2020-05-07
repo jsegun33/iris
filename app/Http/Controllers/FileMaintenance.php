@@ -61,7 +61,7 @@ class FileMaintenance extends Controller
         $TypeSubLinks->UserMenu 	                = round($request['UserMenu']);
         $TypeSubLinks->save();
         
-
+       
         $UserRoleAccesss	= UserRoleAccess::select('*')->where('active',1)->where('role_number_access',trim($request['_id']) )->get(); 
         foreach($UserRoleAccesss as $UserRoleAccess)
         { 

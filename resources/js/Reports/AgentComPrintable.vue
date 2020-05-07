@@ -1,3 +1,4 @@
+
 <template>
     <div>
         <!-- Content Header (Page header) -->
@@ -23,8 +24,8 @@
                 </li>
             </ol>
         </section>
-
-        <section class="content" v-if="details[0].CustAcctNO.trim() ===  UserDetails.AccountNo.trim()" >
+            
+        <section class="content" >
             <div class="row" >
                 <div class="col-md-3">
                     <div class="box box-primary">
@@ -82,8 +83,8 @@
                                 
 
                                 <li class="list-group-item">
-                                    <b>Cash-Out Amount</b>
-                                    <a class="pull-right">{{ logs[parseFloat(this.logs.length) - 1].TotalCashOutAmount | peso}}</a>
+                                    <b>Request Amount</b>
+                                    <a class="pull-right">{{ logs[parseFloat(this.logs.length) - 1].CashOutAmount | peso}}</a>
                                 </li>
 
                                
@@ -145,7 +146,7 @@
                                                  <th style="border-top: 1px solid black;text-align:right">{{ logs[parseFloat(this.logs.length) - 1].CompTotalCommissionAmount | peso}}</th>
                                                 
                                                 <th style="border-top: 1px solid black;text-align:right">{{ logs[parseFloat(this.logs.length) - 1].CompTotalCommission | peso}}</th>
-                                                <td style="border-top: 1px solid black;text-align:right">{{ logs[parseFloat(this.logs.length) - 1].TotalCashOutAmount | peso}}</td>
+                                                <td style="border-top: 1px solid black;text-align:right">{{ logs[parseFloat(this.logs.length) - 1].CompTotalCashOut | peso}}</td>
                                                 <td style="border-top: 1px solid black;text-align:right">{{ logs[parseFloat(this.logs.length) - 1].TotalCashOutPaid | peso}}</td>
 
 
@@ -181,6 +182,8 @@
                 </div>
             </div>
         </section>
+
+       
     </div>
 </template>
 
@@ -361,7 +364,13 @@ export default {
             axios.get('api/AgentCommissionForCashOut/' + PassData ).then(({data}) => {
                 this.logs = data
                //  this.form.RequestNo = this.logs.RequestNo;
-            }).catch(() => {
+            }).catch((response) => {
+                alert(response);
+                     Swal.fire(
+                        " No Record !",
+                         " FOUND ",
+                        "warning"
+                     );
 
             })
            // alert(this.logs.length);
@@ -372,14 +381,15 @@ export default {
 
     created() {
         let uri = window.location.href.split("?");
-        let PassID =  uri[1].trim();
+         this.RetrieveTimeInterval =  setInterval(() => {
+        let PassID =  this.UserDetails.AccountNo ;
         
         axios
             .get("api/AgentCommReportCashOut/" + PassID)
             .then(({ data }) => (this.details = data));
 
 
-        this.RetrieveTimeInterval =  setInterval(() => {
+       
             this.loadCommission();
             console.log(this.loadCommission());
         }

@@ -806,7 +806,7 @@ export default {
       //   console.log(error);
       // });
 
-      if (!this.form.PlateNumber) {
+      if (!this.form.PlateNumber || this.form.PlateNumber ===" ") {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
@@ -815,56 +815,56 @@ export default {
           })
             
           
-      }else if (!this.form.Denomination) {
+      }else if (!this.form.Denomination || this.form.Denomination ===" ") {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Pls. Select Denomination.',
           
           })
-      }else if (!this.form.POAMount) {
+      }else if (!this.form.POAMount || this.form.POAMount ===" ") {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Pls. Select Car Purchased Amount / Market Value.',
           
           })
-      }else if (!this.form.YearPO) {
+      }else if (!this.form.YearPO || this.form.YearPO ===" ") {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Pls. Select Year.',
           
           })
-      }else if (!this.form.CarBrand) {
+      }else if (!this.form.CarBrand || this.form.CarBrand===" ") {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Pls. Select Brand.',
           
           })
-      }else if (!this.form.CarModel) {
+      }else if (!this.form.CarModel || this.form.CarModel===" ") {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Pls. Select Model.',
           
           })
-      }else if  (!this.form.BodyType)  {
+      }else if  (!this.form.BodyType || this.form.BodyType===" ")  {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Pls. Select Body Type.',
           
           })
-      }else if (!this.form.usages) { 
+      }else if (!this.form.usages || this.form.usages===" ") { 
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Pls. Select Usages.',
           
           })
-      }else if (!this.form.EffectiveDate) {
+      }else if (!this.form.EffectiveDate || this.form.EffectiveDate===" " ) {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
@@ -878,7 +878,7 @@ export default {
             text: 'Pls. Select Coverages.',
           
           })
-    }else if (!this.form.Address.length)  {
+    }else if (!this.form.Address.length || this.form.EffectiveDate===" " )  {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
@@ -917,7 +917,7 @@ export default {
                             );
                         });
                 }else{
-                  this.$router.push("/request-form");
+                  this.$router.push("/request-form-new");
                 }
            })
       }

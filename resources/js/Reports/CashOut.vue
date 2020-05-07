@@ -24,7 +24,7 @@
             </ol>
         </section>
 
-        <section class="content" v-if="details[0].CustAcctNO.trim() ===  UserDetails.AccountNo.trim()" >
+        <section class="content" >
             <div class="row" >
                 <div class="col-md-5">
                     <div class="box box-primary">
@@ -82,7 +82,7 @@
                                 
 
                                 <li class="list-group-item">
-                                    <b>Available Amount</b>
+                                    <b>Available Amount </b>
                                     <a class="pull-right">{{ logs[parseFloat(this.logs.length) - 1].CompTotalCommission | peso}}</a>
                                 </li>
 
@@ -130,7 +130,7 @@
                                             <tr> 
                                                  <td colspan="2"> <br/>
                                                      <!-- <a v-bind:href="'/report-agent-commission?'+ this.UserDetails.AccountNo"> -->
-                                                        <button type="button" :disabled='isDisabled'  @click="CashOutComm()" class="btn btn-danger pull-right"><i class="fa fa-sign-out"></i> Cash-Out</button>
+                                                        <button type="button" :disabled='isDisabled' v-if="logs[parseFloat(this.logs.length) - 1].CompTotalCommission !=0.00"  @click="CashOutComm()" class="btn btn-danger pull-right"><i class="fa fa-sign-out"></i> Cash-Out</button>
                                                    <!-- </a> -->
                                                     </td> 
                                            
@@ -148,7 +148,7 @@
                                                <tr> <th>Request No   {{ form.AccountNo}}</th>
                                                 <th>Plate No.</th>
                                                 <th>Status</th>
-                                                <th>Amount</th>
+                                                <th>Available Amount</th>
                                                 
 
                                                </tr>
@@ -190,7 +190,7 @@
 export default {
     mounted: function(){ 
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-         this.loadCommission();
+        this.loadCommission();
     },
 
 
@@ -201,7 +201,8 @@ export default {
              logs: {},
              UserValPassword: {},
                isDisabled:true,
-
+               RetrieveTimeInterval:null,
+                RetrieveTimeInterval2:null,
               form: new Form({
                  StartDate:'',
                  EndDate:'',
@@ -219,12 +220,7 @@ export default {
         
     },
     methods: {
-        PasswordInput(){
-            alert();
-
-
-        },
-
+      
        async CashOutComm(){
           this.form.AccountNo =  this.UserDetails.AccountNo;
            const { value: text } = await Swal.fire({
@@ -247,7 +243,7 @@ export default {
                // this.loadData()
                 let AccountNo           =  this.UserDetails.AccountNo;
                 let InputUserPassword   =  result.value;
-                 let PassData               =  AccountNo + ";;" +  InputUserPassword;
+                 let PassData               =  AccountNo + ";;" +  InputUserPassword.trim();
 
                              axios.get('api/CheckUserPassword/' + PassData ).then(({data}) => {
                                     this.UserValPassword            = data;
@@ -335,54 +331,67 @@ export default {
       },
 
          loadCommission() {
-             let uri = window.location.href.split("?");
-                let PassID = this.UserDetails.AccountNo; // uri[1].trim();
-           let PassData;
-            if (this.form.StartDate == '' || this.form.EndDate == ''){
-            let date = new Date();
-            let day = date.getDate();
-            let month = date.getMonth() + 1;
-            let monthMinus = date.getMonth();
-            let year = date.getFullYear();
-            let EndDate = `${year}-${month < 10 ? '0' + month : '' + month}-${day < 10 ? '0' + day : '' + day}`;
-            let StartDate = `${year}-${monthMinus < 10 ? '0' + monthMinus : '' + monthMinus}-${day < 10 ? '0' + day : '' + day}`;
-                PassData =  PassID  + ";;" + StartDate  + ";;" +  EndDate; 
-            }else{
-                 PassData =  PassID  + ";;" + this.form.StartDate + ";;" + this.form.EndDate ;
-             
-            }
-         //alert(PassData);
-            axios.get('api/AgentCommissionForCashOut/' + PassData ).then(({data}) => {
-                this.logs = data
-               //  this.form.RequestNo = this.logs.RequestNo;
-            }).catch(() => {
+       this.RetrieveTimeInterval =  setInterval(() => {
+                        let PassID = this.UserDetails.AccountNo; // uri[1].trim();
 
-            })
-           // alert(this.logs.length);
-            console.log();
-        }
+                         axios.get("api/AgentCommReportCashOut/" + PassID).then(({ data }) => (this.details = data));
+                let PassData;
+                    if (this.form.StartDate == '' || this.form.EndDate == ''){
+                    let date = new Date();
+                    let day = date.getDate();
+                    let month = date.getMonth() + 1;
+                    let monthMinus = date.getMonth();
+                    let year = date.getFullYear();
+                    let EndDate = `${year}-${month < 10 ? '0' + month : '' + month}-${day < 10 ? '0' + day : '' + day}`;
+                    let StartDate = `${year}-${monthMinus < 10 ? '0' + monthMinus : '' + monthMinus}-${day < 10 ? '0' + day : '' + day}`;
+                        PassData =  PassID  + ";;" + StartDate  + ";;" +  EndDate; 
+                    }else{
+                        PassData =  PassID  + ";;" + this.form.StartDate + ";;" + this.form.EndDate ;
+                    
+                    }
+                //alert(PassData);
+                    axios.get('api/AgentCommissionForCashOut/' + PassData ).then(({data}) => {
+                        this.logs = data
+                    //  this.form.RequestNo = this.logs.RequestNo;
+                    }).catch((response) => {
+                            Swal.fire(
+                                " No Record !",
+                                " FOUND " + response,
+                                "warning"
+                            );
 
-    },  
-
-    created() {
-        let uri = window.location.href.split("?");
-        let PassID =  uri[1].trim();
-        
-        axios
-            .get("api/AgentCommReportCashOut/" + PassID)
-            .then(({ data }) => (this.details = data));
-
-
-        this.RetrieveTimeInterval =  setInterval(() => {
-            this.loadCommission();
-            console.log(this.loadCommission());
-        }
+                    })
+                // alert(this.logs.length);
+                    console.log();
+              
+          }
         , 1000)
 
       this.RetrieveTimeInterval2 = setInterval(() => {
                 clearInterval(this.RetrieveTimeInterval);  
                   
-            },3000) 
+            },5000) 
+
+     }
+
+    },  
+
+    created() {
+    //     let uri = window.location.href.split("?");
+    //  this.RetrieveTimeInterval =  setInterval(() => {
+      
+    //   let PassID = this.UserDetails.AccountNo; 
+        
+    //     axios
+    //         .get("api/AgentCommReportCashOut/" + PassID)
+    //         .then(({ data }) => (this.details = data));
+    //     }
+    //     , 1000)
+
+    //   this.RetrieveTimeInterval2 = setInterval(() => {
+    //             clearInterval(this.RetrieveTimeInterval);  
+                  
+    //         },3000) 
     },
 
     computed: {

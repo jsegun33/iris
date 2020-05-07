@@ -106,7 +106,7 @@
                         </div> 
                     <!---------------------------------------------Coverage----------------------------------->
                     <h3 style="text-align:center;color:blue" >{{ form.AcceptedQuotationDisplay[URLQueryPerilsCoveragesGroups.OptionNo]  }}</h3>
-                      <strong> Rate :  </strong>  {{  URLQueryPerilsCoveragesGroups.CoverageRates  + "%"  }} 
+                      <!-- <strong> Rate :  </strong>  {{  URLQueryPerilsCoveragesGroups.CoverageRates  + "%"  }}  -->
                     <div class="row"    >
                         <div class="col-md-11" >
                               
@@ -185,7 +185,7 @@
 
 </div>
 		
-<!-----------<pre>{{ $data }}</pre>--------------->
+<!-- ---------<pre>{{ $data }}</pre>------------- -->
       
     </section>
   </div>

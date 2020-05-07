@@ -259,6 +259,7 @@ export default {
 
     axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
     this.AutoLoadGetData();
+    this.load();
   },
 
   data() {
@@ -274,6 +275,8 @@ export default {
       isShowingApproval: true,
       isShowingPass: true,
       RetrieveTimeInterval2: null,
+      RetrieveTimeInterval1: null,
+    //  RetrieveTimeInterval
 
       form: new Form({
         TINNumber: "",
@@ -384,7 +387,7 @@ export default {
 
     load() {
       axios.get("api/wordings").then(({ data }) => (this.Wordings = data));
-      this.RetrieveTimeInterval = setInterval(() => {
+      this.RetrieveTimeInterval1 = setInterval(() => {
         this.ResultQueryRequest.data.map(ResultRequestDetailss => {
           this.form.TINNumber = ResultRequestDetailss.TINNumber;
           this.form.EmailAddress = ResultRequestDetailss.EmailAddress;
@@ -411,11 +414,7 @@ export default {
 		       this.form.NoAOG              = ResultRequestDetailss.WithAOG;
 
           this.form.AcctName =
-            ResultRequestDetailss.FirstName +
-            " " +
-            ResultRequestDetailss.MiddleName +
-            " " +
-            ResultRequestDetailss.LastName;
+            ResultRequestDetailss.CName ;
           this.form.AssignCRD = ResultRequestDetailss.AssignCRD;
 
           this.$forceUpdate();
@@ -481,15 +480,15 @@ export default {
       //alert(CompCoverageAmount);
 
       this.RetrieveTimeInterval2 = setInterval(() => {
-        clearInterval(this.RetrieveTimeInterval);
-      }, 5000);
+        clearInterval(this.RetrieveTimeInterval1);
+      }, 3000);
       //this.isShowingApproval = false;
     }
   },
 
-  created() {
-    this.load();
-  },
+  // created() {
+  //   this.load();
+  // },
 
   filters: {
     peso(amount) {

@@ -116,7 +116,7 @@
 
                     <!---------------------------------------------Coverage----------------------------------->
                     <h3 style="text-align:center;color:blue">{{ form.AcceptedQuotation[URLQueryPerilsCoveragesGroups.OptionNo] }}</h3>
-                  <strong> Rate :  </strong>  {{  URLQueryPerilsCoveragesGroups.CoverageRates  + "%" }} 
+                  <!-- <strong> Rate :  </strong>  {{  URLQueryPerilsCoveragesGroups.CoverageRates  + "%" }}  -->
 					
                     <div class="row"    >
                         <div class="col-md-11" >
@@ -261,6 +261,7 @@ export default {
          console.log('Component mounted.')  
          	axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
             this.AutoLoadGetData();
+            this.loadData();
 
             
     },
@@ -274,6 +275,7 @@ export default {
             UserDetails:{},
             URLQueryPerilsCoveragesGroup:'',
             RetrieveTimeInterval:null,
+            RetrieveTimeInterval2:null,
              isShowing:false,
              isShowingApproval:true,
              isShowingPass:true,
@@ -496,9 +498,6 @@ export default {
     }, 
    
 
-    created() {
-        this.loadData()
-    },
 
     filters: {
         peso(amount) {

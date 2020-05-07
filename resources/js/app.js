@@ -146,16 +146,16 @@ let routes = [
 
     {
         path: '/Accepted',
-        component: require('./Options/Issuance.vue').default
+        component: require('./Policy/Issuance.vue').default
     },
     {
         path: '/final-issuance',
-        component: require('./Options/FinalIssuance.vue').default
+        component: require('./Policy/FinalIssuance.vue').default
     },
 
     {
         path: '/Customer-Issuance',
-        component: require('./Options/CustIssuance.vue').default
+        component: require('./Policy/CustIssuance.vue').default
     },
 
     

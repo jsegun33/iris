@@ -322,6 +322,7 @@ Route::post('RemoveUserAccess', 'RegistrationController@RemoveUserAccess');
 Route::post('RestoreUserAccess', 'RegistrationController@RestoreUserAccess');
 Route::post('UpdateUserDetails', 'RegistrationController@UpdateUserDetails');
 Route::post('AddNewPrivileges', 'RegistrationController@AddNewPrivileges');
+Route::post('AddNewCommission', 'RegistrationController@AddNewCommission');
 
 
 
@@ -351,4 +352,15 @@ Route::get('GetCities', 'FileMaintenance@GetCities');
 
 Route::post('QuotationMotor', 'QuotationController@QuotationMotor');
 Route::get('UpdateRequest/{id}', 'QuotationController@UpdateRequest');
+Route::post('UpdatePersonalDetails', 'QuotationController@UpdatePersonalDetails');
+Route::post('UpdateMotorDetails', 'QuotationController@UpdateMotorDetails');
+Route::post('RemoveUserCommission', 'RegistrationController@RemoveUserCommission');
+Route::post('RestoreUserCommission', 'RegistrationController@RestoreUserCommission');
+Route::post('EditUserCommission', 'RegistrationController@EditUserCommission');
+Route::get('URLQueryRequestNew/{id}', 'QuotationController@URLQueryRequestNew');
+
+
+
+
+
 
