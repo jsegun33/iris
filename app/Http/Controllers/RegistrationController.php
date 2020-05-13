@@ -445,8 +445,8 @@ if ( !empty($request['AgentType'] ) ){
             $department     =   $Registration->department ;
             $departmentID   =   $Registration->departmentID ;
     }else{
-        $department     =   $NewDepartment[0];
-        $departmentID   =   $NewDepartment[1];
+            $department     =   $NewDepartment[0];
+            $departmentID   =   $NewDepartment[1];
     }
 
 
@@ -464,6 +464,15 @@ if ( !empty($request['AgentType'] ) ){
         $Registration->SubAgent         =  $request['SubAgent'];
         $Registration->AgentType        =  $request['AgentType'];
         $Registration->save(); 
+
+
+        $Userrole                = Userrole::select('*')->where('AccountNo',$request['AccountNo'])->get();
+        foreach($Userrole as $Userroles)
+        { 
+            $Userroles->Limit         =  round($request['LimitAmount']) ; 
+            $Userroles->save(); 
+        }
+        
       
 }
 
@@ -527,12 +536,15 @@ public function AddNewPrivileges(Request $request)
 
 public function AddNewCommission(Request $request)
 { 
-            $TotalLines        = $request['ClassName'];
-             $totalAmountComm        = $request['PassDataClassName'];
+             $TotalLines                = $request['ClassName'];
+             $totalAmountComm           = $request['PassDataClassName'];
+             //$CompToalAmount            = 0;
              for($kL=0 ;$kL < count($totalAmountComm)  ;$kL++)
             { 
 
-                     $ClassName                  = explode(";;",$request['PassDataClassName'][$kL]);
+                    $ClassName                  = explode(";;",$request['PassDataClassName'][$kL]);
+
+                 
                         AgentCom::create([
                         'AccountNo'        =>   $request['AccountNo'] ,
                         'ClassName'        =>  $ClassName[0], //$request['select_authority'][$i][$k],
@@ -542,12 +554,35 @@ public function AddNewCommission(Request $request)
                         'PerilsName'       =>  $request['PassDataPerilsName'][$kL],  
                         'PerilsNo'         =>  $request['PassDataPerilsNo'][$kL], 
 			            'PerilsCode'	   =>  $request['PassDataPerilsCode'][$kL],  
-                        'AmountCom'        =>  round($request['PassDataAmountPerils'][$kL]),  
+                        'AmountCom'        =>  round($request['PassDataAmountPerils'][$kL],2),  
                        				
                         
                     ]);
+                    
 
              }
+           
+             
+
+
+            //  $AmountCom1 =0;
+            //  for($kL1=0 ;$kL1 < count($totalAmountComm)  ;$kL1++)
+            //  { 
+ 
+            //         $ClassName                  = explode(";;",$request['PassDataClassName'][$kL1]);
+            //             $AgentComReport = AgentCom::select('*') 
+            //             ->where('status',"1") 
+            //             ->where('AccountNo', $request['AccountNo'])
+            //             ->where('Class',$ClassName[1])   
+            //             ->get();
+            //             foreach($AgentComReport as $AgentComReport1s)
+            //             { 
+            //                 $AmountCom1 += $AgentComReport1s->AmountCom;
+            //             } 
+                       
+            // } 
+            // return response()->json(['success' => $AmountCom1 ], 200);            
+            
 
 }
 
@@ -591,7 +626,22 @@ public function RemoveUserCommission(Request $request)
     }
 
 
+    public function ChangePassword(Request $request)
+    { 
+        date_default_timezone_set('Asia/Hong_Kong');
+        $CurrentDate    = date('Y-m-d H:i:s');
+        if (!empty($request['NewPassword'] ) ) {
+           
+            $Registration    = Registration::select('*')->where('_id',$request['UserID'])->first();
+            $Registration->password             = bcrypt($request['NewPassword']);
+            $Registration->PasswordChangeDate   = $CurrentDate ;
+            $Registration->save(); 
 
+        }
+            
+    }
+
+    
 
 
 }

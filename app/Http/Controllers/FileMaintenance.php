@@ -23,6 +23,7 @@ use App\CarBrand;
 use App\ProductLinesSurcharge;
 use App\ListBarangay;
 use App\ListCity;
+use App\ProductLinesCharges;
 
 
 
@@ -96,10 +97,10 @@ class FileMaintenance extends Controller
             $TypeSubLink->save();
         }
 
-        $UserRoleAccess			= UserRoleAccess::select('*')->where('active',"1")->where('role_number_access',trim($id) )->get(); 
+        $UserRoleAccess			= UserRoleAccess::select('*')->where('active',1)->where('role_number_access',trim($id) )->get();  
         foreach($UserRoleAccess as $UserRoleAccesss)
         { 
-            $UserRoleAccesss->active 	= '0';
+            $UserRoleAccesss->active 	= 0;
             $UserRoleAccesss->save();
         } 
 
@@ -982,6 +983,25 @@ public function GetCities()
     return ListCity::select('*')->where('active', 1)->orderBy('CityName','ASC')->get();
  
 }
+
+
+public function AddCharges(Request $request)
+    {
+        $currentYear  = date('Y');
+        $CountCharges    = ProductLinesCharges::count() + 1;
+        $NewCountCharges = str_pad($CountCharges, 4, '0' , STR_PAD_LEFT);
+
+        return ProductLinesCharges::create([
+            'ChargesNo'      => $currentYear."-".$request['ChargesCode']."-".$NewCountCharges,
+            'ChargesCode'    => $request['ChargesCode'],
+            'ChargesName'    => $request['ChargesName'],
+            'ChargesAmount'  => $request['ChargesAmount'],
+            'ChargesType'    => $request['ChargesType'],
+            'ChargesRemarks' => $request['ChargesRemarks'],
+            'Active'         =>  "1",
+        ]);
+    }
+
 
 
 
