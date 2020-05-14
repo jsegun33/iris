@@ -1,6 +1,6 @@
 <template>
     <div>
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                 Quotations
                 <small>List of Quotations Approved</small>
@@ -11,9 +11,23 @@
                 </li>
                 <li class="active">Quotation</li>
             </ol>
+        </section> -->
+
+         <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section>
+
+
+
+          <section class="content"  v-show="isShowingRecord"  v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h4> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }} </big></h4>
+                </div>
         </section>
 
-        <section class="content">
+        <section class="content" v-show="isShowingRecord"  v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'" >
 
                                 <div v-if="selectedImage" max-width="100%" class="no-print">
                                             <!-- <img :src="selectedImage" alt="" width="100%" @click.stop="selectedImage = null"> -->
@@ -40,7 +54,11 @@
                             <tr>
                             <td >Policy No.</td><th>:</th><th style="text-align:left">{{ form.QuotationNoDisplay}}</th>
                             </tr><tr>
-                            <td>Assured </td><th>:</th><th style="text-align:left">{{ form.LastName + ", " }} {{ form.FirstName }}  {{ form.MiddleName + ". " }} </th>
+                            <td>Assured </td><th>:</th>
+                            <th style="text-align:left">
+                               <small v-if="form.Individual !=='Others'">   {{ form.CName }} </small>
+                                    <small v-else>   {{ form.RegisteredName}} </small> 
+                            </th>
                             </tr><tr>
                             <td>Address </td><th>:</th><td style="text-align:left"> {{ form.Address }} <br/>  {{ form.Barangay }} {{ form.City }}</td>
                             </tr>
@@ -147,7 +165,11 @@
                                     </tr>
                                      <tr class="no-print">
                                          <th>OR /CR :</th>
-                                        <td > <img :src="'OR-CR/' + form.UploadedORCR" width="100px" @click="zoom()"></td>
+                                        <td > 
+                                            <img :src="'OR-CR/' + form.UploadedORCR" width="100px" @click="zoom()" v-if="form.UploadedORCR !== 'none'">
+                                             <small v-if="form.UploadedORCR === 'none'">NO CR Uploaded  </small>
+                                        
+                                        </td>
                                        
                                     </tr>
 
@@ -451,17 +473,34 @@
                         </div>
 
                     </div>
+                     <div class="row">
+                    <div class="col-xs-12" v-if="this.AllowedSignator === 'YES'">
+                        <div class="col-xs-2 pull-right">
+					
+                          <img :src="'e-signature/' + form.PolicySignature" width="100px" v-if="form.RequestStatus == 'Approved' && form.PolicySignature != null" >
+                         
+                            <p style="border-top: 1px solid black;">
+                                Authorized Signature  
+                            </p> 
+							
+                            <button class="btn btn-warning pull-right no-print" @click="UploadSignature()" v-if="form.RequestStatus == 'Accepted'" >
+                                <i class="glyphicon glyphicon-pencil"></i>
+                                E-Signature
+                            </button>
+                        </div>
+                    </div>
+               
+                    
                     <div class="col-xs-2 pull-right text-center">
-                        <!-- <input type="file" id="file" class="inputfile">
-                        <label for="file">Put your Signature</label>
-                        <p style="border-top: 1px solid black;">Authorized Signature</p> -->
+                        <br/><br/>
                         <div>
-                            <button @click="textRemark" type="button" class="btn btn-success pull-right" style="margin-right: 5px;" v-if="form.RequestStatus != 'Approved'">
+                            <button @click="textRemark" type="button" class="btn btn-success pull-right" style="margin-right: 5px;" v-if="form.RequestStatus !== 'Approved'">
                                 <i class="fa fa-edit"></i> 
                                 Edit
                             </button>
                         </div>
                     </div>
+             </div>
                 </div>
             </div>
             <!-------------------Policy Attach Docs.------------------------->
@@ -602,7 +641,7 @@
                                     </button>
                    
                       
-                        <button
+                        <button v-if="form.RequestStatus !== 'Approved'"
                             type="button"
                             class="btn btn-success pull-right"  
                             @click="SubmitForSignature"
@@ -610,14 +649,14 @@
                             <i class="fa fa-file-pdf-o"></i>
                             Submit
                         </button>
-                        <div class="pull-right" style="margin-right: 5px; width: 250px;">
+                        <div class="pull-right" style="margin-right: 5px; width: 250px;" v-if="form.RequestStatus !== 'Approved'">
                             <select class="form-control" v-model="form.SignatureName" required >
                                 <option value="" selected disabled >Select Signatory</option>
                                 <option    v-for="GetListSignatorys in GetListSignatory" :key="GetListSignatorys._id"  v-bind:value="GetListSignatorys._id + ';;' + GetListSignatorys.AccountNo +  ';;' + GetListSignatorys.CName"  >{{ GetListSignatorys.CName }}</option>
                 
                             </select>
                         </div>
-                      
+                      <!-- <pre>{{ $data}}</pre> -->
 						
                     </div>
                 </div>
@@ -633,10 +672,11 @@ export default {
         let uri = window.location.href.split("?");
             let PassID = uri[1].trim();
        // axios.get("api/GetListClauses/" + PassID) .then(({ data }) => (this.GetListClauses = data)  );
-        axios.get("api/GetListSignatory/") .then(({ data }) => (this.GetListSignatory = data)  );
+      
         axios.get("api/GetCOCNo/") .then(({ data }) => (this.GetCOCNo = data)  );
          axios.get("api/URLQueryRequestModify/" + PassID).then(({ data })  => (this.ResultQueryRequest = data)  );
-     
+        this.StartLoading();
+        this.loadData();
     },
 
     data() {
@@ -662,9 +702,22 @@ export default {
 			 ListClausesWarranties:{},
             SumUpCoveragesAmount: 0,
             selectedImage: null,
+            AllowedSignator: {},
             
             Imageurl:"/OR-CR/2020-0001.jpeg",
             //publicPath: process.env.BASE_URL  + "/OR-CR/", 
+                
+                IntervalLoading:null,
+                IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:50,
+                 timer_is_on:0,
+
+
+
             form: new Form({
                 TINNumber: "",
                 EmailAddress: "",
@@ -788,6 +841,67 @@ export default {
     },
 
     methods: {
+        UploadSignature(){
+	 let uri = window.location.href.split("?");
+      let PassID = uri[1].trim() + ';;' + this.UserDetails.AccountNo + ';;' + this.UserDetails.CName  + ';;' + this.UserDetails.signature ;
+	 Swal.fire({
+                title: "CONFIRM ?",
+                text: " Approve Policy, Attached e-Signature",
+                icon: "success",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes!"
+            }).then(result => {
+                // Send request to the server
+			
+                if (result.value) {
+					//alert(GetClausessName);
+                    axios.get("api/UploadSignature/" + PassID )
+                        .then(() => {
+                            Swal.fire(
+                                "Done Attaching Your e-Signature ",
+                                " ",
+                                "success"
+                            );
+                            // Success
+                           this.loadData();
+                           /// alert(PassID);
+                            //this.addClauses = false
+                        })
+
+                        .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was Something wrong",
+                                "warning"
+                            );
+                        });
+                }
+            });
+	
+	
+	
+    },
+    
+
+         LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
+
+
+
           zoom(url) {
       console.log("Zoom", url);
      //this.selectedImage = url;
@@ -1380,6 +1494,44 @@ export default {
 
         loadData() {
           this.RetrieveTimeInterval = setInterval(() => {
+                                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
+
+
+
+                  
+            let uri = window.location.href.split("?");
+            let PassIDNew = uri[1].trim() +  ";;" + this.UserDetails.AccountNo;
+   
+           // alert(PassIDNew); CustomerAcceptedCoverage
+            axios
+                .get("api/IssuanceAcceptedPolicy/" + PassIDNew)
+                .then(({ data }) => {
+                    this.GetNewGroup = data;
+                    console.log(this.GetNewGroup);
+                });
+
+            axios
+                .get("api/IssuanceAcceptedPolicy/" + PassIDNew)
+                .then(({ data }) => {
+                    let results = (this.URLQueryPerilsCoveragesGroup = data);
+                    results.map(details => {
+                        // console.log(details.ListCoverages);
+                        this.ListCoverages              = details.ListCoverages;
+                        this.ListCharges                = details.ListCharges;
+                        this.ClausesWarranties          = details.ClausesWarranties;
+                        this.Accessories                = details.Accessories;
+                        this.Sections                   = this.URLQueryPerilsCoveragesGroup;
+						
+                        
+                    });
+                });
+
+                this.form.post("api/GetListSignatory/") .then(({ data }) => (this.GetListSignatory = data)  );
+                this.form.post("api/GetListSignatoryAllowed/") .then(({ data }) => (this.AllowedSignator = data)  );
+
                     this.form.CustAcctNO                 = this.ResultQueryRequest.CustAcctNO;
 				    this.form.RequestNo                 = this.ResultQueryRequest.RequestNo;
 					this.form.AcceptedOption 	        = this.ResultQueryRequest.AcceptedOption;
@@ -1428,34 +1580,12 @@ export default {
                     this.form.RequestStatus             = this.ResultQueryRequest.Status;
                     this.form.CocNoRequest              =this.ResultQueryRequest.CocNoRequest;
                     this.form.AuthCodeRequest           =this.ResultQueryRequest.AuthCodeRequest;
+                    this.form.Individual              = this.ResultQueryRequest.Individual;
+                    this.form.RegisteredName          = this.ResultQueryRequest.RegisteredName;
+                    this.form.CName                    = this.ResultQueryRequest.CName;
                     this.$forceUpdate();
               
-            let uri = window.location.href.split("?");
-            let PassIDNew = uri[1].trim();
-   
-           // alert(PassIDNew);
-            axios
-                .get("api/CustomerAcceptedCoverage/" + PassIDNew)
-                .then(({ data }) => {
-                    this.GetNewGroup = data;
-                    console.log(this.GetNewGroup);
-                });
-
-            axios
-                .get("api/CustomerAcceptedCoverage/" + PassIDNew)
-                .then(({ data }) => {
-                    let results = (this.URLQueryPerilsCoveragesGroup = data);
-                    results.map(details => {
-                        // console.log(details.ListCoverages);
-                        this.ListCoverages              = details.ListCoverages;
-                        this.ListCharges                = details.ListCharges;
-                        this.ClausesWarranties          = details.ClausesWarranties;
-                        this.Accessories                = details.Accessories;
-                        this.Sections                   = this.URLQueryPerilsCoveragesGroup;
-						
-                        
-                    });
-                });
+          
 				
 				
 				
@@ -1484,13 +1614,14 @@ export default {
                              });
                              
 				            
-				 })
+                 })
+                   this.SplitStatementClauses();
+                      this.SplitDescription();
 				  
 				 }, 1000);
 				 
 				  this.RetrieveTimeInterval2 = setInterval(() => {
-                      this.SplitStatementClauses();
-                      this.SplitDescription();
+                    
                                                   
 								clearInterval(this.RetrieveTimeInterval);
         }, 			5000);
@@ -1556,9 +1687,9 @@ export default {
        
     },
 
-    created() {
-        this.loadData();
-    }
+    // created() {
+    //     this.loadData();
+    // }
 };
 </script>
 

@@ -47,23 +47,34 @@
 <template >
 
   <div>
-    <section class="content-header">
+    <!-- <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
-        <!-----{{data}}---->
+    
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Quotation </li>
       </ol>
-    </section>
+    </section> -->
 
     <!-- Main content -->
-	
-<section class="content"  >
-      <div class="row"  >
-    
+ <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+ </section>
+
+  <section class="content" v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }}</big></h1>
+                </div>
+ </section>
+
+
+   <section class="content" v-show="isShowingRecord"  v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'">         
+         <div class="row" >
         <div class="col-md-6" v-for="URLQueryPerilsCoveragesGroups in URLQueryPerilsCoveragesGroup" :key="URLQueryPerilsCoveragesGroups._id" >
               <div class="box box-solid">
                 <div class="box-header with-border box box-success" id="quotehead" >
@@ -86,7 +97,13 @@
                   <div class="row">
                             <div class="table-responsive">
                                     <table style="width:100%" >
-                                            <tr><th style="text-align:left">TO</th> <th>:</th> <th>{{ form.AcctName}}</th></tr>
+                                            <tr><th style="text-align:left">TO</th> <th>:</th> 
+                                                    <th>
+                                                      <big v-if="form.Individual !=='Others'">   {{ form.AcctName}} </big>
+                                                      <big v-else>   {{ form.RegisteredName}} </big>
+                                                   </th>
+                                                    
+                                            </tr>
                                              <tr><th style="text-align:left"><br/></th></tr>
                                             <tr><th style="text-align:left">FROM</th> <th>:</th> <th>{{ form.AssignCRD}} <br/> 
                                                     <small>
@@ -239,9 +256,9 @@
                 </div>
             </div>
         </div>
-    </div>
+</div>
 		
-<!-------------<pre>{{ $data }}</pre>----------->
+<!-- -----------<pre>{{ $data }}</pre>--------- -->
       
     </section>
   </div>
@@ -262,6 +279,7 @@ export default {
          	axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
             this.AutoLoadGetData();
             this.loadData();
+            this.StartLoading();
 
             
     },
@@ -279,6 +297,18 @@ export default {
              isShowing:false,
              isShowingApproval:true,
              isShowingPass:true,
+
+
+                 IntervalLoading:null,
+                 IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:47,
+                 timer_is_on:0,
+
+
             form: new Form({
                 TINNumber:'',
                 EmailAddress:'',
@@ -331,6 +361,22 @@ export default {
     },
 
     methods: {
+        LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
+
+
          AutoLoadGetData(){ 
          
                     let uri         = window.location.href.split('?');
@@ -344,7 +390,7 @@ export default {
                         //this.URLQueryPerilsCoveragesGroup.map(( URLQueryPerilsCoveragesGroups) => {
                                         let TotalCoverages   =  parseFloat(this.form.TxtCoverageAmount[URLQueryPerilsCoveragesGroups.OptionNo]);
                                         
-                                        axios.get('api/ListApproverQuotation') .then(({ data }) => (this.ListApproverQuotation = data)  );
+                                        axios.get('api/ListApproverQuotation/' + TotalCoverages) .then(({ data }) => (this.ListApproverQuotation = data)  );
                                         this.$forceUpdate();
                                        //alert(TotalCoverages);
                             //})
@@ -411,6 +457,12 @@ export default {
         loadData() {
             axios.get('api/wordings').then(({data}) => this.Wordings = data)
              this.RetrieveTimeInterval = setInterval(() => {
+                                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
+
+
             this.ResultQueryRequest.data.map((ResultRequestDetailss) => { 
                 this.form.TINNumber          =ResultRequestDetailss.TINNumber;
                 this.form.EmailAddress       =ResultRequestDetailss.EmailAddress;
@@ -436,7 +488,9 @@ export default {
                 this.form.Deductible         =ResultRequestDetailss.Deductable;
                 this.form.QuoteExpiryStatus  =ResultRequestDetailss.QuoteExpiryStatus;
                   this.form.AcctName           = ResultRequestDetailss.FirstName + " " + ResultRequestDetailss.MiddleName + " " + ResultRequestDetailss.LastName ;
-             
+                this.form.RegisteredName      = ResultRequestDetailss.RegisteredName;
+               this.form.Individual          = ResultRequestDetailss.Individual;
+
                  this.form.AssignCRD          = ResultRequestDetailss.AssignCRD;
                   this.form.NoAOG              =ResultRequestDetailss.WithAOG;
                 

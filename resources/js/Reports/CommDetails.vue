@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Content Header (Page header) -->
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                 Agent 
                 <small>Details of Commission</small>
@@ -22,7 +22,7 @@
                     Reports
                 </li>
             </ol>
-        </section>
+        </section> -->
 
         <section class="content" v-if="details[0].CustAcctNO.trim() ===  UserDetails.AccountNo.trim()" >
             <div class="row">

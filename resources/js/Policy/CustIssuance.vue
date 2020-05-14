@@ -1,6 +1,6 @@
 <template>
     <div>
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                 Quotations
                 <small>List of Quotations Approved</small>
@@ -11,9 +11,22 @@
                 </li>
                 <li class="active">Quotation</li>
             </ol>
+        </section> -->
+
+        <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section>
+
+
+        <section class="content"  v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h4> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }} </big></h4>
+                </div>
         </section>
 
-        <section class="content"  > 
+        <section class="content" v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'" > 
                                         <div v-if="selectedImage" max-width="100%" class="no-print">
                                             <!-- <img :src="selectedImage" alt="" width="100%" @click.stop="selectedImage = null"> -->
                                             <img :src="'OR-CR/' + form.UploadedORCR" alt="" width="100%" @click.stop="selectedImage = null">
@@ -37,7 +50,14 @@
                             <tr>
                             <td >Policy No.</td><th>:</th><th style="text-align:left">{{ form.QuotationNoDisplay}}</th>
                             </tr><tr>
-                            <td>Assured </td><th>:</th><th style="text-align:left">{{ form.LastName + ", " }} {{ form.FirstName }}  {{ form.MiddleName + ". " }} </th>
+                            <td>Assured </td><th>:</th>
+                                <th style="text-align:left">
+                                    <!-- {{ form.LastName + ", " }} {{ form.FirstName }}  {{ form.MiddleName + ". " }}  -->
+                                        <small v-if="form.Individual !=='Others'">   {{ form.CName }} </small>
+                                        <small v-else>   {{ form.RegisteredName}} </small>
+
+
+                                </th>
                             </tr><tr>
                             <td>Address </td><th>:</th><td style="text-align:left"> {{ form.Address }} <br/>  {{ form.Barangay }} {{ form.City }}</td>
                             </tr>
@@ -138,11 +158,10 @@
                                      <tr class="no-print">
                                          <th>OR /CR :</th>
                                         <td > 
-                                            <img :src="'OR-CR/' + form.UploadedORCR" width="100px" @click="zoom()">
+                                            <img :src="'OR-CR/' + form.UploadedORCR" width="100px" @click="zoom()" v-if="form.UploadedORCR !== 'none'">
+                                             <small v-if="form.UploadedORCR === 'none'">NO CR Uploaded  </small>
                                         
-
-                                         <!-------   <img v-bind:src="'/OR-CR/' + form.UploadedORCR"  alt="OR-CR" style="height: 50px;" @click="zoom(url)">-------->
-                                         </td>
+                                        </td>
                                        
                                     </tr>
 
@@ -588,6 +607,7 @@ export default {
             let PassID = uri[1].trim();
        // axios.get("api/GetListClauses/" + PassID) .then(({ data }) => (this.GetListClauses = data)  );
       this.loadData();
+      this. StartLoading();
         
     },
    
@@ -613,6 +633,17 @@ export default {
             selectedImage: null,
             RetrieveTimeInterval: null,
             RetrieveTimeInterval2: null,
+                
+                IntervalLoading:null,
+                IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:47,
+                 timer_is_on:0,
+
+
             
             form: new Form({
                 CustAcctNO: "",
@@ -733,10 +764,31 @@ export default {
     },
 
     methods: {
+
+         LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
+
+
+
+
           zoom(url) {
       console.log("Zoom", url);
      //this.selectedImage = url;
      this.selectedImage = this.form.UploadedORCR;
+
+
     },
 
         cancelUpdate() {
@@ -875,18 +927,30 @@ export default {
 
               let uri = window.location.href.split("?");
             let PassIDNew = uri[1].trim();
+           
    
          axios.get("api/GetListSignatory/") .then(({ data }) => (this.GetListSignatory = data)  );
          axios.get("api/URLQueryRequestModify/" + PassIDNew).then(({ data })  => (this.ResultQueryRequest = data)  );
-            axios
-                .get("api/CustomerAcceptedCoverage/" + PassIDNew)
+    this.RetrieveTimeInterval = setInterval(() => {   
+
+
+                                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
+
+
+
+         let PassIDNew1 = uri[1].trim() +  ";;" + this.UserDetails.AccountNo;
+           axios
+                .get("api/CustomerAcceptedCoverage/" + PassIDNew1)
                 .then(({ data }) => {
                     this.GetNewGroup = data;
                     //console.log(this.GetNewGroup);
                 });
 
             axios
-                .get("api/CustomerAcceptedCoverage/" + PassIDNew)
+                .get("api/CustomerAcceptedCoverage/" + PassIDNew1)
                 .then(({ data }) => {
                     let results = (this.URLQueryPerilsCoveragesGroup = data);
                     results.map(details => {
@@ -900,9 +964,9 @@ export default {
                         
                     });
                 });
-                 this.RetrieveTimeInterval = setInterval(() => {
+              
          
-                    this.form.CustAcctNO                 = this.ResultQueryRequest.CustAcctNO;
+                    this.form.CustAcctNO                = this.ResultQueryRequest.CustAcctNO;
 				    this.form.RequestNo                 = this.ResultQueryRequest.RequestNo;
 					this.form.AcceptedOption 	        = this.ResultQueryRequest.AcceptedOption;
                     this.form.TINNumber 		        = this.ResultQueryRequest.TINNumber;
@@ -952,6 +1016,9 @@ export default {
                     this.form.RequestStatus             = this.ResultQueryRequest.Status;
                     this.form.CocNoRequest              =this.ResultQueryRequest.CocNoRequest;
                     this.form.AuthCodeRequest           =this.ResultQueryRequest.AuthCodeRequest;
+                    this.form.Individual              = this.ResultQueryRequest.Individual;
+                    this.form.RegisteredName          = this.ResultQueryRequest.RegisteredName;
+                    this.form.CName                    = this.ResultQueryRequest.CName;
                     this.$forceUpdate();
               
           

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                 Proposal Lists
                 <small>Table of Proposal</small>
@@ -11,12 +11,19 @@
                 <li class="active">Proposal List</li>
             </ol>
         </section>
-     
-         <section class="content">
+      -->
+      <section class="content" v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" > {{ this.RequestQuotations  }}</big></h1>
+                </div>
+         </section>
+
+
+         <section class="content" v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
             <div class="box box-success">
                 <div class="box-header">
-                    <h3 class="box-title">List of all Request Proposals / Quotations</h3>
-
+                    <big>Request List</big><br/>
+             
                     <div class="box-tools">
                         <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
                             <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
@@ -31,7 +38,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="box-body table-responsive">
+                <div class="box-body table-responsive" >
                     <table class="table table-hover text-center">
                         <tbody>
                             <tr>
@@ -51,7 +58,8 @@
                                 <td>{{ RequestQuotationss.FirstName}}  {{RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
                                 
                                
-                                <td>{{ RequestQuotationss.QuoteExpiry | DateFormat}} <br/>
+                                <td>
+                                      <small v-if="RequestQuotationss.QuoteExpiry !== '0'">  {{ RequestQuotationss.QuoteExpiry | DateFormat}} </small><br/>
                                         <span class="label label-danger"  v-if="RequestQuotationss.QuoteExpiryRemarks == 'Expired'">{{ RequestQuotationss.QuoteExpiryRemarks}}</span>
                                         <br/> <span class="label label-primary"  v-if="RequestQuotationss.CustMessage != null ">{{ RequestQuotationss.CustMessage}}</span>
                           

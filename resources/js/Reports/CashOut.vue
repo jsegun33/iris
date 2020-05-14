@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Content Header (Page header) -->
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                 Agent 
                 <small>Commission Convert</small>
@@ -22,9 +22,23 @@
                     Reports
                 </li>
             </ol>
-        </section>
+        </section> -->
 
-        <section class="content" >
+         <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section>
+
+
+        <section class="content" v-show="isShowingRecord" v-if="this.details === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h4> <big class="label label-warning" >{{ this.details  }} </big></h4>
+                </div>
+      </section>
+
+
+        <section class="content" v-show="isShowingRecord"  v-if="this.details !== 'NO RECORD FOUND'" >
             <div class="row" >
                 <div class="col-md-5">
                     <div class="box box-primary">
@@ -38,8 +52,11 @@
                                 {{ details[0].FirstName + ' '+ details[0].MiddleName   + ' ' + details[0].LastName }} 
                             </h3>
 
-                            <p class="text-muted text-center">
+                            <p class="text-muted text-center" v-if="this.UserDetails.AgentType != null">
                                 {{ UserDetails.AgentType +  " : " + UserDetails.SubAgent }}
+                            </p>
+                             <p class="text-muted text-center" v-else>
+                               Department: {{ UserDetails.department  }}
                             </p>
 
 
@@ -190,7 +207,9 @@
 export default {
     mounted: function(){ 
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-        this.loadCommission();
+        
+         this.StartLoading();
+         this.loadCommission();
     },
 
 
@@ -203,6 +222,17 @@ export default {
                isDisabled:true,
                RetrieveTimeInterval:null,
                 RetrieveTimeInterval2:null,
+
+                IntervalLoading:null,
+                IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:180,
+                 timer_is_on:0,
+
+
               form: new Form({
                  StartDate:'',
                  EndDate:'',
@@ -220,6 +250,21 @@ export default {
         
     },
     methods: {
+
+           LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
       
        async CashOutComm(){
           this.form.AccountNo =  this.UserDetails.AccountNo;
@@ -332,9 +377,12 @@ export default {
 
          loadCommission() {
        this.RetrieveTimeInterval =  setInterval(() => {
+
+                              
+
                         let PassID = this.UserDetails.AccountNo; // uri[1].trim();
 
-                         axios.get("api/AgentCommReportCashOut/" + PassID).then(({ data }) => (this.details = data));
+             axios.get("api/AgentCommReportCashOut/" + PassID).then(({ data }) => (this.details = data));
                 let PassData;
                     if (this.form.StartDate == '' || this.form.EndDate == ''){
                     let date = new Date();
@@ -354,23 +402,27 @@ export default {
                         this.logs = data
                     //  this.form.RequestNo = this.logs.RequestNo;
                     }).catch((response) => {
-                            Swal.fire(
-                                " No Record !",
-                                " FOUND " + response,
-                                "warning"
-                            );
+                            // Swal.fire(
+                            //     " No Record !",
+                            //     " FOUND " + response,
+                            //     "warning"
+                            // );
 
                     })
                 // alert(this.logs.length);
-                    console.log();
+                 
               
           }
         , 1000)
 
       this.RetrieveTimeInterval2 = setInterval(() => {
                 clearInterval(this.RetrieveTimeInterval);  
+                 clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
                   
-            },5000) 
+            },3000) 
 
      }
 

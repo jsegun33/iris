@@ -36,7 +36,7 @@
 <template >
 
   <div>
-    <section class="content-header">
+    <!-- <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
@@ -46,12 +46,27 @@
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Quotation </li>
       </ol>
-    </section>
+         <big class="label label-warning" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'">{{ this.ResultTotalCom  }} </big>
+    </section> -->
 
     <!-- Main content -->
-	
-<section class="content"  v-if="form.CustAcctNO.trim() ===  UserDetails.AccountNo.trim()">
-      <div class="row"  >
+
+    <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section>
+
+
+	<section class="content"  v-show="isShowingRecord"  v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h4> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }} </big></h4>
+                </div>
+    </section>
+
+<section class="content" v-show="isShowingRecord"   v-if="form.CustAcctNO.trim() ===  UserDetails.AccountNo.trim()">
+  
+      <div class="row"  v-if="this.URLQueryPerilsCoveragesGroup !=='NO RECORD FOUND'" >
     
         <div class="col-md-6" v-for="URLQueryPerilsCoveragesGroups in URLQueryPerilsCoveragesGroup" :key="URLQueryPerilsCoveragesGroups._id" >
           
@@ -77,7 +92,13 @@
                      <div class="row">
                             <div class="table-responsive">
                                     <table style="width:100%" >
-                                            <tr><th style="text-align:left">TO</th> <th>:</th> <th>{{ form.AcctName}}</th></tr>
+                                            <tr><th style="text-align:left">TO</th> <th>:</th> 
+                                            <th>
+                                                <big v-if="form.Individual !=='Others'">   {{ form.AcctName}} </big>
+                                                <big v-else>   {{ form.RegisteredName}} </big>
+                                            </th>
+                                            
+                                            </tr>
                                              <tr><th style="text-align:left"><br/></th></tr>
                                             <tr><th style="text-align:left">FROM</th> <th>:</th> <th>{{ form.AssignCRD}} <br/> 
                                                     <small>
@@ -200,13 +221,7 @@ export default {
  // props : ['propMessage'],
    mounted: function(){ 
 	 axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
-                    let uri         = window.location.href.split('?');
-                    let PassID      = uri[1].trim() + ";;0";
-                  
-			
-        axios.get("api/URLQueryRequest/" + PassID ) .then(({ data }) => (this.ResultQueryRequest = data)  );
-        axios.get("api/CustomerAcceptedCoverageView/" + PassID ) .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data)  );
-       
+         this.StartLoading();        
     },
 
     data() {
@@ -220,6 +235,16 @@ export default {
             RetrieveTimeInterval:null,
              isShowing:false,
               Wordings: {},
+
+
+              IntervalLoading:null,
+                IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:120,
+                 timer_is_on:0,
             
             form: new Form({
                 TINNumber:'',
@@ -269,6 +294,21 @@ export default {
 
     methods: {
 
+          LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
+
    
  
 
@@ -276,9 +316,26 @@ export default {
    
 
     created() {
+        
          axios.get('api/wordings').then(({data}) => this.Wordings = data)
         this.RetrieveTimeInterval = setInterval(() => {
+               let uri         = window.location.href.split('?');
+               let PassID      = uri[1].trim() + ";;" + this.UserDetails.AccountNo;
+                  
+			
+                axios.get("api/URLQueryRequest/" + PassID ) .then(({ data }) => (this.ResultQueryRequest = data)  );
+                axios.get("api/CustomerAcceptedCoverageView/" + PassID ) .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data)  );
+       
+
+
             this.ResultQueryRequest.data.map((ResultRequestDetailss) => { 
+
+                                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
+
+
                 this.form.TINNumber          =ResultRequestDetailss.TINNumber;
                 this.form.EmailAddress       =ResultRequestDetailss.EmailAddress;
                 this.form.MotorBrand         =ResultRequestDetailss.MotorBrand;
@@ -307,6 +364,8 @@ export default {
                 this.form.OptionWithAOG      =ResultRequestDetailss.OptionWithAOG;
                 this.form.AcceptedOption     =ResultRequestDetailss.AcceptedOption;
                 this.form.CustAcctNO         =ResultRequestDetailss.CustAcctNO;
+                this.form.Individual              = ResultRequestDetailss.Individual;
+                this.form.RegisteredName          = ResultRequestDetailss.RegisteredName;
                 
                 this.$forceUpdate();   
             })

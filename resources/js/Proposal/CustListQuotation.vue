@@ -1,6 +1,6 @@
 <template>
     <div>
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                  Lists Customer Quotation
                 <small>Table of Quotation</small>
@@ -10,16 +10,28 @@
                 <li><a href="#"><i class="fa fa-file-text"></i> Quotation / Proposal</a></li>
                 <li class="active">Proposal List</li>
             </ol>
-        </section>
-     
+        </section> -->
+
+         <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section>
+
+
+     <section class="content" v-show="isShowingRecord" v-if="this.RequestQuotations === 'NO RECORD FOUND'">
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h1>
+                </div>
+    </section>
          
             
        
-        <section class="content">
+        <section class="content" v-show="isShowingRecord" v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
             <div class="box box-success">
                 <div class="box-header">
-                    <h3 class="box-title"><strong>List of all Request Proposals / Quotations</strong></h3>
-
+                    <h3 class="box-title"><strong>List Request Proposals / Quotations</strong></h3><br/>
+                   
                     <div class="box-tools">
                         <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
                             <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
@@ -33,7 +45,7 @@
                     </div>
                 </div>
 
-                <div class="box-body table-responsive">
+                <div class="box-body table-responsive" >
                     <table class="table table-hover text-center">
                         <tbody>
                             <tr>
@@ -52,7 +64,8 @@
                                 <td>{{ RequestQuotationss.Denomination }}</td>
                                 <td>{{ RequestQuotationss.FirstName}}  {{RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
                                 <td>{{ RequestQuotationss.AmountDue | Peso }}</td>
-                                <td>{{ RequestQuotationss.QuoteExpiry | DateFormat}}   <br/> 
+                                <td>
+                                        <small v-if="RequestQuotationss.QuoteExpiry !== '0'">{{ RequestQuotationss.QuoteExpiry | DateFormat}}  </small>  <br/> 
                                         <span class="label label-danger"  v-if="RequestQuotationss.QuoteExpiryRemarks == 'Expired'">{{ RequestQuotationss.QuoteExpiryRemarks}}</span>
                                         <br/> <span class="label label-primary"  v-if="RequestQuotationss.CustMessage != null ">{{ RequestQuotationss.CustMessage}}</span>
                                 </td>
@@ -109,7 +122,7 @@ export default {
             console.log('Component mounted.')
             //this.getResults();
            axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
-          // this.loadRequestQuotation();
+          this.StartLoading();
         },
          data() {
             return {
@@ -120,7 +133,16 @@ export default {
                 RetrieveTimeInterval2:null,
                  RetrieveTimeInterva3:null,
                 RetrieveTimeInterval4:null,
-                //counter:1,
+               
+               
+               IntervalLoading:null,
+                IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:47,
+                 timer_is_on:0,
          
                     form: new Form({
                        // UserLastName:[],
@@ -133,8 +155,33 @@ export default {
 
         methods: {
 
+              LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
+
+
          loadRequestQuotation() {
          this.RetrieveTimeInterval = setInterval(() => {   
+
+                                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
+
+
+
+
                let PassNO            = this.UserDetails.AccountNo;
                 let PassEmail         = this.UserDetails.email;	    		
                 let NewPassID         = PassNO.trim() ; 

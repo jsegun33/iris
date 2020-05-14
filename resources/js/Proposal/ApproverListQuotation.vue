@@ -1,6 +1,6 @@
 <template>
     <div>
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                  Lists Approver Quotation
                 <small>Table of Quoatation</small>
@@ -10,13 +10,27 @@
                 <li><a href="#"><i class="fa fa-file-text"></i> Quotation / Proposal</a></li>
                 <li class="active">Proposal List</li>
             </ol>
-        </section>
+        </section> -->
+
+         <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section>
+
+         <section class="content" v-if="this.RequestQuotations === 'NO RECORD FOUND'" v-show="isShowingRecord"  >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" > {{ this.RequestQuotations   }}</big></h1>
+                </div>
+         </section>
 
 
-         <section class="content">
-            <div class="box box-success">
+
+         <section class="content" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" v-show="isShowingRecord">
+              
+            <div class="box box-success" >
                 <div class="box-header">
-                    <h3 class="box-title">List of all Request Proposals / Quotations</h3>
+                    <h3 class="box-title">List of all Request Proposals / Quotations</h3><br/>
 
                     <div class="box-tools">
                         <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
@@ -32,9 +46,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="box-body table-responsive">
+                <div class="box-body table-responsive" >
                     <table class="table table-hover text-center">
-                        <tbody>
+                        <tbody >
                             <tr>
                                 <th>Plate Number</th>
                                 <th>Denomination</th>
@@ -79,7 +93,6 @@
 		
 
 
-
 <script>
 
  
@@ -95,12 +108,23 @@ export default {
             // axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
              axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
             this.loadRequestQuotation() ;
+           this.StartLoading();
         },
          data() {
             return {
                 RetrieveTimeInterval:null,
                 RetrieveTimeInterval2:null,
-              
+                IntervalLoading:null,
+                IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:47,
+                 timer_is_on:0,
+
+
+
                 url: '/proposal?2019-0001',
                 editmode: false,
                 RequestQuotations: {},
@@ -112,6 +136,24 @@ export default {
 
 
         methods: {
+
+             LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
+
+           
+
             getResults(page = 1) {
                 axios.get('api/GetRequestQuotationApprover?page=' + page).then(response => {
                     this.RequestQuotations = response.data;
@@ -119,22 +161,32 @@ export default {
             },
             loadRequestQuotation() {
               this.RetrieveTimeInterval = setInterval(() => {
+
+                                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
+                                
                         let PassID =this.UserDetails.AccountNo;
+                        //console.log(this.RetrieveTimeInterval);
 						//alert(PassID);
                         axios.get("api/GetRequestQuotationApprover/" + PassID).then(({ data }) => (this.RequestQuotations = data));
+                                
                  }, 1000)
 
                   this.RetrieveTimeInterval2 = setInterval(() => {
-                            clearInterval(this.RetrieveTimeInterval);  
-                    },2000) 
+                            clearTimeout(this.RetrieveTimeInterval);  
+                           
+                            
+                    },5000) 
             },
-            ViewRequest() {
-             window.open("request"); 
-               //window.location.hostname + '/request' 
-               
-            },
+           
          
           },
+
+          computed: {
+            
+        }
 
 
             
@@ -148,3 +200,4 @@ export default {
     
 }
 </script>
+

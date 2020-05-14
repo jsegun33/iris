@@ -12,27 +12,23 @@
                 <li class="active">Quotation</li>
             </ol>
         </section> -->
-         <section class="content" v-show="isShowingLoading" >
+
+        <section class="content" v-show="isShowingLoading" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
          </section>
 
 
-         <section class="content" v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h4> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }} </big></h4>
-                </div>
-        </section>
 
-        <section class="content"  v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'" >
+        <section class="content" v-show="isShowingRecord">
                              <div v-if="selectedImage" max-width="100%" class="no-print">
                                             <!-- <img :src="selectedImage" alt="" width="100%" @click.stop="selectedImage = null"> -->
                                             <img :src="'OR-CR/' + form.UploadedORCR" alt="" width="100%" @click.stop="selectedImage = null">
                                             <hr>
                                         </div>
 
-            <div class="invoice">
+            <div class="invoice ">
                 <div class="row no-print">
                     <div class="col-xs-12">
                         <h2 class="page-header">
@@ -52,9 +48,8 @@
                             <td>Assured </td><th>:</th>
                             <th style="text-align:left">
                                 <small v-if="form.Individual !=='Others'">   {{ form.CName }} </small>
-                                        <small v-else>   {{ form.RegisteredName}} </small>
-
-                            </th>
+                                    <small v-else>   {{ form.RegisteredName}} </small> 
+                           </th>
                             </tr><tr>
                             <td>Address </td><th>:</th><td style="text-align:left"> {{ form.Address }} <br/>  {{ form.Barangay }} {{ form.City }}</td>
                             </tr>
@@ -72,9 +67,15 @@
                                     </tr><tr>
                                     <td style="text-align:left">Term To  </td><th>:</th><td style="text-align:left"> {{ form.MotorExpiryDate | dateFormat }}</td>
                                     </tr><tr>
-                                    <td style="text-align:left">COC No.  </td><th>:</th><td style="text-align:left"> </td>
+                                    <td style="text-align:left">COC No.  </td><th>:</th>
+                                     <td>  {{ form.CocNoRequest}}</td>
                                     </tr><tr>
-                                    <td style="text-align:left">Authentication Code.  </td><th>:</th><td style="text-align:left"> </td>
+                                    <td style="text-align:left">Authentication Code.  
+                                      
+                                    </td><th>:</th> <td>   
+                                        <button v-if="form.CocNoRequest !== null || form.AuthCodeRequest !== null" class="btn btn-xs btn-primary no-print" style="text-decoration: none;" @click="UpdateAuthentication()">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>   {{ form.AuthCodeRequest}}  </td>
                                     </tr>
                                 
                                 </table>
@@ -83,7 +84,7 @@
                     </div>
                 </div>
 
-                 <div class="row invoice-info">
+                <div class="row invoice-info">
                     <div class="col-md-12">
                         <table class="table" style="width:80%;font-size: 12px;">
                             <tr>
@@ -154,12 +155,11 @@
 
                                      <tr class="no-print">
                                          <th>OR /CR :</th>
-                                          <td > 
+                                        <td > 
                                             <img :src="'OR-CR/' + form.UploadedORCR" width="100px" @click="zoom()" v-if="form.UploadedORCR !== 'none'">
                                              <small v-if="form.UploadedORCR === 'none'">NO CR Uploaded  </small>
                                         
                                         </td>
-                                       
                                        
                                     </tr>
 
@@ -401,7 +401,7 @@
                                         </th>
                                     </tr>
 
-                                     <tr> <th colspan="3"><br/></th></tr>
+                                      <tr> <th colspan="3"><br/></th></tr>
                                      <tr>
                                         <td colspan="3" style="text-align:right;" >Deductible : </td>
                                         <td class="pull-right" >
@@ -420,7 +420,6 @@
                                             {{  form.AuthRepairLimit | peso }}
                                         </td>
                                     </tr>
-
                                 </tbody>
                             </table>
 
@@ -453,10 +452,7 @@
                                 Authorized Signature 
                             </p> 
 							
-                            <button class="btn btn-success pull-right no-print" @click="UploadSignature()" v-if="form.RequestStatus == 'Accepted'">
-                                <i class="glyphicon glyphicon-pencil"></i>
-                                E-Signature
-                            </button>
+                          
                         </div>
                     </div>
                 </div>
@@ -464,7 +460,7 @@
                     
                 </div>
             </div>
-            <!-------------------Policy Attach Docs.------------------------->
+            <!-------------------Policy Attach Docs.------ <pre>{{ $data}} </pre>------------------->
             <div class="invoice pagebreak" >
               
                 <div class="row invoice-info" style="font-size: 12px;">
@@ -576,48 +572,23 @@
                             
                         </table>
 
-
+                   
                        
                 </div>
                 </div>
 
-                <div class="row no-print" v-if="form.RequestStatus == 'Accepted'">
+                <div class="row no-print" v-if="form.RequestStatus == 'Approved' && form.CocNoRequest == 0">
                     <div class="col-xs-12">
                       
-                      <!-- <a href="api/ISAPInternalAuth" target="_blank">
-                        <button
+                     <button v-if="form.OnlyCTPL === 1 && form.PaymentMode !== '0'  && UserDetails.department ==='UW' || UserDetails.department ==='IT'" @click="PassAuthentication()"
                             type="button"
                             class="btn btn-info pull-right"  
                             >
                             <i class="fa  fa-send"></i>
                             Internal Authentication
                         </button>
-                    </a> -->
 
-                        
-                        <router-link
-                            to="/proposal-lists-accepted"
-                            class="btn btn-primary pull-right"
-                            style="margin-right: 5px; text-decoration: none;">
-                            <i class="fa  fa-arrow-circle-left"></i>
-                            Back
-                        </router-link>
-                         <button
-                            type="button"
-                            class="btn btn-success pull-right"  
-                            @click="SubmitForSignature"
-                            >
-                            <i class="fa fa-file-pdf-o"></i>
-                            Submit
-                        </button>
-                        
-                        <div class="pull-right" style="margin-right: 5px; width: 250px;">
-                            <select class="form-control" v-model="form.SignatureName" required >
-                                <option value="" selected disabled >Select Signatory</option>
-                                <option    v-for="GetListSignatorys in GetListSignatory" :key="GetListSignatorys._id"  v-bind:value="GetListSignatorys._id + ';;' + GetListSignatorys.AccountNo +  ';;' + GetListSignatorys.CName"  >{{ GetListSignatorys.CName }}</option>
-                
-                            </select>
-                        </div>
+                       
                       
 						
                     </div>
@@ -634,8 +605,9 @@ export default {
         let uri = window.location.href.split("?");
             let PassID = uri[1].trim();
        // axios.get("api/GetListClauses/" + PassID) .then(({ data }) => (this.GetListClauses = data)  );
-        axios.get("api/GetListSignatory/") .then(({ data }) => (this.GetListSignatory = data)  );
-          axios.get("api/URLQueryRequestModify/" + PassID).then(({ data })  => (this.ResultQueryRequest = data)  );
+        //axios.get("api/GetListSignatory/") .then(({ data }) => (this.GetListSignatory = data)  );
+         axios.get("api/GetCOCNo") .then(({ data }) => (this.GetCOCNo = data)  ); 
+        axios.get("api/URLQueryRequestModify/" + PassID).then(({ data })  => (this.ResultQueryRequest = data)  );
         this.StartLoading();
     },
 
@@ -649,9 +621,10 @@ export default {
             GetNewGroup: {},
             ListCoverages: {},
             ListCharges: {},
+            GetCOCNo: {},
             ClausesWarranties: {},
             Accessories: {},
-            GetListSignatory: {},
+           // GetListSignatory: {},
             GetListClauses: {},
             Sections: {},
              UserDetails:{},
@@ -778,16 +751,22 @@ export default {
                  UploadedORCR: '',
                  PolicySignature: '',
                  RequestStatus: '',
-                    Deductible: '',
+               
+                 COCNo: '',
+                 OnlyCTPL: '',
+                 GetCOCNo: '',
+                 GetAuthNo: '',
+                 Deductible: '',
                  TowingLimit: '',
                  AuthRepairLimit: '',
+                 PaymentMode: '',
+                 
 
             })
         };
     },
 
     methods: {
-
             LoadingDesign(){
                         this.IntervalLoading  = this.clock;
                         this.clock = this.IntervalLoading - 1;
@@ -803,41 +782,114 @@ export default {
               
             },
 
+
           zoom(url) {
       console.log("Zoom", url);
      //this.selectedImage = url;
      this.selectedImage = this.form.UploadedORCR;
     },
 
+      async UpdateAuthentication() {
+            const { value: text } = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Input Authentication Code",
+                icon: 'info',
+                input: 'text',
+                inputPlaceholder: 'Type Authentication Code...',
+                inputAttributes: {
+                    'aria-label': 'Authentication Code'
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+            }).then(result => {
+                // console.log(result);
+                this.form.AuthCode = result.value
+               // this.loadData()
+
+                let GetRequestNo =  this.form.RequestNo.trim()  + ';;'  + this.form.AuthCode;
+                if (this.form.AuthCode === '' || this.form.AuthCode) {
+                   
+                    axios.get("api/UpdateAuthentication/" + GetRequestNo )
+                            .then(() => {
+                                Swal.fire(
+                                    "Request for Modification!",
+                                    "Request has been Submitted.",
+                                    "success"
+                                );
+                                // Success
+                                this.loadData();
+                                //alert(_id);
+                                //this.addClauses = false
+                            })
+                }
+                
+
+            }).catch(() => {
+               
+                Swal.fire(
+                    "Failed",
+                    "There was something wrong",
+                    "warning"
+                );
+            })
+        },
 
 
-	UploadSignature(){
-	 let uri = window.location.href.split("?");
-      let PassID = uri[1].trim() + ';;' + this.UserDetails.AccountNo + ';;' + this.UserDetails.CName  + ';;' + this.UserDetails.signature ;
-	 Swal.fire({
-                title: "Approve ?",
-                text: "",
+PassAuthentication(){
+           Swal.fire({
+                title: "Are you sure?",
+                text: "Updated Scheduled Vehicle",
                 icon: "success",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
                 confirmButtonText: "Yes!"
             }).then(result => {
-                // Send request to the server
-			
+                          
+                
+                
+                let COCNO ;  ///gen COCNo
+             if ( this.GetCOCNo[0].CocNoSeqNo ==="0"){
+                   let GenCOCNO = parseFloat(this.GetCOCNo[0].CocNo) + 1;  ///gen COCNo
+                    COCNO    = "0" +  GenCOCNO;
+             }else{
+                   COCNO =  "086000001";  ///gen COCNo
+             } 
+             
+           
+                  
+                let AssuredName = this.form.FirstName + " "  + this.form.MiddleName + " "  + this.form.LastName ;
+              
+                let TinNOA  ;
+                 
+                if (this.form.TINNumber != null){
+                    
+                   TinNOA     = this.form.TINNumber.split('-');
+                 
+                }else{
+                    this.form.TINNumber =  "999-999-999-999";
+                   TinNOA     = this.form.TINNumber.split('-');
+                }
+               let GetRequestNo =  this.form.RequestNo.trim()  + ';;'  + this.form.PlateNumber + ';;'  + COCNO + ';;'  + AssuredName;
+                 
+				let PassData = "TinNOD=" + TinNOA[3] + "&TinNOC=" + TinNOA[2] + "&TinNOB=" + TinNOA[1] + "&TinNOA=" + TinNOA[0]  + "&MotorExpiryDate=" + this.MotorExpiryDateDisplay + "&MotorEffectiveDate=" + this.MotorEffectiveDateDisplay  + "&AssuredName=" + AssuredName +   "&COCNo=" + COCNO +  "&ChassisNo=" +this.form.ChassisNo + "&EngineNo=" + this.form.EngineNo + "&PlateNumber=" + this.form.PlateNumber   + "&MvFileNo=" + this.form.MvFileNo;
+
                 if (result.value) {
-					//alert(GetClausessName);
-                    axios.get("api/UploadSignature/" + PassID )
+				
+				
+                    axios.get("api/SaveAuthentication/" + GetRequestNo)
                         .then(() => {
                             Swal.fire(
-                                "Done Attaching Your e-Signature ",
-                                " ",
+                                "Scheduled Vehicle!",
+                                "Your file has been Updated.",
                                 "success"
                             );
-                            // Success
-                           this.loadData();
-                           /// alert(PassID);
-                            //this.addClauses = false
+                             this.loadData();
+                          	
+                              let route = this.$router.resolve({path: 'api/ISAPInternalAuth?' + PassData});
+                               window.open(route.href, '_blank');
                         })
 
                         .catch(() => {
@@ -846,13 +898,17 @@ export default {
                                 "There was Something wrong",
                                 "warning"
                             );
+							  //let route = this.$router.resolve({path: 'api/ISAPInternalAuth?' + PassData});
+                               //window.open(route.href, '_blank');
                         });
                 }
             });
 	
 	
-	
 	},
+
+
+
         async textRemark() {
             const { value: text } = await Swal.fire({
                 title: 'Are you sure?',
@@ -898,12 +954,7 @@ export default {
                 );
             })
         },
-        InternalAuthen()
-            {
-            
-	        },
-
-
+    
          async SubmitForSignature() {
             const { value: text } = await Swal.fire({
                 title: 'Are you sure?',
@@ -923,7 +974,7 @@ export default {
                 this.form.RemarksSignature = result.value
                 this.loadData()
 
-                let GetRequestNo =  this.form.RequestNo.trim()  + ';;'  + this.UserDetails.AccountNo + ';;' + this.UserDetails.CName  + ';;' + this.ListCoverages[0].OptionNo  + ";;" + this.form.Remarks + ";;" + this.form.IssuanceRemarks + ";;" + this.form.SignatureName + ";;" + this.form.QuotationNoDisplay;
+                let GetRequestNo =  this.form.RequestNo.trim()  + ';;'  + this.UserDetails.AccountNo + ';;' + this.UserDetails.CName  + ';;' + this.ListCoverages[0].OptionNo  + ";;" + this.form.Remarks + ";;" + this.form.IssuanceRemarks + ";;" + this.form.SignatureName;
                 if (this.form.RemarksSignature === '' || this.form.RemarksSignature) {
                     axios.get("api/SubmitForSignature/" + GetRequestNo )
                             .then(() => {
@@ -1310,13 +1361,12 @@ export default {
                  axios.get("api/GetListBanksIssuance/" + PassID) .then(({ data }) => (this.GetListBanksIssuance = data)  );
          },
 
-        loadData() {
+         loadData() {
           this.RetrieveTimeInterval = setInterval(() => {
                                 clearTimeout(this.timer);   //clear timer /loading
                                 this.timer_is_on = 0; //clear timer /loading
                                 this.isShowingLoading = false; //clear timer /loading
                                 this.isShowingRecord = true; 
-
 
                     this.form.CustAcctNO                 = this.ResultQueryRequest.CustAcctNO;
 				    this.form.RequestNo                 = this.ResultQueryRequest.RequestNo;
@@ -1355,7 +1405,10 @@ export default {
                     this.form.PremiumAmount             = this.ResultQueryRequest.PremiumAmount;
                     this.form.PassengerNo               =this.ResultQueryRequest.Passengers;
                     this.form.Renewal                   = this.ResultQueryRequest.Renewal;
-                    this.form.InsuranceAmount          =   parseFloat(this.ResultQueryRequest.TotalCoverages).toFixed(2) ;    
+                    this.form.PaymentMode              = this.ResultQueryRequest.PaymentMode;
+                    this.form.OnlyCTPL              = this.ResultQueryRequest.HasCTPL;
+                     
+                  //   this.form.InsuranceAmount          =   parseFloat(detail.TotalCoverages).toFixed(2) ;    
 
                     let GetDenoSplit                    = this.ResultQueryRequest.Denomination.split('-');
                     let DenoSplit                       = GetDenoSplit[1].trim();
@@ -1369,6 +1422,7 @@ export default {
                     this.form.Individual              = this.ResultQueryRequest.Individual;
                     this.form.RegisteredName          = this.ResultQueryRequest.RegisteredName;
                     this.form.CName                    = this.ResultQueryRequest.CName;
+
                     this.$forceUpdate();
               
             let uri = window.location.href.split("?");
@@ -1426,13 +1480,13 @@ export default {
                              
 				            
                  })
-                   this.SplitStatementClauses();
+                  this.SplitStatementClauses();
                       this.SplitDescription();
 				  
 				 }, 1000);
 				 
 				  this.RetrieveTimeInterval2 = setInterval(() => {
-                    
+                     
                                                   
 								clearInterval(this.RetrieveTimeInterval);
         }, 			5000);
@@ -1440,6 +1494,7 @@ export default {
                
         }
     },
+
     filters: {
         dateFormat(date) {
             return moment(date).format("LL");
@@ -1470,6 +1525,26 @@ export default {
             let year = date.getFullYear();
             return `${month} / ${day} / ${year}`;
         },
+     MotorEffectiveDateDisplay () {
+             let OrigDate = this.form.MotorEffectiveDate ;
+            let date = new Date(OrigDate);
+            let day = date.getDate();
+            let month = date.getMonth() + 1;
+            let year = date.getFullYear();
+           // day < 10 ? '0' + day : '' + day;
+            return `${month < 10 ? '0' + month : '' + month}/${day < 10 ? '0' + day : '' + day}/${year}`;
+   
+        },
+    MotorExpiryDateDisplay () {
+             let OrigDate = this.form.MotorExpiryDate ;
+            let date = new Date(OrigDate);
+            let day = date.getDate();
+            let month = date.getMonth() + 1;
+            let year = date.getFullYear();
+            return `${month < 10 ? '0' + month : '' + month}/${day < 10 ? '0' + day : '' + day}/${year}`;
+   
+        },
+
 
        
     },

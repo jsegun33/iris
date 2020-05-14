@@ -47,11 +47,11 @@ td {
 
 <template >
   <div>
-    <section class="content-header">
+    <!-- <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
-        <!--------{{data}}----->
+      
       </h1>
       <ol class="breadcrumb">
         <li>
@@ -61,11 +61,24 @@ td {
         </li>
         <li class="active">Quotation</li>
       </ol>
-    </section>
+    </section> -->
 
     <!-- Main content -->
+    <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+ </section>
 
-    <section class="content">
+ <section class="content" v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }}</big></h1>
+                </div>
+ </section>
+
+
+
+    <section class="content" v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'">
       <div class="row">
         <div
           class="col-md-6"
@@ -92,7 +105,10 @@ td {
                <div class="row">
                             <div class="table-responsive">
                                     <table style="width:100%" >
-                                            <tr><th style="text-align:left">TO</th> <th>:</th> <th>{{ form.AcctName}}</th></tr>
+                                            <tr><th style="text-align:left">TO</th> <th>:</th> 
+                                                  <big v-if="form.Individual !=='Others'">   {{ form.AcctName}} </big>
+                                              <big v-else>   {{ form.RegisteredName}} </big>
+                                              </tr>
                                              <tr><th style="text-align:left"><br/></th></tr>
                                             <tr><th style="text-align:left">FROM</th> <th>:</th> <th>{{ form.AssignCRD}} <br/> 
                                                     <small>
@@ -260,6 +276,7 @@ export default {
     axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
     this.AutoLoadGetData();
     this.load();
+    this.StartLoading();
   },
 
   data() {
@@ -277,6 +294,16 @@ export default {
       RetrieveTimeInterval2: null,
       RetrieveTimeInterval1: null,
     //  RetrieveTimeInterval
+
+                  IntervalLoading:null,
+                 IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:47,
+                 timer_is_on:0,
+
 
       form: new Form({
         TINNumber: "",
@@ -332,6 +359,21 @@ export default {
   },
 
   methods: {
+     LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
+
     AutoLoadGetData() {
       //alert(this.AccountNoUser);
       this.RetrieveTimeInterval = setInterval(() => {
@@ -388,6 +430,11 @@ export default {
     load() {
       axios.get("api/wordings").then(({ data }) => (this.Wordings = data));
       this.RetrieveTimeInterval1 = setInterval(() => {
+                                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
+
         this.ResultQueryRequest.data.map(ResultRequestDetailss => {
           this.form.TINNumber = ResultRequestDetailss.TINNumber;
           this.form.EmailAddress = ResultRequestDetailss.EmailAddress;
@@ -411,7 +458,9 @@ export default {
           this.form.AmountDue = ResultRequestDetailss.AmountDue;
           this.form.ProductLine = ResultRequestDetailss.ProductLine;
           this.form.Deductible = ResultRequestDetailss.Deductable;
-		       this.form.NoAOG              = ResultRequestDetailss.WithAOG;
+           this.form.NoAOG              = ResultRequestDetailss.WithAOG;
+           this.form.Individual              = ResultRequestDetailss.Individual;
+           this.form.RegisteredName              = ResultRequestDetailss.RegisteredName;
 
           this.form.AcctName =
             ResultRequestDetailss.CName ;

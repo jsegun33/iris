@@ -1,10 +1,19 @@
 <template>
 <div>
-    <div class="col-md-12" >
-        <div class="box box-success">
+    <div class="col-md-12"   >
+            <div class="box box-success" v-if="this.ProposalFormEdit ==='NO RECORD FOUND'" >
+                <!-- Personal Details -->
+                <div class="box-header with-border">
+                    <h3> <big class="label label-warning">{{ this.ProposalFormEdit  }} </big></h3>
+                
+                </div>
+            </div>
+     </div>
+    <div class="col-md-12"   >
+        <div class="box box-success" v-if="this.ProposalFormEdit !=='NO RECORD FOUND'" >
             <!-- Personal Details -->
             <div class="box-header with-border">
-                <h3 class="box-title"><strong>Personal Details</strong></h3>
+                <h3 class="box-title"><strong>Personal Details </strong></h3>
             </div>
             <form>
                
@@ -368,8 +377,9 @@
                      <button type="button" class="btn btn-primary no-print" @click="UpdateMotorDetails()" >Update Motor Details </button> 
                 </div>     
                 <!------------New Design------------------------>
-              <div class="box box-success "   v-for="ProposalFormEdits  in ProposalFormEdit"   :key="ProposalFormEdits._id"> 
-                 <div class="box-header with-border box box-success">
+            <!-- <div v-if="this.ProposalFormEdit !=='NO RECORD FOUND'" > -->
+              <div class="box box-success "  v-for="ProposalFormEdits  in ProposalFormEdit"   :key="ProposalFormEdits._id"> 
+                 <div class="box-header with-border">
                     <h3 class="box-title">
                         <strong>Quotation #:{{ ProposalFormEdits.RequestNo + "-" + ProposalFormEdits.OptionNo}}</strong>
                     </h3>
@@ -476,12 +486,13 @@
               </div>
                 
             </div>
+            <!-- </div> ---close v-if condition------- -->
                 <!-----------Close NEw Design--------------------------->
                 <!----------------------------Default From Request------------------------------------------------------------------->
-            
+             <!-- ----------------------------<pre>{{ $data }} </pre> --------------------------------------- -->
 					
        
-            <!------------------------------<pre>{{ $data }} </pre> ----------------------------------------->
+            
             
             </form>
             <div
@@ -527,7 +538,7 @@
     </div>
 
     <div>
-        <button class="open-button" @click="openForm()">Preview</button>
+        <button class="open-button" @click="openForm()" v-if="this.ProposalFormEdit !=='NO RECORD FOUND'">Preview</button>
 
         <div class="chat-popup" id="myForm">
             <div class="box-body form-container">
@@ -542,7 +553,7 @@
 
                 <div class="row text-center">
                     <div class="col-md-12">
-                        <h3>Request for Proposal</h3>
+                        <h3>Request for Proposal  </h3>
                     </div>
                 </div>
                 
@@ -593,12 +604,13 @@
                                 </div>
                             </div>
                             
-                           
+                          
 
 
 
                         </div>
                     </div>
+                    
                 </section>
                 <button type="button" class="btn cancel" @click="closeForm()">Close </button>
             </div>

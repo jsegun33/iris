@@ -51,6 +51,10 @@ Vue.component(AlertError.name, AlertError)
 
 // Vue Router
 Vue.use(VueRouter)
+//axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
+let URLPath = "/proposal-modification-form"
+alert(URLPath);
+
 let routes = [
     {
         path: '*',
@@ -75,10 +79,7 @@ let routes = [
     },
 
     
-    {
-        path: '/proposal-modification-form',
-        component: require('./Proposal/ProposalModifyModule.vue').default
-    },
+ 
     
     // Proposal List 
     {
@@ -281,12 +282,12 @@ let routes = [
 
     {
         path: '/authentication-Internal-list',
-        component: require('./Payment/InternalAuthList.vue').default
+        component: require('./Policy/InternalAuthList.vue').default
     },
 
     {
         path: '/authentication-Internal',
-        component: require('./Payment/InternalAuth.vue').default
+        component: require('./Policy/InternalAuth.vue').default
     },
     ///-----Reports
    
@@ -356,6 +357,16 @@ let routes = [
         component: require('./FIRE/AgentsVue/Proposal/ProposalViewFire.vue').default
     },
 
+  
+    {
+      
+       // path: '/proposal-modification-form',
+       // path: '{{/' + this.details + '}}',
+       
+        path: URLPath,
+        component: require('./Proposal/ProposalModifyModule.vue').default
+    },
+
 
    
    
@@ -394,8 +405,16 @@ Vue.filter('DateFormat', function(value) {
 Vue.filter('DatePassed', function(value) {
    return moment(value).startOf(value).fromNow(); 
 });
+// Vue.axios.get('GetUserData', function(data) {
+
+// });
+
 
 const app = new Vue({
     el: '#app',
     router
 });
+
+
+
+

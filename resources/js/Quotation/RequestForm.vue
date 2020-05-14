@@ -5,242 +5,201 @@
         <div class="box box-success">
             <div class="box-header with-border">
               <h3 class="box-title"><strong>Motor Car Details</strong></h3>
+                <a data-toggle="tooltip" data-placement="right" title="Your Motor Car details can be found on your Certificate of Registration (CR)">
+                    <big class="label label-info"><i class="fa fa-info"></i> </big>
+                </a>
             </div>
            
             <form @submit.prevent="MotorRequestQuotation()" enctype="multipart/form-data" >
                 <div class="box-body">
-                       <div class="form-group row">
-                     
-                          
-                             <div class="col-sm-4" >
-                                   <label for="inputPassword" class=" col-form-label"><big style="color:red"> * </big> Plate Number:  
-                                            <a data-toggle="tooltip" data-placement="right" title="pls. input Plate Number / Temporary / Conduction Sticker">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                            </a>
-                                    
-                                    </label>
-                                  <input type="text"  class="form-control"    v-model="form.PlateNumber" placeholder="Plate Number" required />
-                                   
-                            </div>
-                             <div class="col-sm-4" > 
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Denomination: </label>
-                                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select DENOMINATION on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                            </a>
-
-                                 <input type="text" v-model="form.DenominationDis" @change="ChangeDenomination()" autocomplete="off" @focus="filterDen = true"  class="form-control" placeholder="Enter / Select Denomination" required>
-                                <div v-if="DataDenominations && filterDen" class="custom">
-                                    <ul>
+                    <div class="form-group row">
+                        <div class="col-sm-4" >
+                            <label class=" col-form-label"><big style="color:red"> * </big> Plate Number:  
+                            <a data-toggle="tooltip" data-placement="right" title="Pls. input Plate Number / Temporary / Conduction Sticker">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>                                
+                            </label>
+                            <input type="text"  class="form-control"    v-model="form.PlateNumber" placeholder="Plate Number" required />                                
+                        </div>
+                        <div class="col-sm-4" > 
+                            <label class="col-form-label"><big style="color:red"> * </big> Denomination: </label>
+                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select DENOMINATION on the list otherwise SPECIFY ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>
+                            <input type="text" v-model="form.DenominationDis" @change="ChangeDenomination()" autocomplete="off" @focus="filterDen = true"  class="form-control" placeholder="Enter / Select Denomination" required>
+                            <div v-if="DataDenominations && filterDen" class="custom">
+                                <ul>
                                     <li v-for="value in DataDenominations" :key="value._id" @click="setValueDenomination(value)">{{value.SubLinesName}}</li>
-                                    </ul>
-                                </div>
-
-
-                             </div>
-                            <div class="col-sm-4" >
-                                  <label for="inputPassword" class=" col-form-label"><big style="color:red"> * </big> Car Purchased Amount / Market Value: </label>
-                                      <a data-toggle="tooltip" data-placement="right" title="Pls. Select PURCHASED AMOUNT on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                            </a>
-                              
-                              <input type="number" v-model="form.POAMount" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filter = true"   class="form-control" placeholder="Enter / Select Car Purchase Amount" required>
-                                <div v-if="MarketValues && filter" class="custom">
-                                    <ul>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4" >
+                            <label class=" col-form-label"><big style="color:red"> * </big> Car Purchased Amount / Market Value: </label>
+                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select PURCHASED AMOUNT on the list otherwise SPECIFY ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>                            
+                            <input type="number" v-model="form.POAMount" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filter = true"   class="form-control" placeholder="Enter / Select Car Purchase Amount" required>
+                            <div v-if="MarketValues && filter" class="custom">
+                                <ul>
                                     <li v-for="value in MarketValues" :key="value._id" @click="setValue(value.CarAmount)">{{value.CarAmount | Peso}}</li>
-                                    </ul>
-                                </div>
-                                 <small class="label label-danger">Depreciative Amount : {{ form.DepreciativeAmount | Peso}}</small>
-                           
-                           
-                           
+                                </ul>
                             </div>
-                   
-                      
+                            <small class="label label-primary">Depreciative Amount : {{ form.DepreciativeAmount | Peso}}</small> 
+                        </div>
                     </div>
 
-
-                     <div class="form-group row">
-                         
-                             <div class="col-sm-3">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Year</label>
-                                        <a data-toggle="tooltip" data-placement="right" title="Pls. Select YEAR Purchased  on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>
-                              
-
-                                  <input type="number" v-model="form.YearPO" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filterYear = true"  class="form-control" placeholder="Enter / Select Year Purchased" required>
-                                <div v-if="yearD && filterYear" class="custom">
-                                    <ul>
+                    <div class="form-group row">                         
+                        <div class="col-sm-3">
+                            <label class="col-form-label"><big style="color:red"> * </big> Year</label>
+                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select YEAR Purchased  on the list otherwise SPECIFY ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>   
+                            <input type="number" v-model="form.YearPO" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filterYear = true"  class="form-control" placeholder="Enter / Select Year Purchased" required>
+                            <div v-if="yearD && filterYear" class="custom">
+                                <ul>
                                     <li  v-for="yearDs in yearD" :value="yearDs" :key="yearDs" @click="setValueYear(yearDs)">{{ yearDs }} </li>
-                                    </ul>
-                                </div>
+                                </ul>
                             </div>
-                                <div class="col-sm-3">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Brand:</label>
-                                   <a data-toggle="tooltip" data-placement="right" title="Pls. Select BRAND  on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>
-                                 
-                                  <input type="text" v-model="form.CarBrand"  @change="ChangeDenomination()"  autocomplete="off" @focus="filterCarBrands = true"  class="form-control" placeholder="Enter / Select Year Car Brand" required>
-                                <div v-if="DataCarBrands && filterCarBrands" class="custom">
-                                    <ul>
+                        </div>
+                            <div class="col-sm-3">
+                            <label class="col-form-label"><big style="color:red"> * </big> Brand:</label>
+                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select BRAND  on the list otherwise SPECIFY ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>                            
+                            <input type="text" v-model="form.CarBrand"  @change="ChangeDenomination()"  autocomplete="off" @focus="filterCarBrands = true"  class="form-control" placeholder="Enter / Select Year Car Brand" required>
+                            <div v-if="DataCarBrands && filterCarBrands" class="custom">
+                                <ul>
                                     <li  v-for="DataCarBrandss in DataCarBrands" :value="DataCarBrandss.BrandName" :key="DataCarBrandss._id"  @click="setValueCarBrands(DataCarBrandss)">{{ DataCarBrandss.BrandName }} </li>
-                                    </ul>
-                                </div>
+                                </ul>
                             </div>
-                                <div class="col-sm-3">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Model:</label>
-
-                                    <a data-toggle="tooltip" data-placement="right" title="Pls. Select MODEL on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>
-                                  <input type="text" v-model="form.CarModel" @change="ChangeDenomination()"   autocomplete="off" @focus="filterCarModels = true"  class="form-control" placeholder="Enter / Select Car Model" required>
-                                <div v-if="DataCarModelsList && filterCarModels" class="custom">
-                                    <ul>
+                        </div>
+                            <div class="col-sm-3">
+                            <label class="col-form-label"><big style="color:red"> * </big> Model:</label>
+                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select MODEL on the list otherwise SPECIFY ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>
+                            <input type="text" v-model="form.CarModel" @change="ChangeDenomination()"   autocomplete="off" @focus="filterCarModels = true"  class="form-control" placeholder="Enter / Select Car Model" required>
+                            <div v-if="DataCarModelsList && filterCarModels" class="custom">
+                                <ul>
                                     <li  v-for="DataCarModelss in DataCarModelsList" :value="DataCarModelss.ModelName" :key="DataCarModelss._id" @click="setValueCarModel(DataCarModelss)">{{ DataCarModelss.ModelName }} </li>
-                                    </ul>
-                                </div>
+                                </ul>
                             </div>
-
-                                <div class="col-sm-3">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Body Type</label>
-                                  <a data-toggle="tooltip" data-placement="right" title="Pls. Select BODY TYPE on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>
-                                  <input type="text" v-model="form.BodyType" @change="ChangeDenomination()"  autocomplete="off" @focus="filterCarBodyType = true"  class="form-control" placeholder="Enter / Select Body Type" required>
-                                <div v-if="DataCarBodyType && filterCarBodyType" class="custom">
-                                    <ul>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label"><big style="color:red"> * </big> Body Type</label>
+                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select BODY TYPE on the list otherwise SPECIFY ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>
+                            <input type="text" v-model="form.BodyType" @change="ChangeDenomination()"  autocomplete="off" @focus="filterCarBodyType = true"  class="form-control" placeholder="Enter / Select Body Type" required>
+                            <div v-if="DataCarBodyType && filterCarBodyType" class="custom">
+                                <ul>
                                     <li  v-for="DataCarBodyTypes in DataCarBodyType" :value="DataCarBodyTypes.BodyTypeName" :key="DataCarBodyTypes" @click="setValueCarBodyType(DataCarBodyTypes)">{{ DataCarBodyTypes.BodyTypeName }} </li>
-                                    </ul>
-                                </div>
+                                </ul>
                             </div>
-                          
-
+                        </div>
                     </div>
-
-                      <div class="form-group row">
-                         
-                           
-                            <div class="col-sm-4">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Usage  </label>
-                                        <a data-toggle="tooltip" data-placement="right" title="Pls. Select USAGE on the list, FOR COMMERCIAL USE-->select Net Weight and check Accessories">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>
-
-
-                               <select class="form-control" v-model="form.usages" @change="ShowHideCom()"  required>
-                                     <option selected disabled  > Pls.Select</option>
-                                     <option value="Personnal Use"  > Personnal Use</option>
-                                      <option value="Commercial Use"  >  Commercial Use</option>
-                                 </select>
-                                 <a class="label label-danger" @click="LoadDataSurcharges()"  data-toggle="tooltip" data-placement="right" title="View more usage /s">Other Usage ... </a> 
-                                   
-                     
-                            </div>
-                            
-                            <div class="col-sm-4" v-if="ShowCommercial">
-                                <label for="inputPassword" class="col-form-label">Net Weight:  </label>
-                                
-                                <select class="form-control" v-model="form.MotorNetWeight"  >
-                                     <option value="" > Pls.Select</option>
-                                     <option value="Less than 3,930 kg"  > Less than 3,930 kg</option>
-                                    <option value="Over 3,930 kg"  >Over 3,930 kg</option>
-                                 </select>
-                            </div>
-
-                             <div class="col-sm-4" v-if="ShowCommercial">
-                                <label for="inputPassword" class="col-form-label">    Check if you have accessories: </label><br/>
-                                <input id="accessories" type="checkbox" v-model="form.MotorAccessories" @change="onChange">
-                                    <label for="accessories">With Accessories</label>
-                                    <a data-toggle="tooltip" data-placement="right" title="Accessories: Aircon, Stereo, Speakers, 5 Wheels">
-                                        <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                    </a>
-                            </div>
-
-                    </div>
-                    <div class="form-group row" v-if="ShowSurcharges">
-                            <div class="col-md-4"   v-for="surcharge in DataSurcharges"  :key="surcharge._id" >
-                                    <div class="form-group" style="margin-bottom: 0">
-                                        <input type="checkbox" v-model="form.SurchageList" :value="surcharge.SurchargeName" :id="surcharge._id" />
-                                        <label :for="surcharge._id" style="font-weight: 500;">{{ surcharge.SurchargeName }}</label>
-                                    </div>
-                            </div>
-                    </div>
-
 
                     <div class="form-group row">
-                         
+                        <div class="col-sm-4">
+                            <label class="col-form-label"><big style="color:red"> * </big> Usage  </label>
+                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select USAGE on the list, FOR COMMERCIAL USE-->select Net Weight and check Accessories">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>
+                            <select class="form-control" v-model="form.usages" @change="ShowHideCom()"  required>
+                                <option selected disabled  > Pls.Select</option>
+                                <option value="Personnal Use"  > Personnal Use</option>
+                                <option value="Commercial Use"  >  Commercial Use</option>
+                            </select>
+                            <a class="label label-primary" @click="LoadDataSurcharges()"  data-toggle="tooltip" data-placement="right" title="View more usage /s">Other Usage ... </a> 
+                        </div>
+                        
+                        <div class="col-sm-4" v-if="ShowCommercial">
+                            <label class="col-form-label">Net Weight:  </label>                            
+                            <select class="form-control" v-model="form.MotorNetWeight"  >
+                                <option value="" > Pls.Select</option>
+                                <option value="Less than 3,930 kg"  > Less than 3,930 kg</option>
+                                <option value="Over 3,930 kg"  >Over 3,930 kg</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-4" v-if="ShowCommercial">
+                            <label class="col-form-label">    Check if you have accessories: </label><br/>
+                            <input id="accessories" type="checkbox" v-model="form.MotorAccessories" @change="onChange">
+                            <label for="accessories">With Accessories</label>
+                            <a data-toggle="tooltip" data-placement="right" title="Accessories are for approval basis. Accessories: Aircon, Stereo, Speakers, 5 Wheels">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row" v-if="ShowSurcharges">
+                        <div class="col-md-4" v-for="surcharge in DataSurcharges"  :key="surcharge._id" >
+                            <div class="form-group" style="margin-bottom: 0">
+                                <input type="checkbox" v-model="form.SurchageList" :value="surcharge.SurchargeName" :id="surcharge._id" />
+                                <label :for="surcharge._id" style="font-weight: 500;">{{ surcharge.SurchargeName }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">                        
                            
-                            <div class="col-sm-2">
-                                <label for="inputPassword" class="col-form-label">Effective Date  :</label> 
-                                         <a data-toggle="tooltip" data-placement="right" title="Current Date is  a DEFAULT date for a EFFECTIVE DATE otherwise SPECIFY">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>      
-                               <span class="label label-danger" data-toggle="tooltip" data-placement="right" title="Current Date is a Defualt Date ">{{ form.EffectiveDate }} </span>
-                                <input type="date"  class="form-control"  v-model="effectiveDate"  data-toggle="tooltip" data-placement="right" title="Change the EFFECTIVE DATE" />
-                                 <label for="inputPassword" class="col-form-label">Expiry Date : </label>
-                                        <a data-toggle="tooltip" data-placement="right" title="EXPIRATION DATE of the Policy ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>     
-                                     <span class="label label-danger" >{{ form.ExpiryDate }} </span>
-                               
-                     
+                        <div class="col-sm-2">
+                            <label class="col-form-label">Effective Date  :</label> 
+                            <a data-toggle="tooltip" data-placement="right" title="Current Date is  a DEFAULT date for a EFFECTIVE DATE otherwise SPECIFY">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>      
+                            <span class="label label-primary" data-toggle="tooltip" data-placement="right" title="Current Date is a Defualt Date ">{{ form.EffectiveDate }} </span>
+                            <input type="date"  class="form-control"  v-model="effectiveDate"  data-toggle="tooltip" data-placement="right" title="Change the EFFECTIVE DATE" />
+                            <label for="inputPassword" class="col-form-label">Expiry Date : </label>
+                            <a data-toggle="tooltip" data-placement="right" title="EXPIRATION DATE of the Policy ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>     
+                            <span class="label label-primary" >{{ form.ExpiryDate }} </span>
+                        </div>
+
+                        <div class="col-sm-10">
+                            <label class="col-form-label"><big style="color:red"> * </big>Coverages:</label>
+                            <a data-toggle="tooltip" data-placement="right"  title="Pls. Select COVERAGES on the List ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>  
+                            <div class="form-group row container" >
+                                <div  v-for="peril in DataCoverages" :key="peril._id"  style="float: left;width:25%;" >
+                                    <div class="form-group col-md-12" style="margin-bottom: 0;"  v-if="peril.DefaultSel === 'YES'">
+                                        <input :id="peril._id" type="checkbox"  @click="FocusPushRecord(peril)" v-model="form.PerilsName[peril.PerilsNo]" v-bind:data-perils="peril.PerilsNo"/>
+                                        <label id="peril" :for="peril._id" style="font-weight: 500;">{{ peril.PerilsName }}</label>
+                                        <a data-toggle="tooltip" data-placement="right"  title="Pls. Select to ENABLE the other COVERAGES ">
+                                            <big class="label label-info"><i class="fa fa-info"></i> </big>
+                                        </a>             
+                                    </div>                                        
+                                </div>
+
+                                <br/><br/>
+
+                                <div  v-for="peril in DataCoverages" :key="peril._id"  style="float:right;width:55%; display: block" >
+                                    <div class="form-group col-md-12" style="margin-bottom: 0;"  v-if="peril.DefaultSel !== 'YES'">
+                                        <input  :id="peril._id" type="checkbox" @click="FocusPushRecordSub(peril)" v-bind:disabled="PerilsCheckbox" v-model="form.SubPerilsName[peril.PerilsNo]" :checked="SubPerilsName" v-bind:data-perils="peril.PerilsNo" />
+                                        <label id="peril" :for="peril._id" style="font-weight: 500;">{{ peril.PerilsName }}</label>
+                                        <a data-toggle="tooltip" data-placement="right"  title=" 4 PASSENGER /s is DEFAULT VALUE otherwise SPECIFY" v-if="peril.PerilsCode === 'PA'" >
+                                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                                        </a>  
+                                        <input type="nunmber" v-model="form.passengers"  v-bind:disabled="PerilsCheckbox"  v-if="peril.PerilsCode === 'PA'" class="form-control" placeholder="Enter number of PASSENGER">
+                                    </div>                                                    
+                                </div>
+
+                                <div style="float:right;width:55%;"  >
+                                    <div class="form-group col-md-12" style="margin-bottom: 0;" >
+                                        <input id="checkall" type="checkbox" v-model="form.CheckAll" v-bind:disabled="PerilsCheckbox"   @click="CheckAllPerils()" />
+                                        <label for="checkall" style="font-weight: 500;" class="label label-primary" > Check / Uncheck All : <i class="fa fa-arrow-up"></i> </label>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
 
-                             <div class="col-sm-10">
-
-                                                 <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big>Coverages:</label>
-                                            <a data-toggle="tooltip" data-placement="right"  title="Pls. Select COVERAGES on the List ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                            </a>  
-                                <div class="form-group row container" >
-                                        <div  v-for="peril in DataCoverages" :key="peril._id"  style="float: left;width:25%;" >
-                                                <div class="form-group col-md-12" style="margin-bottom: 0;"  v-if="peril.DefaultSel === 'YES'">
-                                                    <input :id="peril._id" type="checkbox"  @click="FocusPushRecord(peril)" v-model="form.PerilsName[peril.PerilsNo]" v-bind:data-perils="peril.PerilsNo"/>
-                                                    <label id="peril" :for="peril._id" style="font-weight: 500;">{{ peril.PerilsName }}</label>
-
-                                                    <a data-toggle="tooltip" data-placement="right"  title="Pls. Select to ENABLE the other COVERAGES ">
-                                                            <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                                    </a>  
-                    
-                                                </div>
-                                                
-                                        </div>
-                                     
-                            <br/><br/>
-                            
-                         
-                                            <div  v-for="peril in DataCoverages" :key="peril._id"  style="float:right;width:55%; display: block" >
-                                                    <div class="form-group col-md-12" style="margin-bottom: 0;"  v-if="peril.DefaultSel !== 'YES'">
-                                                        <input  :id="peril._id" type="checkbox" @click="FocusPushRecordSub(peril)" v-bind:disabled="PerilsCheckbox" v-model="form.SubPerilsName[peril.PerilsNo]" :checked="SubPerilsName" v-bind:data-perils="peril.PerilsNo" />
-                                                        <label id="peril" :for="peril._id" style="font-weight: 500;">{{ peril.PerilsName }}</label>
-                                                        <a data-toggle="tooltip" data-placement="right"  title=" 4 PASSENGER /s is DEFAULT VALUE otherwise SPECIFY" v-if="peril.PerilsCode === 'PA'" >
-                                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                                        </a>  
-                                                        <input type="nunmber" v-model="form.passengers"  v-bind:disabled="PerilsCheckbox"  v-if="peril.PerilsCode === 'PA'" class="form-control" placeholder="Enter number of PASSENGER">
-                                                    </div>
-                                                    
-                                            </div>
-
-                                            <div   style="float:right;width:55%;"  >
-                                                        <div class="form-group col-md-12" style="margin-bottom: 0;" >
-                                                                <input type="checkbox" v-model="form.CheckAll" v-bind:disabled="PerilsCheckbox"   @click="CheckAllPerils()" />
-                                                                <label id="peril" style="font-weight: 500;" class="label label-danger" > Check / Uncheck All : <i class="fa fa-arrow-up"></i> </label>
-                                                        </div>
-                                            </div>
-                                        </div>
-                            </div>
-
-
-
-
-
-
-                            
                             <!-- <div class="col-sm-2">
                                        <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big>Assured Name :</label>
                                         <a data-toggle="tooltip" data-placement="right" title="Entered ASSURED NAME shall appear in the Policy">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
+                                                <big class="label label-info"><i class="fa fa-info"></i> </big>
                                          </a>  
                                         <textarea class="form-control" rows="5" v-model="form.AssuredName" placeholder="Property  Name /Assured" required  ></textarea>
                             
@@ -249,7 +208,7 @@
                               <!-- <div class="col-sm-2">
                                        <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big>Assured Address:</label>
                                          <a data-toggle="tooltip" data-placement="right" title="Entered ASSURED ADDRESS shall appear in the Policy">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
+                                                <big class="label label-info"><i class="fa fa-info"></i> </big>
                                          </a>  
                                         <textarea class="form-control" rows="5" v-model="form.AssuredAddress" placeholder="Property  Address" required  ></textarea>
                             
@@ -259,7 +218,7 @@
                                        <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big>Assured City:</label>
 
                                          <a data-toggle="tooltip" data-placement="right"  title="Pls. Select ASSURED CITY on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
+                                                <big class="label label-info"><i class="fa fa-info"></i> </big>
                                          </a>  
                                         
                                             <input type="text" v-model="form.AssuredCity" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyCity = true"  class="form-control" placeholder="Enter / Select Property City" required>
@@ -276,7 +235,7 @@
                                        <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big>Assured Barangay:</label>
 
                                          <a data-toggle="tooltip" data-placement="right"  title="Pls. Select ASSURED BARANGAY on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
+                                                <big class="label label-info"><i class="fa fa-info"></i> </big>
                                          </a> 
                                          <input type="text" v-model="form.AssuredBarangay" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyBrgy = true" class="form-control" placeholder="Enter / Select Barangay" required>
                                         <div v-if="DataListBrgy && filterPropertyBrgy" class="custom">
@@ -286,133 +245,122 @@
                                         </div>
                             
                             </div> -->
-
-                         
-
                     </div>
-
-                       
                 </div>
 
-
-                
-
-                
                 <div class="box box-success">
-                      <div class="box-header with-border">
+                    <div class="box-header with-border">
                         <h3 class="box-title" ><strong>Personal Details</strong></h3>
-                            <div style="margin-left: 50%;">
-                                    <label id="forIndividual" ><input  type="radio" @click="IndividualOption()" selected  v-model="form.Individual" value="Individual" data-perils="Individual"> 
-                                        Individual
-                                    </label>
-                                    <label id="forOthers" ><input type="radio"  @click="IndividualOption()"  v-model="form.Individual" value="Others" data-perils="Others">
-                                        Others
-                                    </label>
-                            </div>
-                     </div>
+                        <div style="margin-left: 50%;">                                    
+                            <input type="checkbox" id="cbIndividualOption" @click="IndividualOption()">
+                            <label for="cbIndividualOption"> Others</label>
+                        </div>
+                    </div>
 
                     <div class="form-group row col-sm-12">
                         <div class="col-sm-4">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> TIN Number </label>
-                                    <a data-toggle="tooltip" data-placement="right"  title="SPECIFY the TIN Number ">
-                                           <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                     </a> 
-                                 <input type="number"  class="form-control"    v-model="form.TINNumber" required />
+                            <label class="col-form-label"><big style="color:red"> * </big> First Name </label>
+                            <a data-toggle="tooltip" data-placement="right"  title="CONTACT PERSON First Name ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a> 
+                            <input type="text" class="form-control" v-model="form.first_name" v-bind:disabled="disabledtext" required />
                         </div>
                    
                         <div class="col-sm-4">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Email Address </label>
-                                    <a data-toggle="tooltip" data-placement="right"  title=" EMAIL ADDRESS should be use to verify other needed INFORMATION / Data ">
-                                           <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                     </a> 
-
-                                 <input type="email"  class="form-control"    v-model="form.EmailAddress" required />
+                            <label class="col-form-label"><big style="color:red"> * </big> Middle Name</label>
+                            <a data-toggle="tooltip" data-placement="right"  title="CONTACT PERSON Middle Name ">
+                                        <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a> 
+                            <input type="text"  class="form-control"    v-model="form.middle_name"  v-bind:disabled="disabledtext"  required />
                         </div>
 
                          <div class="col-sm-4">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Contact Number</label>
-                                 <a data-toggle="tooltip" data-placement="right"  title=" Contact Number should be use to verify other needed INFORMATION / Data">
-                                           <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                               </a> 
-                                 <input type="number"  class="form-control"    v-model="form.ContactNumber" required />
+                            <label class="col-form-label"><big style="color:red"> * </big> Last Name:</label>
+                            <a data-toggle="tooltip" data-placement="right"  title="CONTACT PERSON Last Name ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a> 
+                            <input type="text"  class="form-control"    v-model="form.last_name"  v-bind:disabled="disabledtext"  required />
                         </div>
 
                     </div>
 
-                      <div class="form-group row col-sm-12">
+                    <div id='regname' class="form-group row col-sm-12" style="display: none;">
+                        <div class="col-sm-12">
+                            <label class="col-form-label"><big style="color:red"> * </big> Registered Name </label>
+                            <a data-toggle="tooltip" data-placement="right"  title="SPECIFY the Registered Name (Based on CR)">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a> 
+                            <input type="text"  class="form-control"    v-model="form.registered_name"  v-bind:disabled="disabledtext"  required />
+                        </div>
+                    </div>
+
+                    <div class="form-group row col-sm-12">
                         <div class="col-sm-4">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> First Name </label>
-                                 <a data-toggle="tooltip" data-placement="right"  title=" CONTACT PERSON First Name ">
-                                           <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                               </a> 
-                                 <input type="text"  class="form-control"    v-model="form.first_name"  v-bind:disabled="disabledtext"  required />
+                            <label class="col-form-label"> TIN Number </label>
+                            <a data-toggle="tooltip" data-placement="right"  title="SPECIFY the TIN Number ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a> 
+                            <input type="number" class="form-control" v-model="form.TINNumber"/>
                         </div>
                    
                         <div class="col-sm-4">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Middle Name</label>
-                                  <a data-toggle="tooltip" data-placement="right"  title=" CONTACT PERSON Middle Name ">
-                                           <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                               </a> 
-                                 <input type="text"  class="form-control"    v-model="form.middle_name"  v-bind:disabled="disabledtext"  required />
+                            <label class="col-form-label"><big style="color:red"> * </big> Email Address </label>
+                            <a data-toggle="tooltip" data-placement="right"  title=" EMAIL ADDRESS should be use to verify other needed INFORMATION / Data ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a> 
+
+                            <input type="email"  class="form-control"    v-model="form.EmailAddress" required />
                         </div>
 
                          <div class="col-sm-4">
-                                <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Last Name:</label>
-                                    <a data-toggle="tooltip" data-placement="right"  title=" CONTACT PERSON Last Name ">
-                                           <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                               </a> 
-                                 <input type="text"  class="form-control"    v-model="form.last_name"  v-bind:disabled="disabledtext"  required />
+                            <label class="col-form-label"><big style="color:red"> * </big> Contact Number</label>
+                            <a data-toggle="tooltip" data-placement="right"  title=" Contact Number should be use to verify other needed INFORMATION / Data">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a> 
+                            <input type="number" class="form-control" v-model="form.ContactNumber" required/>
                         </div>
 
                     </div>
 
                     <div class="form-group row col-sm-12" >
                      
-                           <div class="col-sm-4">
-                                       <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big> Address:</label>
-                                         <a data-toggle="tooltip" data-placement="right" title="Entered  ADDRESS shall appear in the Policy">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>  
-                                        <textarea class="form-control" rows="2" v-model="form.Address" placeholder="Property  Address" required  ></textarea>
-                            
+                        <div class="col-sm-4">
+                            <label class="col-form-label"><big style="color:red"> * </big> Address:</label>
+                            <a data-toggle="tooltip" data-placement="right" title="Entered  ADDRESS shall appear in the Policy">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a>  
+                            <textarea class="form-control" rows="2" v-model="form.Address" placeholder="Property  Address" required  ></textarea>
+                        </div>
+                        
+                        <div class="col-sm-4">
+                            <label class="col-form-label"><big style="color:red"> * </big>Address City:</label>
+                                <a data-toggle="tooltip" data-placement="right"  title="Pls. Select  CITY on the list otherwise SPECIFY ">
+                                    <big class="label label-info"><i class="fa fa-info"></i> </big>
+                                </a>  
+                                <input type="text" v-model="form.CityName" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyCity = true"  class="form-control" placeholder="Enter / Select Property City" required>                            
+                            <div v-if="DataCities && filterPropertyCity" class="custom">
+                                <ul>
+                                    <li v-for="DataCitiess in DataCities"   :value="DataCitiess.CityName"  :key="DataCitiess._id" @click="setValuePropertyCity(DataCitiess)">{{DataCitiess.CityName}}</li>
+                                </ul>
                             </div>
-                            
-                              <div class="col-sm-4">
-                                       <label for="inputPassword" class="col-form-label"><big style="color:red"> * </big>Address City:</label>
+                        </div>
 
-                                         <a data-toggle="tooltip" data-placement="right"  title="Pls. Select  CITY on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a>  
-                                        
-                                            <input type="text" v-model="form.CityName" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyCity = true"  class="form-control" placeholder="Enter / Select Property City" required>
-                                        
-                                        <div v-if="DataCities && filterPropertyCity" class="custom">
-                                            <ul>
-                                            <li v-for="DataCitiess in DataCities"   :value="DataCitiess.CityName"  :key="DataCitiess._id" @click="setValuePropertyCity(DataCitiess)">{{DataCitiess.CityName}}</li>
-                                            </ul>
-                                        </div>
-                           </div>
-
-                              <div class="col-sm-4">
-                                       <label for="inputPassword" class="col-form-label" ><big style="color:red"> * </big>Address Barangay:</label>
-
-                                         <a data-toggle="tooltip" data-placement="right"  title="Pls. Select  BARANGAY on the list otherwise SPECIFY ">
-                                                <big class="label label-warning"><i class="fa fa-info"></i> </big>
-                                         </a> 
-                                         <input type="text" v-model="form.Barangay" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyBrgy = true" class="form-control" placeholder="Enter / Select Barangay" required>
-                                        <div v-if="DataListBrgy && filterPropertyBrgy" class="custom">
-                                            <ul>
-                                            <li v-for="DataListBrgys in DataListBrgy"  :value="DataListBrgys.BrgyName"  :key="DataListBrgys._id" @click="setValueBarangay(DataListBrgys)">{{DataListBrgys.BrgyName}}</li>
-                                            </ul>
-                                        </div>
-                            
-                            </div>
-                    </div>
-                   
+                        <div class="col-sm-4">
+                            <label class="col-form-label" ><big style="color:red"> * </big>Address Barangay:</label>
+                            <a data-toggle="tooltip" data-placement="right"  title="Pls. Select  BARANGAY on the list otherwise SPECIFY ">
+                                <big class="label label-info"><i class="fa fa-info"></i> </big>
+                            </a> 
+                            <input type="text" v-model="form.Barangay" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyBrgy = true" class="form-control" placeholder="Enter / Select Barangay" required>
+                            <div v-if="DataListBrgy && filterPropertyBrgy" class="custom">
+                                <ul>
+                                    <li v-for="DataListBrgys in DataListBrgy"  :value="DataListBrgys.BrgyName"  :key="DataListBrgys._id" @click="setValueBarangay(DataListBrgys)">{{DataListBrgys.BrgyName}}</li>
+                                </ul>
+                            </div>                            
+                        </div>
+                    </div>                   
                 </div>
 
-                <div class="box-footer">
-                
+                <div class="box-footer">                
                     <button  type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
@@ -519,15 +467,15 @@ export default {
 
     data() {
         return {
-           DataDenominations: {},
-           MarketValues: {},
-           DataCarBrands: {},
-           DataCarBodyType: {},
-           DataCarModelsList: {},
-           DataSurcharges: {},
-           DataCoverages: {},
-           DataCities: {},
-           DataListBrgy: {},
+            DataDenominations: {},
+            MarketValues: {},
+            DataCarBrands: {},
+            DataCarBodyType: {},
+            DataCarModelsList: {},
+            DataSurcharges: {},
+            DataCoverages: {},
+            DataCities: {},
+            DataListBrgy: {},
             filter: false,
             filterDen: false,
             filterYear: false,
@@ -535,10 +483,11 @@ export default {
             filterCarModels: false,
             filterCarBodyType: false,
             filterPropertyCity: false,
-             filterPropertyBrgy: false,
-             disabledtext: true,
-              PerilsCheckbox: true,
+            filterPropertyBrgy: false,
+            disabledtext: true,
+            PerilsCheckbox: true,
             year: '',
+
             ShowCommercial: false,
             ShowSurcharges: false,
             effectiveDate: '',
@@ -546,8 +495,8 @@ export default {
 
           
       
-           UserDetails:{},
-           checked:true,
+            UserDetails:{},
+            checked:true,
 
             form: new Form({
                 _id: '',
@@ -579,6 +528,7 @@ export default {
                 first_name: '',
                 middle_name: '',
                 last_name: '',
+                registered_name: '',
                 CustAcctNo: '',
                 AcctName: '',
                 Barangay: '',
@@ -591,7 +541,7 @@ export default {
 
 
                 DenominationDis:'',
-               CheckAll:'',
+                CheckAll:'',
 
                
             }),
@@ -599,24 +549,33 @@ export default {
     },
     
     methods: { 
-        IndividualOption(e){
-                 let DataIndi = event.target.getAttribute('data-perils');
-                 this.form.IndividualPass = DataIndi;
-                 if (DataIndi === 'Others'){
-                     this.disabledtext =false;
-                     this.form.first_name = '';
-                     this.form.last_name  = '';
-                      this.form.middle_name  = '';
-                  
+        IndividualOption(){
+                //  let DataIndi = event.target.getAttribute('data-perils');
+                //  this.form.IndividualPass = DataIndi;
+                 if (document.getElementById('cbIndividualOption').checked === true){
+                    this.disabledtext            = false;
+                    this.form.first_name         = '';
+                    this.form.last_name          = '';
+                    this.form.middle_name        = '';
+                    this.form.registered_name    = '';
+                    this.form.TINNumber          = '';
+                    this.form.EmailAddress       = '';
+                    this.form.ContactNumber      = '';
+                    this.form.Individual         = 'Others';
+                    this.form.IndividualPass     = 'Others';
+                    $('#regname').show();
+                    // alert("True");
                  }else{
-                     this.disabledtext =true;
-                        this.form.first_name = this.UserDetails.first_name;
-                        this.form.last_name          = this.UserDetails.last_name;
-                        this.form.middle_name        = this.UserDetails.user_mname;
-
+                    this.disabledtext           = true;
+                    this.form.first_name        = this.UserDetails.first_name;
+                    this.form.last_name         = this.UserDetails.last_name;
+                    this.form.middle_name       = this.UserDetails.user_mname;
+                    this.form.EmailAddress      = this.UserDetails.email;
+                    this.form.Individual        = 'Individual';
+                    this.form.IndividualPass    = 'Individual';
+                    $('#regname').hide();
                  }
                  
-                 //alert(DataIndi);
 
         },
 
@@ -806,72 +765,62 @@ export default {
       //   console.log(error);
       // });
 
-      if (!this.form.PlateNumber || this.form.PlateNumber ===" ") {
+    if (!this.form.PlateNumber || this.form.PlateNumber ===" ") {
+        Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Pls. Input Plate No.',          
+        })
+    }else if (!this.form.Denomination || this.form.Denomination ===" ") {
+        Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Pls. Select Denomination.',          
+        })
+    }else if (!this.form.POAMount || this.form.POAMount ===" ") {
+        Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Pls. Select Car Purchased Amount / Market Value.',          
+        })
+    }else if (!this.form.YearPO || this.form.YearPO ===" ") {
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Pls. Select Year.',          
+    })
+    }else if (!this.form.CarBrand || this.form.CarBrand===" ") {
+        Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Pls. Select Brand.',        
+        })
+    }else if (!this.form.CarModel || this.form.CarModel===" ") {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Pls. Select Model.',          
+        })
+    }else if  (!this.form.BodyType || this.form.BodyType===" ")  {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Pls. Select Body Type.',          
+        })
+    }else if (!this.form.usages || this.form.usages===" ") { 
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Pls. Input Plate No.',
-          
-          })
-            
-          
-      }else if (!this.form.Denomination || this.form.Denomination ===" ") {
-         Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Pls. Select Denomination.',
-          
-          })
-      }else if (!this.form.POAMount || this.form.POAMount ===" ") {
-         Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Pls. Select Car Purchased Amount / Market Value.',
-          
-          })
-      }else if (!this.form.YearPO || this.form.YearPO ===" ") {
-         Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Pls. Select Year.',
-          
-          })
-      }else if (!this.form.CarBrand || this.form.CarBrand===" ") {
-         Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Pls. Select Brand.',
-          
-          })
-      }else if (!this.form.CarModel || this.form.CarModel===" ") {
-         Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Pls. Select Model.',
-          
-          })
-      }else if  (!this.form.BodyType || this.form.BodyType===" ")  {
-         Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Pls. Select Body Type.',
-          
-          })
-      }else if (!this.form.usages || this.form.usages===" ") { 
-         Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Pls. Select Usages.',
-          
-          })
-      }else if (!this.form.EffectiveDate || this.form.EffectiveDate===" " ) {
-         Swal.fire({
+            text: 'Pls. Select Usages.',          
+        })
+    }else if (!this.form.EffectiveDate || this.form.EffectiveDate===" " ) {
+        Swal.fire({
             icon: 'error',
             title: 'Oops...',
             text: 'Pls. Select /Input Effective Date.',
           
-         })
-      }else if (!this.form.PerilsName.length)  {
+        })
+    }else if (!this.form.PerilsName.length)  {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
@@ -882,44 +831,61 @@ export default {
          Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Pls. Input your Address.',
-          
-          }) 
-      }else{
-          this.CombineAllPerils();  //Combine all perilsname 
-          this.ComputeDepreciativeAmount();
-             this.loading = true,
-              Swal.fire({
-                title: "Are you sure ?",
-                text: "Add New Quotation Option",
-                icon: "success",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes!"
-            }).then(result => {
-                  //  let GetRequestNo =  this.form.RequestNoPass  + ';;'  + this.form.Denomination + ';;'  + this.form.RequestNoOptionNo  ;
-                 if (result.value) {
-                             this.form.post("api/QuotationMotor" )
-                            .then(() => {
-                                Swal.fire(
-                                    " Successfull....",
-                                    "New Quotation Submitted",
-                                    "success"
-                                );
-                                 
-                                this.$router.push("/proposal-lists-customer");
-                            }) .catch(() => {
+            text: 'Pls. Input your Address.',          
+        }) 
+    }else if (this.form.ContactNumber.length > 11)  {
+         Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Contact No. is maximum of 11 digits',          
+        }) 
+    }else if (this.form.ContactNumber.length < 8)  {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Contact No. is minimum of 8 digits',          
+        })
+    }else if (this.form.Individual === "Others" && this.form.registered_name === " ")  {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Pls. Input the Registered Name',          
+        }) 
+    }else{
+        this.CombineAllPerils();  //Combine all perilsname 
+        this.ComputeDepreciativeAmount();
+            this.loading = true,
+            Swal.fire({
+            title: "Are you sure ?",
+            text: "Add New Quotation Option",
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes!"
+        }).then(result => {
+                //  let GetRequestNo =  this.form.RequestNoPass  + ';;'  + this.form.Denomination + ';;'  + this.form.RequestNoOptionNo  ;
+                if (result.value) {
+                            this.form.post("api/QuotationMotor" )
+                        .then(() => {
                             Swal.fire(
-                                "Failed",
-                                "There was something wrong",
-                                "warning"
+                                " Successfull....",
+                                "New Quotation Submitted",
+                                "success"
                             );
-                        });
-                }else{
-                  this.$router.push("/request-form-new");
-                }
-           })
+                                
+                            this.$router.push("/proposal-lists-customer");
+                        }) .catch(() => {
+                        Swal.fire(
+                            "Failed",
+                            "There was something wrong",
+                            "warning"
+                        );
+                    });
+            }else{
+                this.$router.push("/request-form-new");
+            }
+        })
       }
     },
 

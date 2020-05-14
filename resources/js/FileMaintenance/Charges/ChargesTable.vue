@@ -209,7 +209,8 @@ export default {
         },
 
         createCharges() {
-            this.form.post('api/charges').then(() => {
+           // this.form.post('api/charges').then(() => {
+           this.form.post('api/AddCharges').then(() => {
                 $('#modal').modal('hide')
                 this.loadCarBrand()
 

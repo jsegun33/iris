@@ -2,29 +2,26 @@
     <div>
         <!-- <section class="content-header">
             <h1>
-                 Lists of Accepted Proposal
-                <small>Table of Proposal</small>
+                Internal
+                <small>Table of Authentication</small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fa fa-file-text"></i> Quotation / Proposal</a></li>
-                <li class="active">Proposal List</li>
+                <li><a href="#"><i class="fa fa-file-text"></i> Issuance </a></li>
+                <li class="active">Proposal List-For Signature</li>
             </ol>
         </section> -->
 
-     
-        <section class="content"  v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
+        <section class="content" v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h1>
+                    <h4> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h4>
                 </div>
       </section>
-
-
      
-         <section class="content"   v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
+         <section class="content" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" >
             <div class="box box-success">
                 <div class="box-header">
-                    <h3 class="box-title">List of all Request Proposals / Quotations</h3>
+                    <h3 class="box-title"> Authentication Lists</h3>
 
                     <div class="box-tools">
                         <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
@@ -45,33 +42,25 @@
                         <tbody>
                             <tr>
                                 <th>Plate Number</th>
-                                <th>Denomination</th>
+                                <th>Request #</th>
                                 <th>Name</th>
-                                <th>TIN Number</th>
-                                <th>Total Premium</th>
-                                <th>Total Charges</th>
-                                <th>Amount Due</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <th>Policy No</th>
+                                <th>Denomination </th>
+                                 <th> </th>
+                               
                             </tr>
                             <tr v-for="RequestQuotationss in RequestQuotations.data" :key="RequestQuotationss._id">
                                 <td>{{ RequestQuotationss.PlateNumber }}</td>
-                                <td>{{ RequestQuotationss.Denomination }}</td>
-                                <td>{{ RequestQuotationss.FirstName}}  {{RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
-                                <td>{{ RequestQuotationss.TINNumber }}</td>
-                                <td>{{ RequestQuotationss.PremiumAmount | Peso }}</td>
-                                <td>{{ RequestQuotationss.TotalCharges | Peso }}</td>
-                                <td>{{ RequestQuotationss.AmountDue | Peso }}</td>                                
-                                <td><span class="label label-success">{{ RequestQuotationss.Status }}</span></td>
-                                <td>
-                                    <!-- <a v-bind:href="'/AcceptedView?'+ RequestQuotationss.RequestNo" class="btn btn-info">
+                                <td>{{ RequestQuotationss.RequestNo  }}</td>
+                                <td>{{ RequestQuotationss.FirstName  + " " +  RequestQuotationss.MiddleName + " " + RequestQuotationss.LastName}}  </td>
+                                <td>{{ RequestQuotationss.PolicyNo  }}</td>
+                                <td>{{ RequestQuotationss.Denomination  }}</td>
+                               <td>
+                                    <a v-bind:href="'/authentication-Internal?'+ RequestQuotationss.RequestNo" class="btn btn-info" style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
                                         View
-                                    </a>  -->
-                                    <a v-bind:href="'/Accepted?'+ RequestQuotationss.RequestNo" class="btn btn-info" style="text-decoration: none;">
-                                        <i class="fa fa-eye"></i> 
-                                        View
-                                    </a>
+                                    </a> 
+                                 
                                 </td>
                             </tr>
                         </tbody>
@@ -83,7 +72,7 @@
                 </div>
             </div>
         </section>
-       <!--------- <pre>{{ $data }}</pre>-------->
+     <!--------------<pre>{{ $data }}</pre>----------->
      
       
     </div>
@@ -101,32 +90,50 @@
 export default {
 
 
-     mounted() {
+     mounted: function() {
             console.log('Component mounted.')
-            this.getResults();
+			  axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
+			 this.loadRequestQuotation();
+			 this.getResults();
         },
          data() {
             return {
               
                 url: '/proposal?2019-0001',
                 editmode: false,
-                RequestQuotations: {},
+				UserDetails: {},
+                RequestQuotations1: {},
+				RetrieveTimeInterval: null,
+				 RequestQuotations: {},
                 //counter:1,
-               
+               form: new Form({
+					AccountNo: "",
+			}),
                 
             }
+			
         },
 
 
         methods: {
             getResults(page = 1) {
-                axios.get('api/GetRequestQuotationAccepted?page=' + page).then(response => {
-                    this.RequestQuotations = response.data;
+                axios.get('api/GetListNeedAuth?page=' + page).then(response => {
+                    this.RequestQuotations1 = response.data;
                 });
             },
             loadRequestQuotation() {
-                axios.get("api/GetRequestQuotationAccepted"  ).then(({ data }) => (this.RequestQuotations = data));
-            },
+			//	this.RetrieveTimeInterval = setInterval(() => {
+					let PassID = this.UserDetails.AccountNo;  //"2020-0008";
+					//alert(PassID);
+						axios.get("api/GetListNeedAuth").then(({ data }) => (this.RequestQuotations = data));
+			//}, 1000);
+			
+		// 	 this.RetrieveTimeInterval2 = setInterval(() => {
+                   
+		// 						clearInterval(this.RetrieveTimeInterval);
+        // }, 			5000);
+				
+			},
             ViewRequest() {
              window.open("request"); 
                //window.location.hostname + '/request' 
@@ -137,13 +144,24 @@ export default {
 
           
            created() {
+		
+               
             this.loadRequestQuotation();
             Fire.$on('AfterCreate',() => {
                 this.loadRequestQuotation();
             });
+        },
 
-
-        }
+         computed: {
+        date() {
+           let date = new Date()
+           let day = date.getDate()
+           let month = date.getMonth() + 1
+           let year = date.getFullYear()
+           return `${month} / ${day} / ${year}`
+        },
+		 
+    }
     
 }
 </script>

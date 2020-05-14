@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Content Header (Page header) -->
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                 Agent 
                 <small>Commission Convert</small>
@@ -22,9 +22,22 @@
                     Reports
                 </li>
             </ol>
-        </section>
+        </section> -->
 
-        <section class="content"  >
+        <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section>
+
+
+         <section class="content"  v-show="isShowingRecord" v-if="this.logs === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h4> <big class="label label-warning" >{{ this.logs  }} </big></h4>
+                </div>
+      </section>
+
+        <section class="content" v-show="isShowingRecord" v-if="this.logs !== 'NO RECORD FOUND'" >
             <div class="row" >
                 <div class="col-md-3">
                     <div class="box box-primary">
@@ -182,7 +195,10 @@
 <script>
 export default {
     mounted: function(){ 
+        
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
+         
+          this.StartLoading() ;
           this.loadCommission();
     },
 
@@ -197,6 +213,18 @@ export default {
                isDisabled:true,
                RetrieveTimeInterval:null,
                RetrieveTimeInterval1:null,
+
+
+               IntervalLoading:null,
+                IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:180,
+                 timer_is_on:0,
+
+
 
               form: new Form({
                  StartDate:'',
@@ -217,6 +245,27 @@ export default {
         
     },
     methods: {
+
+         LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                      //this.loadCommission(); 
+                  }else{
+                        
+                  }
+                   
+                    
+              
+            },
+
+
          PrintReport(){
             window.print();
         },
@@ -328,11 +377,11 @@ export default {
                             this.logs = data
                                 //  this.form.RequestNo = this.logs.RequestNo;
                         }).catch(() => {
-                            Swal.fire(
-                                    " No Record !",
-                                    " FOUND ",
-                                    "warning"
-                                );
+                            // Swal.fire(
+                            //         " No Record !",
+                            //         " FOUND ",
+                            //         "warning"
+                            //     );
 
                         })
 
@@ -349,6 +398,10 @@ export default {
          } , 1000)
            this.RetrieveTimeInterval2 = setInterval(() => {
                 clearInterval(this.RetrieveTimeInterval);  
+                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
                   
             },3000) 
 

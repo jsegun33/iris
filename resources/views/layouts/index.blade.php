@@ -191,10 +191,15 @@
                                 <!-- Menu Footer-->
                                 <li class="user-footer">
                                     <div class="pull-left">
-                                        <a href="#" class="btn btn-success btn-flat" style="text-decoration: none;">
+                                        <a href="/Dashboard" class="btn btn-success btn-flat" style="text-decoration: none;">
                                             <i class="fa fa-user"></i>
                                             Profile
                                         </a>
+                                        {{-- <a v-bind:href="'/ViewForSignature?'+ RequestQuotationss.RequestNo" class="btn btn-warning" style="text-decoration: none;">
+                                            <i class="fa fa-user"></i> 
+                                            Profile
+                                        </a>  --}}
+
                                     </div>
                                     <div class="pull-right">
                                         <a class="btn btn-danger btn-flat" 
@@ -491,7 +496,7 @@
                                     ->select('*')  
                                     ->where('AccountNo', Auth::user()->AccountNo)  
                                     ->where('active', 1)  
-                                    //->where('',$GetRoles['acctType']) 
+                                    ->orderBy('acctTypeName','DESC')
                                     ->groupBy('acctTypeName','acctType','UnderSubMenu','icon_display')  
                                     ->get();
                                      foreach ($GetRole as $GetRoles){
@@ -501,7 +506,7 @@
                                             ->where('UnderSubMenu','!=', $GetRoles['UnderSubMenu'] )  
                                             ->where('active',1)  
                                             //->groupBy('UnderSubMenu')  
-                                            ->orderBy('order','DESC')
+                                            ->orderBy('acctTypeName','DESC')
                                             ->first();
 
                                        if ( !empty($GetRoleTypes['UnderSubMenu'] )  ) {

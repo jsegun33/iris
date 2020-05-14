@@ -141,6 +141,8 @@
                                 <label v-if="Commission.PerilsCode == 'OD'"> {{ Commission.PerilsCode + " / TF" }}</label>
                                   
                                 <input type="number"  class="form-control"    v-model="form.AmountCommInput[Commission._id + index ]" placeholder="Amount" />
+
+                                
                                         
                             </div>
                            

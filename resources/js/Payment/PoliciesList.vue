@@ -1,8 +1,12 @@
 <template>
     <div>
        
-     
-         <section class="content">
+     <section class="content" v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h4> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h4>
+                </div>
+    </section>
+         <section class="content" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" >
             <div class="box box-success">
                 <div class="box-header">
                     <h3 class="box-title"> Policy Lists</h3>

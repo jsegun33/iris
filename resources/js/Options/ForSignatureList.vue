@@ -1,6 +1,6 @@
 <template>
     <div>
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                 Proposal Lists
                 <small>Table of Proposal</small>
@@ -10,9 +10,22 @@
                 <li><a href="#"><i class="fa fa-file-text"></i> Issuance / Proposal</a></li>
                 <li class="active">Proposal List-For Signature</li>
             </ol>
-        </section>
+        </section> -->
+
+        <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section>
+
+          <section class="content" v-show="isShowingRecord"  v-if="this.RequestQuotations ==='NO RECORD FOUND'" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" > {{ this.RequestQuotations  }}</big></h1>
+                </div>
+         </section>
+
      
-         <section class="content">
+         <section class="content" v-show="isShowingRecord" v-if="this.RequestQuotations !=='NO RECORD FOUND'" >
             <div class="box box-success">
                 <div class="box-header">
                     <h3 class="box-title">List of all Request Issuance / Proposal</h3>
@@ -99,7 +112,7 @@ export default {
      mounted: function() {
             console.log('Component mounted.')
 			  axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-			  
+			  this.StartLoading();
         },
          data() {
             return {
@@ -110,7 +123,17 @@ export default {
                 RequestQuotations1: {},
 				RetrieveTimeInterval: null,
 				 RequestQuotations: {},
-                //counter:1,
+                
+                IntervalLoading:null,
+                IntervalLoading1:null,
+                 isShowingLoading:true,
+                 isShowingRecord:false,
+                 timedCount:5000,
+                 timer:0,
+                 clock:47,
+                 timer_is_on:0,
+
+
                form: new Form({
 					AccountNo: "",
 			}),
@@ -121,6 +144,23 @@ export default {
 
 
         methods: {
+
+            LoadingDesign(){
+                        this.IntervalLoading  = this.clock;
+                        this.clock = this.IntervalLoading - 1;
+                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            },
+            StartLoading() {
+ 
+                  if (!this.timer_is_on) {
+                      this.timer_is_on = 1;
+                      this.LoadingDesign();
+                  }
+                    
+              
+            },
+
+
             getResults(page = 1) {
                 axios.get('api/GetIssuanceForSignaturePaging?page=' + page).then(response => {
                     this.RequestQuotations1 = response.data;
@@ -128,6 +168,14 @@ export default {
             },
             loadRequestQuotation() {
 				this.RetrieveTimeInterval = setInterval(() => {
+
+                                clearTimeout(this.timer);   //clear timer /loading
+                                this.timer_is_on = 0; //clear timer /loading
+                                this.isShowingLoading = false; //clear timer /loading
+                                this.isShowingRecord = true; 
+
+
+
 					let PassID = this.UserDetails.AccountNo;  //"2020-0008";
 					//alert(PassID);
 						axios.get("api/GetIssuanceForSignature/" + PassID).then(({ data }) => (this.RequestQuotations = data));
