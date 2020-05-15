@@ -31,7 +31,7 @@ class RequestDetails extends Eloquent
        ,'DiscountAmount','StatusCashOut','CashOutAmount','CashOutMode','CommissionAmount'
        ,'DiscountCOAmount','DiscountCOAmountMode','DiscountCOTotalCommission','CashOutPaidAmount'
        ,'AssuredName','AssuredAddress','AssuredCity','AssuredBarangay','Individual','CName','UpdateRequest'
-       ,'OktoAccept'
+       ,'OktoAccept','RegisteredName'
       
     ];
 }

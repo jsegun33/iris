@@ -124,11 +124,21 @@ Route::get('SubLineCount/{id}', 'QuotationController@GetSubLines');
 Route::get('TaripaSubLineCount/{id}', 'QuotationController@GetSubLinesTaripa');
 Route::get('PerilsList/{id}', 'QuotationController@GetPerilsList');
 Route::post('RequestQuotation', 'QuotationController@RequestQuotation');
+
+Route::get('/settings/security', function () {
+    // Users must confirm their password before continuing...
+    
+})->middleware(['auth', 'password.confirm']);
+
+
+
 Route::get('GetRequestQuotation', 'QuotationController@GetRequestQuotation');
+
 Route::get('GetRequestQuotationAccepted', 'QuotationController@GetRequestQuotationAccepted');
 Route::get('GetRequestProposalApprover/{id}', 'QuotationController@GetRequestProposalApprover');
 Route::get('GetRequestQuotationApprover/{id}', 'QuotationController@GetRequestQuotationApprover');
 Route::get('GetRequestQuotationCustomer/{id}', 'QuotationController@GetRequestQuotationCustomer');
+
 Route::get('GetListProposal', 'QuotationController@GetListProposal');
 Route::post('UpdateQuotation', 'QuotationController@UpdateQuotation');
 Route::post('SubmitNewCoverages', 'QuotationController@SubmitNewCoverages');
@@ -145,7 +155,7 @@ Route::get('GetDenomination', 'QuotationController@GetDenomination');
 Route::get('GetListClauses/{id}', 'QuotationController@GetListClauses');
 Route::get('GetListBanksIssuance/{id}', 'QuotationController@GetListBanksIssuance');
 Route::get('GetSurcharge', 'QuotationController@GetSurcharge');
-Route::get('ListApproverQuotation', 'QuotationController@ListApproverQuotation');
+Route::get('ListApproverQuotation/{id}', 'QuotationController@ListApproverQuotation');
 Route::get('ListApproverQuotationUW/{id}', 'QuotationController@ListApproverQuotationUW');
 //Perils
 // Route::get('GetPeril', 'QuotationController@GetPeril');
@@ -230,7 +240,7 @@ Route::get('GetIssuanceForSignaturePaging', 'QuotationController@GetIssuanceForS
 Route::get('GetIssuanceForSignature/{id}', 'QuotationController@GetIssuanceForSignature');
 
 Route::get('SubmitForSignature/{id}', 'QuotationController@SubmitForSignature');
-Route::get('GetListSignatory', 'QuotationController@GetListSignatory');
+
 Route::get('ListPolicy', 'QuotationController@ListPolicy');
 
 
@@ -362,8 +372,16 @@ Route::get('URLQueryRequestNew/{id}', 'QuotationController@URLQueryRequestNew');
 
 
 Route::get('dragonpay_return', 'QuotationController@dragonpay_return');
+Route::post('AddCharges', 'FileMaintenance@AddCharges');
+Route::get('GetAgentTotalComReport/{id}', 'QuotationController@GetAgentTotalComReport');
+Route::get('PaymentModePaypal/{id}', 'QuotationController@PaymentModePaypal');
+Route::post('ChangePassword', 'RegistrationController@ChangePassword');
+Route::get('IssuanceAcceptedPolicy/{id}', 'QuotationController@IssuanceAcceptedPolicy');
+Route::post('DeclineProposal', 'QuotationController@DeclineProposal');
 
-
+Route::get('TestingSession/{id}', 'QuotationController@TestingSession');
+Route::post('GetListSignatory', 'QuotationController@GetListSignatory');
+Route::post('GetListSignatoryAllowed', 'QuotationController@GetListSignatoryAllowed');
 
 
 
