@@ -11,6 +11,6 @@ class ListCity extends Eloquent
     protected $collection = 'list_city';
 
     protected $fillable = [
-         'CityCode', 'CityName', 'active'
+         'Code', 'CityName', 'active', 'ProvCode'
     ];
 }

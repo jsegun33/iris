@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="MainPage">
         <!-- <section class="content-header">
             <h1>
                  Lists of Accepted Proposal
@@ -13,7 +13,7 @@
         </section> -->
 
      
-        <section class="content"  v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
+        <section class="content DisabledSection ContentSection"  v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h1>
                 </div>
@@ -21,7 +21,7 @@
 
 
      
-         <section class="content"   v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
+         <section class="content DisabledSection ContentSection"   v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
             <div class="box box-success">
                 <div class="box-header">
                     <h3 class="box-title">List of all Request Proposals / Quotations</h3>
@@ -44,31 +44,34 @@
                     <table class="table table-hover text-center">
                         <tbody>
                             <tr>
-                                <th>Plate Number</th>
-                                <th>Denomination</th>
+                                <th>Request No.</th>
+                                <th>Policy No.</th>
                                 <th>Name</th>
-                                <th>TIN Number</th>
-                                <th>Total Premium</th>
-                                <th>Total Charges</th>
+                                <th>Plate Number</th>
+                                <th>Type</th>
+                                
                                 <th>Amount Due</th>
-                                <th>Status</th>
+                                <th>Payment</th>
                                 <th>Action</th>
                             </tr>
                             <tr v-for="RequestQuotationss in RequestQuotations.data" :key="RequestQuotationss._id">
+                                <td>{{ RequestQuotationss.RequestNo }}</td>
+                                <td>{{ RequestQuotationss.PolicyNo }}</td>
+                                <td>{{ RequestQuotationss.CName}} </td>
                                 <td>{{ RequestQuotationss.PlateNumber }}</td>
-                                <td>{{ RequestQuotationss.Denomination }}</td>
-                                <td>{{ RequestQuotationss.FirstName}}  {{RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
-                                <td>{{ RequestQuotationss.TINNumber }}</td>
-                                <td>{{ RequestQuotationss.PremiumAmount | Peso }}</td>
-                                <td>{{ RequestQuotationss.TotalCharges | Peso }}</td>
+                                <td>{{ RequestQuotationss.RequestType}}</td>
+                                
                                 <td>{{ RequestQuotationss.AmountDue | Peso }}</td>                                
-                                <td><span class="label label-success">{{ RequestQuotationss.Status }}</span></td>
+                                <td>
+                                    <span class="label label-success" v-if="RequestQuotationss.PaymentMode ==='Paid'">{{ RequestQuotationss.PaymentMode }} thru {{ RequestQuotationss.PaymentGateway }}</span>
+                                    <span class="label label-danger" v-else>Processing thru {{ RequestQuotationss.PaymentGateway }}</span>
+                                 </td>
                                 <td>
                                     <!-- <a v-bind:href="'/AcceptedView?'+ RequestQuotationss.RequestNo" class="btn btn-info">
                                         <i class="fa fa-eye"></i> 
                                         View
                                     </a>  -->
-                                    <a v-bind:href="'/Accepted?'+ RequestQuotationss.RequestNo" class="btn btn-info" style="text-decoration: none;">
+                                    <a v-bind:href="'/Accepted?'+ RequestQuotationss.RequestNo" @click="SaveCocafDetails(RequestQuotationss)" class="btn btn-info" style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
                                         View
                                     </a>
@@ -84,7 +87,8 @@
             </div>
         </section>
        <!--------- <pre>{{ $data }}</pre>-------->
-     
+       
+
       
     </div>
 </template>
@@ -94,56 +98,77 @@
 
 <script>
 
- 
-//import udmodal  from './Proposal'
-
-
 export default {
-
-
      mounted() {
             console.log('Component mounted.')
-            this.getResults();
+            this.loadRequestQuotation();
+            this.StartLoading();
         },
          data() {
             return {
-              
-                url: '/proposal?2019-0001',
+             
                 editmode: false,
                 RequestQuotations: {},
-                //counter:1,
-               
                 
             }
         },
 
 
         methods: {
+          async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    },100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
+              
+            },
+
+
             getResults(page = 1) {
                 axios.get('api/GetRequestQuotationAccepted?page=' + page).then(response => {
                     this.RequestQuotations = response.data;
                 });
             },
             loadRequestQuotation() {
-                axios.get("api/GetRequestQuotationAccepted"  ).then(({ data }) => (this.RequestQuotations = data));
-            },
-            ViewRequest() {
-             window.open("request"); 
-               //window.location.hostname + '/request' 
+                  axios.get("api/GetRequestQuotationAccepted"  ).then(({ data }) => (this.RequestQuotations = data));
+           },
+            
+            SaveCocafDetails(RequestQuotationss) {
+                axios.get("api/SaveCocafDetails/" + RequestQuotationss.RequestNo)
                
             },
          
           },
 
-          
-           created() {
-            this.loadRequestQuotation();
-            Fire.$on('AfterCreate',() => {
-                this.loadRequestQuotation();
-            });
-
-
-        }
+     
     
 }
 </script>

@@ -14,6 +14,23 @@ import moment from 'moment'
 import * as VueGoogleMaps from 'vue2-google-maps'
 //import GmapMap from 'vue2-google-maps/dist/components/map.vue'
 
+//spinner
+// Vue.component('pulse-loader', require('vue-spinner/src/PulseLoader.vue'));
+//import { PulseLoader } from 'vue-spinner/dist/vue-spinner.min.js'
+
+// var PulseLoader = require('vue-spinner/src/PulseLoader.vue');
+
+// new Vue({
+//   components: {
+//     'PulseLoader': PulseLoader
+//   }
+// })
+
+//Vue.component('pulse-loader', require('vue-spinner/src/PulseLoader.vue'));
+
+
+import VueTheMask from 'vue-the-mask'
+Vue.use(VueTheMask)
 
 
 Vue.use(VueGoogleMaps, {
@@ -53,7 +70,9 @@ Vue.component(AlertError.name, AlertError)
 Vue.use(VueRouter)
 //axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
 let URLPath = "/proposal-modification-form"
-alert(URLPath);
+
+
+//alert(URLPath);
 
 let routes = [
     {
@@ -157,6 +176,20 @@ let routes = [
     {
         path: '/Customer-Issuance',
         component: require('./Policy/CustIssuance.vue').default
+    },
+
+    {
+        path: '/authentication-Internal-list',
+        component: require('./Policy/InternalAuthList.vue').default
+    },
+
+    {
+        path: '/authentication-Internal',
+        component: require('./Policy/InternalAuth.vue').default
+    },
+    {
+        path: '/PolicyPayment',
+        component: require('./Policy/PolicyPayment.vue').default
     },
 
     
@@ -278,17 +311,25 @@ let routes = [
         component: require('./Payment/PaymentReturnURL.vue').default
     },
 
-
-
     {
-        path: '/authentication-Internal-list',
-        component: require('./Policy/InternalAuthList.vue').default
+        path: '/paypal_return',
+        component: require('./Payment/PaymentReturnURL.vue').default
+    },
+    {
+        path: '/paypal_cancel',
+        component: require('./Payment/paypay_cancel.vue').default
     },
 
+ 
+
     {
-        path: '/authentication-Internal',
-        component: require('./Policy/InternalAuth.vue').default
+        path: '/cashier_return',
+        component: require('./Payment/PaymentReturnURL.vue').default
     },
+
+
+
+   
     ///-----Reports
    
     {
@@ -368,6 +409,16 @@ let routes = [
     },
 
 
+    {
+        path: '/Paid-Policies',
+        component: require('./Payment/PaidPolicies.vue').default
+    },
+
+    {
+        path: '/Unpaid-Policies',
+        component: require('./Payment/UnpaidPolicies.vue').default
+    },
+
    
    
 
@@ -377,6 +428,8 @@ const router = new VueRouter({
     mode: 'history',
     routes
 })
+
+// Vue.component('pulse-loader', require('vue-spinner/src/PulseLoader.vue'));
 
 // Laravel Vue Pagination
 Vue.component('pagination', require('laravel-vue-pagination'));
@@ -414,6 +467,8 @@ const app = new Vue({
     el: '#app',
     router
 });
+
+
 
 
 

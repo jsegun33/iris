@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="MainPage">
         <!-- <section class="content-header">
             <h1>
                 Proposal Lists
@@ -12,20 +12,20 @@
             </ol>
         </section> -->
 
-        <section class="content" v-show="isShowingLoading" >
+        <!-- <section class="content" v-show="isShowingLoading" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
-         </section>
+         </section> -->
 
-          <section class="content" v-show="isShowingRecord"  v-if="this.RequestQuotations ==='NO RECORD FOUND'" >
+          <section class="content DisabledSection ContentSection"   v-if="this.RequestQuotations ==='NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" > {{ this.RequestQuotations  }}</big></h1>
                 </div>
          </section>
 
      
-         <section class="content" v-show="isShowingRecord" v-if="this.RequestQuotations !=='NO RECORD FOUND'" >
+         <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations !=='NO RECORD FOUND'" >
             <div class="box box-success">
                 <div class="box-header">
                     <h3 class="box-title">List of all Request Issuance / Proposal</h3>
@@ -49,27 +49,30 @@
                         <tbody>
                             <tr>
                                 <th>Plate Number</th>
-                                <th>Quotation #</th>
+                                <th>Policy #</th>
                                 <th>Name</th>
-                                <th>Total Premium</th>
+                                <th>Type</th>
                                 <th>Amount Due</th>
-                                <th>Deductible</th>
+                               
                                 <th>Expiration</th>
                                 <th>Cust. Message</th>
-                                <th>Status</th>
+                                <th>Payment</th>
                                 <th>Action</th>
                             </tr>
                             <tr v-for="RequestQuotationss in RequestQuotations.data" :key="RequestQuotationss._id">
                                 <td>{{ RequestQuotationss.PlateNumber }}</td>
-                                <td>{{ RequestQuotationss.RequestNo + "-" + RequestQuotationss.AcceptedOption  }}</td>
-                                <td>{{ RequestQuotationss.FirstName}}  {{RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
+                                <td>{{ RequestQuotationss.PolicyNo  }}</td>
+                                <td>{{ RequestQuotationss.CName}} </td>
                                 
-                                <td>{{ RequestQuotationss.PremiumAmount | Peso }}</td>
+                                <td>{{ RequestQuotationss.RequestType }}</td>
                                 <td>{{ RequestQuotationss.AmountDue | Peso }}</td>
-                                <td>{{ RequestQuotationss.Deductable | Peso }}</td>
+                               
                                 <td>{{ RequestQuotationss.QuoteExpiry | DateFormat}} <br/> {{ RequestQuotationss.QuoteExpiryRemarks}} </td>
                                 <td>{{ RequestQuotationss.CustMessage }}  <br/> {{ RequestQuotationss.CustMessageDate}} </td>
-                                <td><span class="label label-warning">{{ RequestQuotationss.Status }}</span></td>
+                               <td>
+                                    <span class="label label-success" v-if="RequestQuotationss.PaymentMode ==='Paid'">{{ RequestQuotationss.PaymentMode }} thru {{ RequestQuotationss.PaymentGateway }}</span>
+                                    <span class="label label-danger" v-else>Processing thru {{ RequestQuotationss.PaymentGateway }}</span>
+                                 </td>
                                 <td>
                                     <a v-bind:href="'/ViewForSignature?'+ RequestQuotationss.RequestNo" class="btn btn-warning" style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
@@ -92,7 +95,7 @@
             </div>
         </section>
      <!--------------<pre>{{ $data }}</pre>----------->
-     
+    
       
     </div>
 </template>
@@ -112,26 +115,19 @@ export default {
      mounted: function() {
             console.log('Component mounted.')
 			  axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-			  this.StartLoading();
+              this.loadRequestQuotation();
+              this.StartLoading();
         },
          data() {
             return {
               
-                url: '/proposal?2019-0001',
+             
                 editmode: false,
 				UserDetails: {},
                 RequestQuotations1: {},
 				RetrieveTimeInterval: null,
 				 RequestQuotations: {},
-                
-                IntervalLoading:null,
-                IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:47,
-                 timer_is_on:0,
+               ConnectionStatus:'',
 
 
                form: new Form({
@@ -144,22 +140,41 @@ export default {
 
 
         methods: {
-
-            LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
-            },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                  }
-                    
+            async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
               
             },
-
 
             getResults(page = 1) {
                 axios.get('api/GetIssuanceForSignaturePaging?page=' + page).then(response => {
@@ -168,42 +183,20 @@ export default {
             },
             loadRequestQuotation() {
 				this.RetrieveTimeInterval = setInterval(() => {
-
-                                clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
-
-
-
 					let PassID = this.UserDetails.AccountNo;  //"2020-0008";
-					//alert(PassID);
 						axios.get("api/GetIssuanceForSignature/" + PassID).then(({ data }) => (this.RequestQuotations = data));
-			}, 1000);
+			},200);
 			
 			 this.RetrieveTimeInterval2 = setInterval(() => {
-                   
 								clearInterval(this.RetrieveTimeInterval);
-        }, 			5000);
+            },2000);
 				
 			},
-            ViewRequest() {
-             window.open("request"); 
-               //window.location.hostname + '/request' 
-               
-            },
-         
-          },
-
           
-           created() {
-		
-               
-            this.loadRequestQuotation();
-            Fire.$on('AfterCreate',() => {
-                this.loadRequestQuotation();
-            });
-        },
+         
+},
+
+      
 
          computed: {
         date() {

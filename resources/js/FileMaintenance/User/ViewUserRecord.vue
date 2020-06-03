@@ -6,8 +6,8 @@
             <div class="box-header with-border">
               <h3 class="box-title">User Profile</h3>
             </div>
-             <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
-             <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
+             <!-- <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+             <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css"> -->
 
             <form @submit.prevent="">
                 <div class="box-body">
@@ -72,6 +72,19 @@
                     </div>
 
                     <div class="row">
+                         <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="name">Marketing Total Task :</label> 
+                                 <input v-model="form.TotalTask"  type="number" class="form-control"  required>
+                           </div>
+                        </div>
+                         <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="name"> Marketing Daily Task :</label> 
+                                 <input v-model="form.DailyTask"  type="number" class="form-control"   required>
+                                 <small>set 1 to start assigned task</small>
+                           </div>
+                        </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="name"> Agent Type:</label> 
@@ -140,7 +153,7 @@
                                 <label for="name" v-if="Commission.PerilsCode != 'OD'"> {{ Commission.PerilsCode }}</label>
                                 <label v-if="Commission.PerilsCode == 'OD'"> {{ Commission.PerilsCode + " / TF" }}</label>
                                   
-                                <input type="number"  class="form-control"    v-model="form.AmountCommInput[Commission._id + index ]" placeholder="Amount" />
+                                <input type="number"  step="any" class="form-control"    v-model="form.AmountCommInput[Commission._id + index ]" placeholder="Amount" />
 
                                 
                                         
@@ -323,6 +336,8 @@ export default {
                 UserCommissionID:'',
                 RemarksCom:'',
                 NewAmountCom:'',
+                DailyTask:'',
+                TotalTask:'',
              
 
             }),
@@ -339,7 +354,8 @@ export default {
                 title: " CONFIRMED ? ",
                 text: " You want to EDIT this USER's Commission ? ",
                 icon: "info",
-                input: 'number',
+                input: 'text',
+                //step:'any',
                 inputPlaceholder: 'NEW amount :',
                
                 inputAttributes: {
@@ -733,7 +749,8 @@ export default {
                                     this.form.SubAgent      =  detail.SubAgent;
                                     this.form.SubAgent      =  detail.SubAgent;
                                     this.form.LimitAmount      =  detail.ApprovedLimit;
-                                    //this.form.select_department =  detail.department;
+                                    this.form.DailyTask =  detail.MktgTaskCounterDaily;
+                                    this.form.TotalTask =  detail.MktgTaskCounter;
                                     this.form.select_department1  =  detail.department;
 
                                     this.$forceUpdate();

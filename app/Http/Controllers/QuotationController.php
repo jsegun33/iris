@@ -20,6 +20,7 @@ use App\RequestCoverages;
 use App\DefaultData;
 use App\ProductLinesCharges;
 use App\User;
+use App\Registration;
 use App\Userrole;
 use App\ClausesWarranties;
 use App\RequestClauses;
@@ -31,6 +32,9 @@ use App\ReportQuotation;
 use App\AgentComReport; 
 use App\AgentCom;
 use App\AgentCommCashOut;
+use App\PADescription;
+use App\PAClausesDisplay; 
+use App\PremiumType;
 use Jenssegers\Mongodb\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use MongoDB\BSON\Decimal128;
@@ -91,7 +95,7 @@ public function QuotationMotor(Request $request)
   $curYear = date('Y'); 
   $CountUser = RequestDetails::count() + 1;
   $NewCountUser = str_pad($CountUser, 4, '0' , STR_PAD_LEFT); 
-  $AccountNo =  $curYear. "-".$NewCountUser;
+  $AccountNo =  $curYear. "-3".$NewCountUser;
   //-------Depreciative ------------------------------------------
       $POAmount                   =   $request['DepreciativeAmount'] ;
       $DepreciativeNumberYear     =   $request['DepreciativeNumberYear'] ;
@@ -137,8 +141,9 @@ public function QuotationMotor(Request $request)
                     if ( trim($request['usages']) === "Commercial Use"){   ///for Commercial
                           if (trim($PerilsNo[1]) === "PA" ) {
                             $ComputationPremium      =    round($POAmount *  $DefaultPremiumAmount->Amount * $FindSurcharge->Amount, 2) ;
-                        
+                            
                           }else{
+                            
                             $ComputeFormula             = $POAmount . $DefaultPremiumAmount->Formula ;
                             $ComputationPremium        =  eval('return '.$ComputeFormula.';');
                             $PremiumAmount              = $DefaultPremiumAmount->CompPremium;  // round($DefaultPremiumAmount->Amount , 2) ;
@@ -276,7 +281,7 @@ public function QuotationMotor(Request $request)
         }
 
 //-------RequestDetails------RequestDetails-----RequestDetails-----RequestDetails------->
-        $DefaultCRD     = DefaultData::where('DefaultDataNo','2019-CR-0014')->first();
+        //$DefaultCRD     = DefaultData::where('DefaultDataNo','2019-CR-0014')->first();
 
         $CurrentDate1   = date('Y-m-d');
         $EffectiveDate  =  $request['EffectiveDate'];
@@ -295,27 +300,60 @@ public function QuotationMotor(Request $request)
         }else{
             $middle_name =" ";
         }
-       
+        if ( trim($request['IndividualPass']) === 'Individual'){
+          $RegisteredName  =   $request['first_name'] . " " . $middle_name  . " " . $request['last_name'];
+       }else{
+           $RegisteredName =  $request['registered_name'];
+       }
 
+      
+       
+        //--get USER MKTG incharge MktgTaskCounter  MktgTask
+        if (trim($request['department']) ==='NONE' ||  trim($request['department'])  ==='Agent'){
+              $Registration  =  Registration::select('*')->where('active',1)->where('MktgTask',1)->orderBy('MktgTaskCounter', 'ASC')->orderBy('MktgTaskCounterDaily', 'ASC')->orderBy('user_fname', 'ASC')->first();
+              $MktgInchargeName    = $Registration->user_fname . " " . $Registration->user_mname . " " . $Registration->user_lname;
+              $MktgInchargeCode    =  $Registration->AccountNo;
+              $RequestType = "Auto";
+       
+        }else{
+          $Registration  =  Registration::select('*')->where('active',1)->where('MktgTask',1)->where('AccountNo',$request['CustAcctNo'])->first();
+              $MktgInchargeName  = $request['AcctName'] ;
+              $MktgInchargeCode  = $request['CustAcctNo'];
+              $RequestType = "Manual";
+        }
+
+        //TIN NUmber
+       // $NewTINNumber  = str_replace( "-", "",$request['TINNumber']);
+        //mvPremType
+        if (!empty($request['PremiumTypeSave'])){
+           $mvPremType = explode(';;' ,$request['PremiumTypeSave']);
+        }else{
+          $PremiumTypeSave = "1;;Private Cars (including jeeps and AUVs)";
+          $mvPremType = explode(';;' ,$PremiumTypeSave);
+        }
         $RequestDetails = new RequestDetails;
         $RequestDetails->ProductLine                  = '2019-MC-0001';
         $RequestDetails->RequestNo                    = $AccountNo; 
         $RequestDetails->CustAcctNO                   = $request['CustAcctNo']; 
         $RequestDetails->AcctName                     = $request['AcctName'];   
         $RequestDetails->RatePercent                  = $RatePercentage;
+        $RequestDetails->RequestType                  = $RequestType ;
         $RequestDetails->PremiumAmount                = 0;
         $RequestDetails->AmountDue                    = 0 ;
         $RequestDetails->TotalCharges                 = 0 ;
         $RequestDetails->TotalCoverages               = 0 ;
         $RequestDetails->DepreciativeAmount           =  round($request['DepreciativeAmount'], 2) ;
-        //$RequestDetails->DepreciativeEveryYearPrcnt   =  round($DepreciativeEveryYearPrcnt, 2) ;
+        
        // $RequestDetails->DepreciativeAmount           =  round($request['DepreciativeNumberYear'], 2) ;
        // $RequestDetails->DepreciativeEveryYear        =  round($request['DepreciativeNumberYear'], 2) ;
        // $RequestDetails->NoYrsDepreciative            =  $NoYrsDepreciative ;        
         $RequestDetails->MotorSurcharge               = $Surcharge ;
-        $RequestDetails->PlateNumber                  = $request['PlateNumber'];  
+        $RequestDetails->PlateNumber                  = strtoupper($request['PlateNumber']); 
         $RequestDetails->Denomination                 = $Denomination[0];
         $RequestDetails->SubLinesName                 = $Denomination[1];
+        $RequestDetails->mvType                       = $Denomination[2];
+        $RequestDetails->mvPremType                   = $mvPremType[0];
+        $RequestDetails->mvPremTypeDesc               = $mvPremType[1];
         $RequestDetails->MotorPOAmount                = $request['POAMount'];
         $RequestDetails->CoverageAmount               = round($POAmount, 2) ; ///depreciative amount
         $RequestDetails->MotorYear                    = $request['YearPO'];
@@ -337,9 +375,14 @@ public function QuotationMotor(Request $request)
         $RequestDetails->Address                      = $request['Address'];
         $RequestDetails->Barangay                     = $request['Barangay'];
         $RequestDetails->City                         = $request['CityName'];
+        $RequestDetails->Province                     = $request['ProvName'];
         $RequestDetails->Passengers                   = $request['passengers'];
-        $RequestDetails->RegisteredName               = $request['registered_name'];
+        $RequestDetails->RegisteredName               = $RegisteredName;
         $RequestDetails->Individual                   = $request['IndividualPass'];
+
+        $RequestDetails->MktgInchargeName             =  $MktgInchargeName;
+        $RequestDetails->MktgInchargeCode             =  $MktgInchargeCode ;
+
         $RequestDetails->Driver                       = 1;
         $RequestDetails->LateDaysNo                   = $CompDaysLate;
         $RequestDetails->Status                       ='Processing';
@@ -357,7 +400,7 @@ public function QuotationMotor(Request $request)
         $RequestDetails->ForSignature                 = 0 ;
         $RequestDetails->TotalCommission              = 0 ;
         $RequestDetails->StatusCashOut                = "Processing" ;
-        $RequestDetails->AssignCRD                    = $DefaultCRD->Name ;
+        $RequestDetails->AssignCRD                    = $MktgInchargeName;
         $RequestDetails->CocNoRequest                 = '0';
         $RequestDetails->PaymentMode                  = '0';
         $RequestDetails->PaymentGateway               = '0';
@@ -365,7 +408,16 @@ public function QuotationMotor(Request $request)
         $RequestDetails->CashOutPaidAmount            = 0;
         $RequestDetails->UpdateRequest                = 0; 
         $RequestDetails->OktoAccept                   = 0; 
+        $RequestDetails->AuthSave                     = 0; 
+        $RequestDetails->IssuanceRemarks              = "0"; 
+       
+
         $RequestDetails->save();
+
+        //UPDATE user table for counter in task
+        $Registration->MktgTaskCounter              =round($Registration->MktgTaskCounter   + 1 ) ; 
+        $Registration->MktgTaskCounterDaily         =round($Registration->MktgTaskCounterDaily   + 1 ) ; 
+        $Registration->save();
         
 }
 public function UpdateRequest($id)
@@ -485,11 +537,14 @@ public function UpdateRequest($id)
 
                } 
                // return response()->json(['success' => $GetDenominationExplode[1] ], 200);
-            
+                 
+               $CoveragesDeductibles->Passengers           =  $RequestDetailsUpdate->Passengers ;
                $CoveragesDeductibles->Deductible           = round($DeductableNew , 2);
                $CoveragesDeductibles->save();
                 }
 
+
+                
             //--------------Update Charges-----------------------
             $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')->get();
               
@@ -549,6 +604,8 @@ public function UpdateRequest($id)
               $UpdateCharges22->save();
         
       } 
+
+      
       
       //once update done---change status of  UpdateRequest = 1
       $UpdateRequestCharges    = RequestCharges::where('RequestNo',$id)->where('UpdateRequest',0)->get();
@@ -748,7 +805,7 @@ public function UpdateRequest($id)
 				  if ( $ProductLinesPerils->PerilsCode == "CT"){
 					    $CTPLDefaultAmount      = DefaultData::where('DefaultDataNo','2019-CT-0003')->first();
               $CoverageAmountSave 	  =  $CTPLDefaultAmount->Amount;
-              $NumberPassenger         = $request['passengers'];
+             
            
           }else if (trim($ExplodePerilsNo[1]) === "OD" || trim($ExplodePerilsNo[1]) === "TF" || trim($ExplodePerilsNo[1]) === "AOG") {
                  $CoverageAmountSave     =  $DepreciativeAmount;
@@ -760,9 +817,16 @@ public function UpdateRequest($id)
                 $CoverageAmountSave      =  $FindCoveragessCoverage ;
             }
               
-              $NumberPassenger        = 4 ;
+
+            
+            if (!empty($request['passengers'])){
+                 $NumberPassenger         = $request['passengers'];
+            }else{
+                 $NumberPassenger  = 4 ;
+            }
+              
 		
-          $PerilsDescription    = str_replace("4",$request['passengers'], trim($ProductLinesPerils->Description));
+          $PerilsDescription    = str_replace("4",$NumberPassenger, trim($ProductLinesPerils->Description));
 
                   $RequestCoverages = new RequestCoverages;
                   $RequestCoverages->CoveragesNo             = $CountCoverages;
@@ -772,6 +836,7 @@ public function UpdateRequest($id)
                   $RequestCoverages->PerilsCode              = $ProductLinesPerils->PerilsCode ;
 				          $RequestCoverages->Description             = $PerilsDescription;
                   $RequestCoverages->CoveragesAmount         = $CoverageAmountSave;
+                  $RequestCoverages->Passengers              = round($NumberPassenger);
                   $RequestCoverages->CoveragesPremium        = round( $CompPremium , 2) ;
                   $RequestCoverages->PremiumAmount           = round($PremiumAmount, 2);
                   $RequestCoverages->TotalPremiumAmount      = round( $ComputationPremium , 2);
@@ -1211,12 +1276,18 @@ $CurrentDate              = date('Y-m-d H:i:s');
     public function GetDenomination()
     {
        
-       return ProductLinesSub::select('*')->where('Active', '1')->paginate(10);
+       return ProductLinesSub::select('*')->where('Active', '1')->orderBy('SubLinesName', 'ASC')->paginate(20);
+    }
+
+    public function GetPremiumType()
+    {
+       
+       return PremiumType::select('*')->where('active',1)->orderBy('Description', 'ASC')->paginate(10);
     }
     public function GetSurcharge()
     {
        
-       return ProductSurcharge::select('*')->where('Active', '1')->paginate(10);
+       return ProductSurcharge::select('*')->where('Active', '1')->paginate(20);
     }
 
     
@@ -1844,7 +1915,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
                 ->where('CoveragesPremium','!=',0)   
                 ->where('PerilsCode','!=','TF')             
                 ->where('OptionNo',$RequestCoverages->OptionNo)
-                ->orderBy('Sort','ASC')
+                ->orderBy('Section','ASC')
                 ->get();
                 $CoveragesTotalAmount = 0 ;  $CoveragesPremium  =0;
                 $Coverages = array();
@@ -1895,7 +1966,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
                             'ApproverRemarksDate'   => $GetAllRequestCoveragess->ApproverRemarksDate,
                             'ClientRemarksDate'     => $GetAllRequestCoveragess->ClientRemarksDate,
                             'ClientRemarks'         => $GetAllRequestCoveragess->ClientRemarks,  
-                            'ApproverNameQuote'     => $GetAllRequestCoveragess->ApproverNameQuote, 
+                            'ApproverNameQuote'     => $GetAllRequestCoveragess->AssignApproverNameQuote, 
                             'NoAOG'                 => $NoAOG ,
                             'NoAOGCoverageAmount'   => $GetAllRequestCoveragess->NoAOGCoveragesTotal ,
                             'NoAOGCoveragePremium'  => $GetAllRequestCoveragess->NoAOGPremiumTotal, //$NoAOGCoveragePremium ,
@@ -2219,9 +2290,9 @@ $CurrentDate              = date('Y-m-d H:i:s');
     }
    
 
-    public function GetRequestQuotationAccepted()
+    public function GetRequestQuotationAccepted()  
     {
-      $CoveragesCustDetails =  RequestDetails::select('*')->where('Active', '1')->where('Status', 'Accepted')->where('ForSignature',0)->paginate(15);
+      $CoveragesCustDetails =  RequestDetails::select('*')->where('Active', '1')->where('Status', 'Accepted')->where('ForSignature',0)->paginate(50);
          if ( $CoveragesCustDetails->total() > 0){  
           $CoveragesCustDetails1 = $CoveragesCustDetails;
             
@@ -2374,20 +2445,46 @@ $CurrentDate              = date('Y-m-d H:i:s');
     $QuoteExpiryTime               = date('H:i:s', strtotime("+30 days"));
     $AcceptData = explode(';;' ,trim($request['AcceptQuotationPassData']));
      $CompCoveragesPremium  = 0; $CompChargesPremium   = 0;
+     $RequestRequestDetails               = RequestDetails::where('RequestNo',$AcceptData[1])->first();
     $RequestCoverages                = RequestCoverages::where('OptionNo',round($AcceptData[0]))->where('RequestNo',$AcceptData[1])->get();
     foreach($RequestCoverages as $RequestCoveragess){ 
-              $RequestCoveragess->Status                          = 3 ;  //Pass to Customer
-              $RequestCoveragess->ApproverNameQuote             = $AcceptData[3] ;//$request['ListApprover'] ;
-              $RequestCoveragess->ApproverAcctNoQuote           = $AcceptData[2] ;//$request['ListApprover'] ;
-              $RequestCoveragess->ApproverRemarksDate           = $CurrentDate;//$request['ListApprover'] ;
-              $RequestCoveragess->ApproverIDQuote               = $AcceptData[4] ;//$request['ListApprover'] ;
-              $RequestCoveragess->ApproverRemarksQuote          = $AcceptData[5] ;//$request['ListApprover'] ;
-              
+                //Update Coverages for COMMission
+          $AgentComReport = AgentCom::select('*') 
+          ->where('AccountNo',$RequestRequestDetails->CustAcctNO) 
+          ->where('Class',$RequestCoveragess->DenominationType)
+          ->where('PerilsCode',$RequestCoveragess->PerilsCode)
+          ->where('active',"1")                      
+          ->get();
+          foreach($AgentComReport as $AgentComReports)
+          { 
+            if ( $RequestCoveragess->PerilsCode === 'OD'){
+              $AmountCom1    = $RequestCoveragess->PAmountODTF *  ($AgentComReports->AmountCom / 100);
+            }else{
+              $AmountCom1    = $RequestCoveragess->CoveragesPremium *  ($AgentComReports->AmountCom / 100);
+            }
 
-              
-              $RequestCoveragess->save(); 
-              $CompCoveragesPremium += $RequestCoveragess->CoveragesPremium  ;
-    }
+            $RequestCoveragess->CommPremium      = round($AmountCom1,2)  ;
+        
+
+          } 
+
+                $RequestCoveragess->Status                           = 3 ;   //Pass to Customer
+                $RequestCoveragess->AssignAccountNo                  = trim($AcceptData[2]);  //Pass to Customer
+                $RequestCoveragess->AssignApproverRemarksDate        = $CurrentDate ;
+                
+                
+                $RequestCoveragess->AssignApproverRemarksQuote        ='Auto'; //$request['RemarksApprover'];
+                //$RequestCoveragess->AssignApproverIDQuote             = $GetUserRole->_id   ;//$request['ListApprover'] ;
+                $RequestCoveragess->AssignApproverNameQuote           = trim($AcceptData[3]);  ;//$request['ListApprover'] ;
+				        $RequestCoveragess->InchargeName         			        = trim($AcceptData[3]); 
+                $RequestCoveragess->InchargeAcctNo       			        = trim($AcceptData[2]);
+               
+            
+                $RequestCoveragess->save(); 
+                $CompCoveragesPremium += $RequestCoveragess->CoveragesPremium  ;
+
+         
+      }
 
 
     $RequestCharges                = RequestCharges::where('OptionNo',round($AcceptData[0]))->where('RequestNo',$AcceptData[1])->get();
@@ -2412,6 +2509,32 @@ $CurrentDate              = date('Y-m-d H:i:s');
            
     //}
 
+    //$RequestCoverageComm   =RequestCoverages::where('OptionNo',round($AcceptData[0]))->where('RequestNo',$AcceptData[1])->get();
+            
+    // foreach($RequestCoverages as $RequestCoveragess){ 
+      
+    //             $AgentComReport = AgentCom::select('*') 
+    //                   ->where('AccountNo',trim($AcceptData[2])) 
+    //                   ->where('Class',$RequestCoveragess->DenominationType)
+    //                   ->where('PerilsCode',$RequestCoveragess->PerilsCode)
+    //                   ->where('active',"1")                      
+    //                   ->get();
+     
+    //       foreach($AgentComReport as $AgentComReports)
+    //         { 
+              
+    //           if ( $RequestCoveragess->PerilsCode === 'OD'){
+    //             $AmountCom1    = $RequestCoveragess->PAmountODTF *  ($AgentComReports->AmountCom / 100);
+    //           }else{
+    //             $AmountCom1    = $RequestCoveragess->CoveragesPremium *  ($AgentComReports->AmountCom / 100);
+    //           }
+             
+    //         }
+           
+    //       }
+    //       $RequestCoveragess->CommPremium      = round($AmountCom1,2)  ;
+    //       $RequestCoveragess->save(); 
+
 
 
 
@@ -2419,23 +2542,28 @@ $CurrentDate              = date('Y-m-d H:i:s');
   }
 
 
-  public function  CustomerAcceptedCoverage($id, request $request)
+  public function  CustomerAcceptedCoverage(request $request)
   {
     
-  $PassData = explode(';;' ,trim($id)); 
+  //$PassData = explode(';;' ,trim($id)); 
+  // $PassData[1] =  $request['CustAcctNO'];  
+  // $PassData[0]=   $request['RequestNo'];
+  
 
-   $GetOptionWithAOG    = RequestDetails::where('RequestNo',$PassData[0])->where('CustAcctNO',$PassData[1])->first();
+
+   $GetOptionWithAOG    = RequestDetails::where('RequestNo',$request['RequestNo'])->where('CustAcctNO',$request['CustAcctNO'])->first();
    $AOG             = $GetOptionWithAOG->OptionWithAOG  ;
    $AcceptedOption  = $GetOptionWithAOG->AcceptedOption  ;
-    $ProductLinesPerils      = RequestCoverages::select('*')->where('RequestNo', $PassData[0])->where('CustAcctNO',$PassData[1])->where('OptionNo',$AcceptedOption)->where('Active','1')->orderBy('Section','ASC')->groupBy('Section')->get();
+    //$ProductLinesPerils      = RequestCoverages::select('*')->where('RequestNo', $PassData[0])->where('CustAcctNO',$PassData[1])->where('OptionNo',$AcceptedOption)->where('Active','1')->orderBy('Section','ASC')->groupBy('Section')->get();
+    $ProductLinesPerils      = RequestCoverages::select('*')->where('RequestNo', $request['RequestNo'])->where('OptionNo',$AcceptedOption)->where('Active','1')->orderBy('Section','ASC')->groupBy('Section')->get();
   
-    $RequestCoverage         = RequestCoverages::select('*')->where('RequestNo',$PassData[0])->where('CustAcctNO',$PassData[1])->where('OptionNo',$AcceptedOption)->where('Status',4)->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->get();
+    $RequestCoverage         = RequestCoverages::select('*')->where('RequestNo',$request['RequestNo'])->where('OptionNo',$AcceptedOption)->where('Status',4)->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->get();
      
-
+   
 
     foreach($ProductLinesPerils as $ProductLinesPerilss)
     { 
-     
+      
      foreach($RequestCoverage as $RequestCoverages)
       { 
         //echo $RequestCoverages->RequestNo;  
@@ -2449,7 +2577,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
               ->where('Status',4)
               //->where('RequestModifyCoverages',0)
               //->where('RequestModify',0)
-              ->Where('RequestNo',$PassData[0])
+              ->Where('RequestNo',$request['RequestNo'])
            
               ->where('CoveragesPremium','!=',0)  
              ->where('Section',$ProductLinesPerilss->Section)              
@@ -2463,7 +2591,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
                 ->where('Status',4)
                 //->where('RequestModifyCoverages',0)
                 //->where('RequestModify',0)
-                ->where('RequestNo',$PassData[0])
+                ->where('RequestNo',$request['RequestNo'])
                 ->where('PerilsCode','!=','TF')
                 ->where('CoveragesPremium','!=',0)  
                 ->where('Section',$ProductLinesPerilss->Section)              
@@ -2523,7 +2651,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
             $GetAllRequestCharges = RequestCharges::select('*')
               ->where('Active','1')
               ->where('Status',4)
-              ->where('RequestNo',$PassData[0])
+              ->where('RequestNo',$request['RequestNo'])
               ->where('OptionNo',$RequestCoverages->OptionNo)
               ->orderBy('ChargesNo','ASC')
               ->get();
@@ -2563,7 +2691,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
 
 
             $GetClause = RequestClauses::select('*')  
-                      ->where('RequestNo',$PassData[0])
+                      ->where('RequestNo',$request['RequestNo'])
                       ->where('OptionNo',$RequestCoverages->OptionNo)
                       ->where('Active',1)
                       ->where('Status',1)
@@ -2583,7 +2711,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
 
 
           $GetAccessories = RequestAccessories::select('*')  
-          ->where('RequestNo',$PassData[0])
+          ->where('RequestNo',$request['RequestNo'])
           ->where('OptionNo',$RequestCoverages->OptionNo)
           ->where('Active',1)
           ->where('Status',1)
@@ -2620,7 +2748,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
                       'Accessories' 		              => $Accessories,
               
                     ] ;						
-        
+                    
       }
       if (!empty($Case)){  
         $CoveragesCustDetails1 = $Case;
@@ -2628,12 +2756,12 @@ $CurrentDate              = date('Y-m-d H:i:s');
       }else{
           $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
       }
-      return response()->json($CoveragesCustDetails1);
+      return response()->json($CoveragesCustDetails1); 
     
   }
 
 
-  public function  IssuanceAcceptedPolicy($id, request $request)
+  public function  IssuanceAcceptedPolicy($id)
   {
     
   $PassData = explode(';;' ,trim($id)); 
@@ -2701,6 +2829,12 @@ $CurrentDate              = date('Y-m-d H:i:s');
                           $CoveragesPremium        = $GetAllRequestCoveragess->CoveragesPremium;
                        
                       } 
+
+                      $TowingLimit                 = $GetAllRequestCoveragess->TowingLimit;
+                      $TotalCoverages               = $GetAllRequestCoveragess->TotalCoverages;
+                      $Deductible                  =$GetAllRequestCoveragess->Deductible;
+                      $AuthRepairLimit              = $GetAllRequestCoveragess->Deductible +  $GetAllRequestCoveragess->TowingLimit;
+
                       
                     
                       
@@ -2727,6 +2861,7 @@ $CurrentDate              = date('Y-m-d H:i:s');
                         'ComputeCoveagesAmount' =>  $ComputeCoveragesAmount, //$GetAllRequestCoveragess->CoveragesAmount, //$ComputeCoveragesAmount,
                         'Description'           => $GetAllRequestCoveragess->Description,
                         'CoverageSection'       => $GetAllRequestCoveragess->Section,
+                       
                         
                         
                       ];
@@ -2821,10 +2956,10 @@ $CurrentDate              = date('Y-m-d H:i:s');
             //$user = Auth::user();
             $Case[] = [
                        '_id'                          => $RequestCoverages->_id,
-                      'TowingLimit'                  => $GetAllRequestCoveragess->TowingLimit,
-                      'TotalCoverages'               => $GetAllRequestCoveragess->TotalCoverages,
-                       'Deductible'                   => $GetAllRequestCoveragess->Deductible,
-                       'AuthRepairLimit'              => $GetAllRequestCoveragess->Deductible +  $GetAllRequestCoveragess->TowingLimit,
+                      'TowingLimit'                  => $TowingLimit,
+                      'TotalCoverages'               => $TotalCoverages,
+                       'Deductible'                   => $Deductible,
+                       'AuthRepairLimit'              => $AuthRepairLimit,
                        'Section'                      => $ProductLinesPerilss->Section,
                       'OptionNo'					            => $RequestCoverages->OptionNo,
                       'RequestNo'					            => $GetAllRequestCoveragess->RequestNo,  
@@ -2999,23 +3134,49 @@ public function  ListCoveragesForApproval($id, request $request)
     $QuoteExpiryDate          = date('Y-m-d', strtotime("+30 days"));
     $QuoteExpiryTime          = date('H:i:s', strtotime("+30 days"));
 
-      $GetUserRole            = Userrole::where('RoleAlias','AQ')->first(); 
+      //$GetUserRole            = Userrole::where('RoleAlias','AQ')->first(); 
       $AcceptData             = explode(';;' ,trim($request['AcceptQuotationPassData']));
-       $CompCoveragesPremium  = 0; $CompChargesPremium   = 0;
+       $CompCoveragesPremium  = 0; $CompChargesPremium   = 0; 
+       $RequestDetails                      = RequestDetails::where('RequestNo',trim($AcceptData[1]))->first();
        $RequestCoverages      = RequestCoverages::where('OptionNo',round($AcceptData[0]))->where('RequestNo',$AcceptData[1])->get();
       foreach($RequestCoverages as $RequestCoveragess){ 
+
+          //Update Coverages for COMMission
+          $AgentComReport = AgentCom::select('*') 
+          ->where('AccountNo',$RequestDetails->CustAcctNO) 
+          ->where('Class',$RequestCoveragess->DenominationType)
+          ->where('PerilsCode',$RequestCoveragess->PerilsCode)
+          ->where('active',"1")                      
+          ->get();
+          foreach($AgentComReport as $AgentComReports)
+          { 
+            if ( $RequestCoveragess->PerilsCode === 'OD'){
+              $AmountCom1    = $RequestCoveragess->PAmountODTF *  ($AgentComReports->AmountCom / 100);
+            }else{
+              $AmountCom1    = $RequestCoveragess->CoveragesPremium *  ($AgentComReports->AmountCom / 100);
+            }
+
+            $RequestCoveragess->CommPremium      = round($AmountCom1,2)  ;
+        
+
+          } 
+
                 $RequestCoveragess->Status                           = 3 ;   //Pass to Customer
-                $RequestCoveragess->AccountNo                        = $GetUserRole->AccountNo  ;   //Pass to Customer
+                $RequestCoveragess->AssignAccountNo                  = trim($AcceptData[2]);  //Pass to Customer
                 $RequestCoveragess->AssignApproverRemarksDate        = $CurrentDate ;
                 
                 
-                $RequestCoveragess->AssignApproverRemarksQuote        ='Auto Approved by the User'; //$request['RemarksApprover'];
-                $RequestCoveragess->AssignApproverIDQuote             = $GetUserRole->_id   ;//$request['ListApprover'] ;
-                $RequestCoveragess->AssignApproverNameQuote           = $GetUserRole->CName  ;//$request['ListApprover'] ;
+                $RequestCoveragess->AssignApproverRemarksQuote        ='Auto'; //$request['RemarksApprover'];
+                //$RequestCoveragess->AssignApproverIDQuote             = $GetUserRole->_id   ;//$request['ListApprover'] ;
+                $RequestCoveragess->AssignApproverNameQuote           = trim($AcceptData[3]);  ;//$request['ListApprover'] ;
 				        $RequestCoveragess->InchargeName         			        = trim($AcceptData[3]); 
-				        $RequestCoveragess->InchargeAcctNo       			        = trim($AcceptData[2]);
+                $RequestCoveragess->InchargeAcctNo       			        = trim($AcceptData[2]);
+               
+            
                 $RequestCoveragess->save(); 
                 $CompCoveragesPremium += $RequestCoveragess->CoveragesPremium  ;
+
+         
       }
   
   
@@ -3025,6 +3186,13 @@ public function  ListCoveragesForApproval($id, request $request)
                 $RequestChargess->save(); 
                 $CompChargesPremium += $RequestChargess->ChargesPremium  ;
       }
+
+    
+
+      
+
+
+
 
       $RequestDetails                      = RequestDetails::where('RequestNo',trim($AcceptData[1]))->first();
       $RequestDetails->PremiumAmount        = 0 ;
@@ -3039,20 +3207,24 @@ public function  ListCoveragesForApproval($id, request $request)
 	    $RequestDetails->InchargeName         = trim($AcceptData[3]); 
       $RequestDetails->InchargeAcctNo       = trim($AcceptData[2]);
       $RequestDetails->save(); 
+      
+      
 
+     
+       
       
 
         //Report / Logs-------------------
-        $ReportQuotation = new ReportQuotation;
-        $ReportQuotation->Action               =  "SET";   
-        $ReportQuotation->TransaID             =  $AcceptData[1];   
-        $ReportQuotation->AcctNo               =  $GetUserRole->AccountNo;  
-        $ReportQuotation->AcctName             =  $GetUserRole->CName ; 
-        $ReportQuotation->Transaction          = 'System Set Auto Approver:' . $GetUserRole->CName . ". Assigned to: " . $GetUserRole->CName  .  ". Option #: " . $AcceptData[0] . ". Date /Time:" . $CurrentDate ; 
-        $ReportQuotation->TransactionDate      = $CurrentDate ;
-        $ReportQuotation->Status               = 1 ;
-        $ReportQuotation->Active               = 1;
-        $ReportQuotation->save();
+        // $ReportQuotation = new ReportQuotation;
+        // $ReportQuotation->Action               =  "SET";   
+        // $ReportQuotation->TransaID             =  $AcceptData[1];   
+        // $ReportQuotation->AcctNo               =  $GetUserRole->AccountNo;  
+        // $ReportQuotation->AcctName             =  $GetUserRole->CName ; 
+        // $ReportQuotation->Transaction          = 'System Set Auto Approver:' . $GetUserRole->CName . ". Assigned to: " . $GetUserRole->CName  .  ". Option #: " . $AcceptData[0] . ". Date /Time:" . $CurrentDate ; 
+        // $ReportQuotation->TransactionDate      = $CurrentDate ;
+        // $ReportQuotation->Status               = 1 ;
+        // $ReportQuotation->Active               = 1;
+        // $ReportQuotation->save();
 
   
     }
@@ -3146,7 +3318,7 @@ public function  ListCoveragesForApproval($id, request $request)
       
 //$QueryData        = explode(';;' ,$id);
           //$QueryData        = 'test1@gmail.com';
-          $RequestDetails   = RequestDetails::select('*')->where('Active', '1')->where('CustAcctNO',$id)->get();  
+          $RequestDetails   = RequestDetails::select('*')->where('Active', '1')->where('CustAcctNO',$id)->orderBy('RequestNo','DESC')->get();  
            
           foreach($RequestDetails as $RequestDetailss)
             { 
@@ -3453,13 +3625,19 @@ public function  ListCoveragesForApproval($id, request $request)
     }
 
 
-    public function GetRequestQuotation()
+    public function GetRequestQuotation(request $request)
     {
         $this->DetectExpirationQuotation();
      
        //return RequestDetails::select('*')->where('Active', '1')->where('Status', 'Processing')->paginate(20);
-       $CoveragesCustDetails = RequestDetails::select('*')->where('Active' , '1')->where('Status', 'Processing')->paginate(20);
-      //echo $CoveragesCustDetails->total();
+        if ($request['RoleAlias'] === 'AQ'){
+          $CoveragesCustDetails = RequestDetails::select('*')->where('Active' , '1')->orderBy('RequestNo', 'DESC')->paginate(20);
+    
+        }else{
+          $CoveragesCustDetails = RequestDetails::select('*')->where('MktgInchargeCode', $request['CustAcctNO'])->where('Active' , '1')->orderBy('RequestNo', 'DESC')->paginate(20);
+    
+        }
+       //echo $CoveragesCustDetails->total();
        if ( $CoveragesCustDetails->total() > 0){  
          $CoveragesCustDetails1 = $CoveragesCustDetails;
            
@@ -3672,6 +3850,8 @@ public function  ListCoveragesForApproval($id, request $request)
   $CompChargesPremium    = $RequestChargess->TotalChargesAOG ;  //for Charges
     if (trim($request['OptionWithAOG']) === "NO") { 
           $CompCoveragesPremium  = $RequestCoveragess->NoAOGPremiumTotal ;
+         
+          
       if(!empty($RequestCoveragesAOG  )){
           $RequestCoveragesAOG->Active        = "0"; //update active to 0 if user select no AOG , need into dispay of AOG on Policy
           $RequestCoveragesAOG->save(); 
@@ -3683,12 +3863,16 @@ public function  ListCoveragesForApproval($id, request $request)
       $CompCoveragesPremium  = $RequestCoveragess->TotalPremium ;
       $RequestCoveragesAOG->Active        = "1"; //update active to 0 if user select no AOG
       $RequestCoveragesAOG->save(); 
+      
       }
 
         if(!empty($request['PaymentMode'])){
             $PaymentModeSave = $request['PaymentMode'];
         }else{ $PaymentModeSave = "0"; }
-              $RequestDetails                      = RequestDetails::where('RequestNo',$AcceptData[1])->first();
+              $RequestDetails    = RequestDetails::where('RequestNo',$AcceptData[1])->first();
+              $GetDenoSplit  = explode('-' ,$RequestDetails->Denomination);
+              $PolicyNo      = "HO-MC" .$GetDenoSplit[1] ."-".$RequestDetails->RequestNo;
+             
               $RequestDetails->Status              = "Accepted";
               $RequestDetails->PremiumAmount       = $CompCoveragesPremium;
               $RequestDetails->TotalCoverages      = $TotalCoverages ;
@@ -3707,7 +3891,7 @@ public function  ListCoveragesForApproval($id, request $request)
               $RequestDetails->MortgageBankAddress  = $request['bankNameAddress'];
               $RequestDetails->HardCopy           = $request['hardCopy'];
               $RequestDetails->NormalDelivery     = $request['delivery'];
-             // $RequestDetails->PaymentGateway     = $request['PaymentGateway'];
+              $RequestDetails->PolicyNo           = $PolicyNo;
               $RequestDetails->DeliveryAddress    = $request['deliveryAddress'];
               // $RequestDetails->Address            = $request['address'];
               // $RequestDetails->Barangay           = $request['barangay'];
@@ -3758,27 +3942,23 @@ public function  ListCoveragesForApproval($id, request $request)
       //  if ($request['DiscountDeduct'] >=1){  //if user input >=1 record commission
           if ($request['TotalAmountComm'] >=1){  
         
-         $CoveragesForComm     = RequestCoverages::where('OptionNo',round($AcceptData[0]))->where('RequestNo',$AcceptData[1])->where('PerilsCode','!=','TF')->get();
-          
-        // $CoveragesForComm     = RequestCoverages::where('OptionNo',round(1) )->where('RequestNo','2020-0001')->where('PerilsCode','!=','TF')->get();
-       // return response()->json(['success' =>    $CoveragesForComm ], 200);  
-        
+            $CoveragesForComm     = RequestCoverages::where('OptionNo',round($AcceptData[0]))->where('RequestNo',$AcceptData[1])->where('PerilsCode','!=','TF')->get();
            
             foreach($CoveragesForComm as $CoveragesForComms){ 
-                $AgentComs        = AgentCom::where('AccountNo',$RequestDetails1->CustAcctNO)->where('PerilsCode',$CoveragesForComms->PerilsCode)->where('Class',$CoveragesForComms->DenominationType)->first();
-               // return response()->json(['success' =>    $AgentComs ], 200);  
+               
                       $AgentComReport = new AgentComReport;
                       $AgentComReport->AccountNo            = $RequestDetails1->CustAcctNO;
-                      $AgentComReport->ClassName            = $AgentComs->ClassName ;
-                      $AgentComReport->PerilsName           = $AgentComs->PerilsName ;
-                      $AgentComReport->PerilsNo             = $AgentComs->PerilsNo ;
-                      $AgentComReport->PerilsCode           = $AgentComs->PerilsCode ;
-                      $AgentComReport->AmountCom            = $AgentComs->AmountCom ;
+                      // $AgentComReport->ClassName            = $AgentComs->ClassName ;
+                       $AgentComReport->PerilsName           = $CoveragesForComms->PerilsName ;
+                       $AgentComReport->PerilsNo             = $CoveragesForComms->CoveragesName ;
+                       $AgentComReport->PerilsCode           = $CoveragesForComms->PerilsCode ;
+                       $AgentComReport->Class                = $CoveragesForComms->DenominationType ;
+                      $AgentComReport->AmountCom            = round($CoveragesForComms->CommPremium,2) ;
                       $AgentComReport->RequestNo            = $AcceptData[1];
                       $AgentComReport->TotalAmountCom       = round($request['TotalAmountComm'] - $request['DiscountDeduct'] ,2);
                       $AgentComReport->TotalAmountMaxCom    = round($request['TotalAmountComm'],2);
-                      $AgentComReport->status               = 1 ;
-                      $AgentComReport->active               = 1;
+                      $AgentComReport->status               = round($CoveragesForComms->Active) ;
+                      $AgentComReport->active               = round($CoveragesForComms->Active) ;
                       $AgentComReport->save();
              
            }  
@@ -3814,6 +3994,7 @@ public function  ListCoveragesForApproval($id, request $request)
                                   $RequestClauses->OptionNo                = round($AcceptData[0]);
                                   $RequestClauses->Active                  = 1;
                                   $RequestClauses->Status                  = 1;
+                                  $RequestClauses->Remarks                 = $GetClausesWarrantiess->Remarks;
                                   $RequestClauses->ClausesRequired         = $GetClausesWarrantiess->Required;
                                   $RequestClauses->Belong                  = $GetClausesWarrantiess->Belong;
                                   $RequestClauses->ClausesNo               = $GetClausesWarrantiess->Number;
@@ -3822,6 +4003,65 @@ public function  ListCoveragesForApproval($id, request $request)
                                   $RequestClauses->save(); 
                             
                              }
+
+
+                             $PALine          = explode('.' ,$RequestCoveragesPA->Description);
+                             $Passengers      = $RequestCoveragesPA->Passengers + 1 ;
+                             $CoverageAmount  = $RequestCoveragesPA->CoveragesAmount;
+                             $PALine3Comp     =  $CoverageAmount  / $Passengers;
+                             $PALine4Comp     =  ($CoverageAmount  / $Passengers) * 0.10 ;
+
+
+                             $PADescription = new PADescription;
+                             $PADescription->RequestNo        = $RequestCoveragesPA->RequestNo;
+                             $PADescription->PolicyNo         = $PolicyNo;
+                             $PADescription->Line1            = $PALine[0];
+                             $PADescription->Line2            = $PALine[1];
+                             $PADescription->Line3            = $PALine[2]  . " " . round($PALine3Comp,2) . "@";  //need comp
+                             $PADescription->Line4            = $PALine[3]  . " " . round($PALine4Comp,2) . "@";  //need comp
+                             $PADescription->Line5            = $PALine[4];
+                             $PADescription->Line6            = $PALine[5];
+                             $PADescription->active           = 1;
+                             $PADescription->save(); 
+
+                             $GetPAClausesDisplay     =  RequestClauses ::where('Remarks',"PAClausesDisplay")->where('Active',1)->where('Belong',$RequestCoveragesPA->PerilsCode)->first(); 
+
+                              $ClausesDisplaySave                 = explode('.' , $GetPAClausesDisplay->ClausesStatement);
+                              $NewClausesDisplaySave12           = str_replace("50,000",round($PALine3Comp,2), trim($ClausesDisplaySave[12]));
+                            
+                              $PAClausesDisplay = new PAClausesDisplay;
+                              $PAClausesDisplay->RequestNo        = $RequestCoveragesPA->RequestNo;
+                              $PAClausesDisplay->PolicyNo         = $PolicyNo;
+                              $PAClausesDisplay->Line0            = $ClausesDisplaySave[0];
+                              $PAClausesDisplay->Line1            = $ClausesDisplaySave[1];
+                              $PAClausesDisplay->Line2            = $ClausesDisplaySave[2];
+                              $PAClausesDisplay->Line3            = $ClausesDisplaySave[3];
+                              $PAClausesDisplay->Line4            = $ClausesDisplaySave[4] ; 
+                              $PAClausesDisplay->Line5            = $ClausesDisplaySave[5] ;  
+                              $PAClausesDisplay->Line6            = $ClausesDisplaySave[6];
+                              $PAClausesDisplay->Line7            = $ClausesDisplaySave[7];
+                              $PAClausesDisplay->Line8            = $ClausesDisplaySave[8];
+                              $PAClausesDisplay->Line9            = $ClausesDisplaySave[9];
+                              $PAClausesDisplay->Line10            = $ClausesDisplaySave[10];
+                              $PAClausesDisplay->Line1Amount      = "Ps " . round($PALine3Comp,2) ."@";
+                              $PAClausesDisplay->Line2Amount      = "Ps " .round($PALine3Comp,2) ."@";
+                              $PAClausesDisplay->Line3Amount      = "Ps " .round($PALine3Comp,2) ."@";
+                              $PAClausesDisplay->Line4Amount      = "Ps " .round($PALine3Comp,2) ."@";
+                              $PAClausesDisplay->Line5Amount      = "Ps " .round($PALine3Comp / 2 ,2) ."@";
+                              $PAClausesDisplay->Line6Amount      = "Ps " .round($PALine3Comp / 2 ,2) ."@";
+                              $PAClausesDisplay->Line7Amount      = "Ps " .round($PALine3Comp * 0.12,2) ."@";
+                              $PAClausesDisplay->Line8Amount      = "Ps " .round($PALine3Comp * 0.10,2) ."@";
+                              $PAClausesDisplay->Line8a            = $ClausesDisplaySave[11];
+                              $PAClausesDisplay->Line8b            = $NewClausesDisplaySave12;
+                              $PAClausesDisplay->Line8c            = $ClausesDisplaySave[13];
+                              $PAClausesDisplay->Line8d            = $ClausesDisplaySave[14];
+                              $PAClausesDisplay->Line8e            = $ClausesDisplaySave[15];
+                              $PAClausesDisplay->Line8f            = $ClausesDisplaySave[16];
+                              $PAClausesDisplay->Line8g            = $ClausesDisplaySave[17];
+                              $PAClausesDisplay->active           = 1;
+                              $PAClausesDisplay->save(); 
+
+
                     }
                   
 
@@ -3902,16 +4142,16 @@ public function  ListCoveragesForApproval($id, request $request)
                          
                   }
               //Report / Logs-------------------
-              $ReportQuotation = new ReportQuotation;
-              $ReportQuotation->Action               =  "SET";   
-              $ReportQuotation->TransaID             =  $AcceptData[1];   
-              $ReportQuotation->AcctNo               =  $request['AcctNo'];
-              $ReportQuotation->AcctName             =  $request['AcctName'];
-              $ReportQuotation->Transaction          = 'Customer Accept Quotation :' . $AcceptData[1] .  ". with Option #: " . $AcceptData[0] .  ". under Customer Name: " . $request['AcctName'] . ". Date /Time:" . $CurrentDate ; 
-              $ReportQuotation->TransactionDate      = $CurrentDate ;
-              $ReportQuotation->Status               = 1 ;
-              $ReportQuotation->Active               = 1;
-            $ReportQuotation->save();
+              // $ReportQuotation = new ReportQuotation;
+              // $ReportQuotation->Action               =  "SET";   
+              // $ReportQuotation->TransaID             =  $AcceptData[1];   
+              // $ReportQuotation->AcctNo               =  $request['AcctNo'];
+              // $ReportQuotation->AcctName             =  $request['AcctName'];
+              // $ReportQuotation->Transaction          = 'Customer Accept Quotation :' . $AcceptData[1] .  ". with Option #: " . $AcceptData[0] .  ". under Customer Name: " . $request['AcctName'] . ". Date /Time:" . $CurrentDate ; 
+              // $ReportQuotation->TransactionDate      = $CurrentDate ;
+              // $ReportQuotation->Status               = 1 ;
+              // $ReportQuotation->Active               = 1;
+              // $ReportQuotation->save();
             
                    
   }
@@ -4118,19 +4358,31 @@ public function  ListCoveragesForApproval($id, request $request)
 
   } 
   
-   public function UpdateScheduleVehicle($id)
+   public function UpdateScheduleVehicle(request $request)
   {
-          $PassData                               = explode(';;' ,trim($id));
-          $RequestDetailss                        = RequestDetails::where('RequestNo',trim($PassData[0]))->first();
-		      $RequestDetailss->PlateNumber          	 =$PassData[1];
-          $RequestDetailss->ChassisNo          		 =$PassData[2];
-          $RequestDetailss->EngineNo          		 =$PassData[3];
-          $RequestDetailss->BodyColor          		 =$PassData[4];
-          $RequestDetailss->MotorBrand          	 =$PassData[5];
-          $RequestDetailss->MotorModel          	 =$PassData[6];
-          $RequestDetailss->MotorBodyType          =$PassData[7];
+         // $PassData                               = explode(';;' ,trim($id));   //RequestNo request $request['RequestNo']
+          $RequestDetailss                        = RequestDetails::where('RequestNo',$request['RequestNo'])->first();
+          $RequestDetailss->PlateNumber          	 =$request['PlateNumber'];
+          $RequestDetailss->MvFileNo          	   =$request['MvFileNo'];
+          $RequestDetailss->ChassisNo          		 =$request['ChassisNo'];
+          $RequestDetailss->EngineNo          		 =$request['EngineNo'];
+          $RequestDetailss->BodyColor          		 =$request['BodyColor'];
+          $RequestDetailss->MotorBrand          	 =$request['MotorBrand'];
+          $RequestDetailss->MotorModel          	 =$request['MotorModel'];
+          $RequestDetailss->MotorBodyType          =$request['MotorType'];
           $RequestDetailss->save(); 
-          return  $RequestDetailss->Active    ;
+
+
+          $RequestAuthentication                         = Authentication::where('RequestNo',$request['RequestNo'])->first();
+          $RequestAuthentication->plateNo          	     =$request['PlateNumber'];
+          $RequestAuthentication->mvFileNo          	   =$request['MvFileNo'];
+          $RequestAuthentication->chassisNo          		 =$request['ChassisNo'];
+          $RequestAuthentication->engineNo          		 =$request['EngineNo'];
+         
+          $RequestAuthentication->save(); 
+
+
+          return  $RequestAuthentication->Active    ;
  
   }
 
@@ -4721,7 +4973,7 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
     public function GetRequestQuotationApprover($id)
     {
        	  
-	 $RequestCoveragess    = RequestCoverages::select('*')->where('Status',2)->where('AssignApproverAcctNoQuote',trim($id))->groupBy('AssignApproverAcctNoQuote','RequestNo')->get();
+	 $RequestCoveragess    = RequestCoverages::select('*')->where('AssignApproverAcctNoQuote',trim($id))->groupBy('AssignApproverAcctNoQuote','RequestNo')->get();
 		foreach($RequestCoveragess as $RequestCoveragesss)
 			 { 	
 				
@@ -4730,7 +4982,7 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
 							  ->where('AssignApproverAcctNoQuote',$RequestCoveragesss->AssignApproverAcctNoQuote)
 							  ->where('Active','1')
 							  ->where('CoveragesPremium','!=',0)   
-							  ->where('Status',2)
+							  //->where('Status',2)
 							  ->orderBy('Sort','ASC')
 							  ->get();
 							$ListCoverages = array();
@@ -4785,98 +5037,70 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
 				
   }  	
         
-  public function  CustomerAcceptedCoverageView($id, request $request)
+  public function  CustomerAcceptedData(request $request)
   {
     
-    $PassData = explode(';;' ,trim($id));
-    //$PassData[0] = "2020-0002";
-   // $ProductLinesPerils      = ProductLinesPerils::select('*')->where('Active','1')->orderBy('Section','ASC')->groupBy('Section')->get();
-   
-  // $RequestCoverage         = RequestCoverages::select('*')->where('RequestNo',trim($PassData[0]))->where('RequestModify',1)->whereIn('Status',[4,3])->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->get();
-   
- //$RequestCoverage         = RequestCoverages::select('*')->where('RequestNo',trim($PassData[0]))->whereIn('Status',[4,3])->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->get();
-    $RequestCoverage         = RequestCoverages::select('*')->where('RequestNo',trim($PassData[0]))->where('CustAcctNO',trim($PassData[1]))->whereIn('Status',[4,3])->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->get();
-  
-    
-  $Case = array();
+    $RequestCoverage      = RequestCoverages::select('*')->where('RequestNo',$request['RequestNo'])->where('CoveragesPremium','!=',0)->where('Status',4)->groupBy('OptionNo')->orderBy("OptionNo",'ASC')->get();
+
      foreach($RequestCoverage as $RequestCoverages)
       { 
         //echo $RequestCoverages->RequestNo;      
          $GetAllRequestCoverages = RequestCoverages::select('*') 
-               //->where('Active','1')   //diabled active
-               ->whereIn('Status',[4,3])
-               //->where('Status',4)
-               //->where('RequestModify',1)
-              
-               ->where('RequestNo',$PassData[0])
-               ->where('PerilsCode','!=','TF')
-               ->where('CoveragesPremium','!=',0)  
-             // ->where('Section',$ProductLinesPerilss->Section)              
+              ->where('Active','1')
+              ->where('Status',4)
+             // ->whereIn('Status',[3,1,2])
+              ->where('RequestNo',$request['RequestNo'])
+              ->where('PerilsCode','!=','TF')
+              ->where('CoveragesPremium','!=',0)                
               ->where('OptionNo',$RequestCoverages->OptionNo)
-              ->orderBy('Section','ASC')
+              ->orderBy('Sort','ASC')
               ->get();
-             
+              $CoveragesTotalAmount = 0 ;
               $Coverages = array();
-              $CoveragesTotalAmount = 0 ; $ComputeCoveragesAmount = 0 ;  $CoveragesPremium  =0;
                   foreach($GetAllRequestCoverages as $GetAllRequestCoveragess){
-                   
+                    
                     $CoveragesTotalAmount  += $GetAllRequestCoveragess->TotalPremiumAmount;
-                      if ( $GetAllRequestCoveragess->PerilsCode === 'OD'  ){
-                          $ComputeCoveragesAmount = $GetAllRequestCoveragess->CAmountODTF ;
-                          $CoveragesPremium       = $GetAllRequestCoveragess->PAmountODTF;
-                      }else{
-                          $ComputeCoveragesAmount  = $GetAllRequestCoveragess->CoveragesAmount;
-                          $CoveragesPremium        = $GetAllRequestCoveragess->CoveragesPremium;
-                      } 
+
+                    if ( $GetAllRequestCoveragess->PerilsCode == 'OD'  ){
+                      $ComputeCoveragesAmount = $GetAllRequestCoveragess->CAmountODTF ;
+                      $CoveragesPremium       = $GetAllRequestCoveragess->PAmountODTF;
+                  }else{
+                      $ComputeCoveragesAmount  = $GetAllRequestCoveragess->CoveragesAmount;
+                      $CoveragesPremium        = $GetAllRequestCoveragess->CoveragesPremium;
+                  } 
 
 
-                      if ( $GetAllRequestCoveragess->PerilsCode === 'AOG'  ){
-                        $NoAOG                  = "YES";
-                        $NoAOGCoverageAmount    = $ComputeCoveragesAmount;
-                        $NoAOGCoveragePremium   = $CoveragesPremium;
-                       
-                    }else{
-                         $NoAOG                 = "NO";
-                         $NoAOGCoverageAmount    = $ComputeCoveragesAmount - $GetAllRequestCoveragess->CoveragesAmount;
-                         $NoAOGCoveragePremium   = $CoveragesPremium  - $GetAllRequestCoveragess->CoveragesPremium;
-                    } 
-                      
-             
-                      $Coverages[] = [
-                        '_id'                   => $GetAllRequestCoveragess->_id,
-                        'Status'                => $GetAllRequestCoveragess->Status,
-                        'Active'                => $GetAllRequestCoveragess->Active,
-                        //'CoveragesName'         => $CoveragesName,
-                        'CoveragesPremium'      => $CoveragesPremium, //$GetAllRequestCoveragess->CoveragesPremium, 
-                        'PremiumAmount'         => $GetAllRequestCoveragess->PremiumAmount,
-                        'CoveragesAmount'       => $GetAllRequestCoveragess->CoveragesAmount,
-                        //'TotalCoveragesPremium' => $GetAllRequestCoveragess->TotalPremiumAmount,
-                        'OptionNo'	            => $GetAllRequestCoveragess->OptionNo,
-                        'PerilsName'	          => $GetAllRequestCoveragess->PerilsName,
-                        'CoveragesTotalAmount'  => $CoveragesTotalAmount,
-                        'ApproverRemarks'	      => $GetAllRequestCoveragess->ApproverRemarksQuote,
-                        'Approver'	            => $GetAllRequestCoveragess->Approver,
-                        'ApproverName'	        => $GetAllRequestCoveragess->ApproverName,
-                        'ClientRemarks'	        => $GetAllRequestCoveragess->ClientRemarks,
-                        'CoverageRates'	        => $GetAllRequestCoveragess->CoverageRates,
-                        'ApproverRemarksDate'   => $GetAllRequestCoveragess->ApproverRemarksDate,
-                        'ClientRemarksDate'     => $GetAllRequestCoveragess->ClientRemarksDate,
-                        'PerilsCode'            => $GetAllRequestCoveragess->PerilsCode,
-                        'ComputeCoveagesAmount' => $ComputeCoveragesAmount,
-                        'Description'           => $GetAllRequestCoveragess->Description,
-                        'NoAOG'                 => $NoAOG ,
-                        'NoAOGCoverageAmount'   => $NoAOGCoverageAmount ,
-                        'NoAOGCoveragePremium'  => $NoAOGCoveragePremium ,
-                        
-                      ];
-           
+                        $Coverages[] = [
+                          '_id'                   => $GetAllRequestCoveragess->_id,
+                          'Status'                => $GetAllRequestCoveragess->Status,
+                          'Active'                => $GetAllRequestCoveragess->Active,
+                          'CoveragesName'         => $GetAllRequestCoveragess->CoveragesName,
+                          'CoveragesPremium'      => $CoveragesPremium, 
+                          'PremiumAmount'         => $GetAllRequestCoveragess->PremiumAmount,
+                          'CoveragesAmount'       => $GetAllRequestCoveragess->CoveragesAmount, //$ComputeCoveragesAmount,
+                          //'CoverageRates' 		  => $GetAllRequestCoveragess->CoverageRates,
+                          'OptionNo'	            => $GetAllRequestCoveragess->OptionNo,
+                          'PerilsCode'	          => $GetAllRequestCoveragess->PerilsCode,
+                          'PerilsName'	          => $GetAllRequestCoveragess->PerilsName,
+                          'CoveragesTotalAmount'  => $CoveragesTotalAmount,
+                          'ApproverRemarks'	      => $GetAllRequestCoveragess->ApproverRemarks,
+                          'Approver'	            => $GetAllRequestCoveragess->Approver,
+                          'ApproverName'	        => $GetAllRequestCoveragess->ApproverName,
+                          'CoverageRates'	        => $GetAllRequestCoveragess->CoverageRates,
+                          'ApproverRemarksDate'   => $GetAllRequestCoveragess->ApproverRemarksDate,
+                          'ClientRemarksDate'     => $GetAllRequestCoveragess->ClientRemarksDate,
+                          'ClientReemarks'        => $GetAllRequestCoveragess->ClientRemarks,  
+                          'RequestModify'         => $GetAllRequestCoveragess->RequestModify,  
+                          'WithAOG'               => $GetAllRequestCoveragess->WithAOG,  
+                          
+                        ];
                       
             }	
-
+            
             $GetAllRequestCharges = RequestCharges::select('*')
               ->where('Active','1')
-              ->whereIn('Status',[4,3])
-              ->where('RequestNo',$PassData[0])
+              //->whereIn('Status',[3,1,2])
+              ->where('RequestNo',$request['RequestNo'])
               ->where('OptionNo',$RequestCoverages->OptionNo)
               ->orderBy('ChargesNo','ASC')
               ->get();
@@ -4889,63 +5113,22 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
                           'ChargesName'           => $GetAllRequestChargess->ChargesName,
                           'ChargesAmount'         => $GetAllRequestChargess->ChargesAmount,
                           'ChargesPremium'        => $GetAllRequestChargess->ChargesPremium,
-                          'TotalCharges'	        => $GetAllRequestChargess->TotalCharges,
                           'ChargesType'	          => $GetAllRequestChargess->ChargesType,
                           'ChargesNo'	            => $GetAllRequestChargess->ChargesNo,
                           'OptionNo'	            => $GetAllRequestChargess->OptionNo,
                           'ChargesPremiumAOG'	    => $GetAllRequestChargess->ChargesPremiumAOG,
+						  
                           
                          
                         ];
             }	
 
-
-            $GetClause = RequestClauses::select('*')  
-                      ->where('RequestNo',$PassData[0])
-                      ->where('OptionNo',$RequestCoverages->OptionNo)
-                      ->where('Active',1)
-                      ->where('Status',1)
-                      ->get();
-
-            $ClausesWarranties = array();
-                foreach($GetClause as $GetClauses){
-                      $ClausesWarranties[] = [
-                        '_id'                   => $GetClauses->_id,
-                        'ClausesNo'             => $GetClauses->ClausesNo,
-                        'ClausesName'           => $GetClauses->ClausesName,
-                        'ClausesStatement'      => $GetClauses->ClausesStatement,
-                      ];
-          }	
-
-
-          $GetAccessories = RequestAccessories::select('*')  
-          ->where('RequestNo',$PassData[0])
-          ->where('OptionNo',$RequestCoverages->OptionNo)
-          ->where('Active',1)
-          ->where('Status',1)
-          ->get();
-
-          $Accessories = array();
-              foreach($GetAccessories as $GetAccessoriess){
-                    $Accessories[] = [
-                      '_id'                   => $GetAccessoriess->_id,
-                      'Name'                  => $GetAccessoriess->Name,
-                      'Amount'                => $GetAccessoriess->Amount,
-                      
-                    ];
-          }	
-
-
-        
-        
             //$user = Auth::user();
             $Case[] = [
-                       '_id'                           => $RequestCoverages->_id,
-                      'OptionNo'					             => $RequestCoverages->OptionNo,
-                      'RequestNo'					             => $GetAllRequestCoveragess->RequestNo,  
-                      'CoverageRates'	        		     => $GetAllRequestCoveragess->CoverageRates,
-
-
+                       '_id'                          	=> $RequestCoverages->_id,
+                      'OptionNo'					              => $RequestCoverages->OptionNo,
+                      'RequestNo'					              => $GetAllRequestCoveragess->RequestNo,  
+                      'CoverageRates'	        		      => $GetAllRequestCoveragess->CoverageRates,
                       'TotalCoverages'	        		    => $GetAllRequestCoveragess->TotalCoverages,
                       'TotalPremium'	        		      => $GetAllRequestCoveragess->TotalPremium,
                       'NoAOGCoveragesTotal'	            => $GetAllRequestCoveragess->NoAOGCoveragesTotal,
@@ -4953,17 +5136,16 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
                       'TotalCharges'	                  => $GetAllRequestChargess->TotalCharges,
                       'TotalAmountDue'	                => $GetAllRequestChargess->TotalAmountDue,
                       'TotalChargesAOG'	                => $GetAllRequestChargess->TotalChargesAOG,
-                      'StatusCovetages'                 => $GetAllRequestCoveragess->Status,
+                      'StatusCovetages'                => $GetAllRequestCoveragess->Status,
                       'Deductible'                      => $GetAllRequestCoveragess->Deductible,
-                    
+                      
+
+                      'CoverageRates'	        		      => $GetAllRequestCoveragess->CoverageRates,
                       'ListCoverages' 		              => $Coverages,
-                      'ListCharges' 		                => $Charges,
-                      'ClausesWarranties' 		          => $ClausesWarranties,
-                      'Accessories' 		                => $Accessories,
+                      'ListCharges' 		                => $Charges
               
                     ] ;						
-        
-      }
+        }
             if (!empty($Case)){  
               $CoveragesCustDetails1 = $Case;
                 
@@ -4981,7 +5163,7 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
   {
     
     //$RequestCoverage      = RequestCoverages::select('*')->where('RequestNo',trim($id))->whereIn('Status',[3,1,2])->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->orderBy("OptionNo",'ASC')->get();
-    $RequestCoverage      = RequestCoverages::select('*')->where('RequestNo',trim($id))->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->orderBy("OptionNo",'ASC')->get();
+    $RequestCoverage      = RequestCoverages::select('*')->where('RequestNo',trim($id))->where('CoveragesPremium','!=',0)->where('Status',3)->groupBy('OptionNo')->orderBy("OptionNo",'ASC')->get();
 
      foreach($RequestCoverage as $RequestCoverages)
       { 
@@ -4989,7 +5171,7 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
          $GetAllRequestCoverages = RequestCoverages::select('*') 
               ->where('Active','1')
               //->where('RequestModify',0)
-             // ->whereIn('Status',[3,1,2])
+              ->where('Status',3)
               ->where('RequestNo',trim($id))
               ->where('PerilsCode','!=','TF')
               ->where('CoveragesPremium','!=',0)                
@@ -5132,17 +5314,19 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
          
               // }
 		
-		           $RequestDetails   = RequestDetails::where('RequestNo',$PassData[0])->first();
-              $RequestDetails->ForSignature         = 1;
-			        $RequestDetails->ForSignatureAcctNo         = $PassData[7];
-			        $RequestDetails->ForSignatureName         = $PassData[8];
-              $RequestDetails->IssuanceRemarks      = $PassData[5];
-              $RequestDetails->PolicyNo      = $PassData[9];
+               $RequestDetails   = RequestDetails::where('RequestNo',$PassData[0])->first();
+               //$RequestDetails->Status   = "Approved";
+               $RequestDetails->ForSignature         = 1;
+			         $RequestDetails->ForSignatureAcctNo         = $PassData[7];
+			         $RequestDetails->ForSignatureName         = $PassData[8];
+               $RequestDetails->IssuanceRemarks      = $PassData[5];
+             // $RequestDetails->PolicyNo      = $PassData[9];
               
               $RequestDetails->save(); 
   }
 
 
+  //public function GetListSignatory(request $request)
   public function GetListSignatory(request $request)
   {
  
@@ -5154,7 +5338,7 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
                 ->where('RoleAlias','AI')
                 ->orderBy('CName','ASC')
                 ->get();
-          $ResultUserrole = array();
+         // $ResultUserrole = array();
             foreach($Userrole as $Userroles)
           { 
                 $ResultUserrole[] = [
@@ -5166,18 +5350,25 @@ $FindProductLineCharge1  = ProductLinesCharges::select('*')->where('Active','1')
             
               
           }
-          return response()->json($ResultUserrole);	
+          if ( !empty($ResultUserrole)){   
+            $CoveragesCustDetails1 = $ResultUserrole;
+              
+        }else{
+             $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+        }
+        return response()->json($CoveragesCustDetails1);
+       //   return response()->json($ResultUserrole);	
 
   }
 
-  public function GetListSignatoryAllowed(request $request)
+  public function GetListSignatoryAllowed($id)
   {
- 
+          $PassData  =  explode(';;',$id);
       //return Userrole::select('*')->where('Active','1')->where('RoleAlias','AI')->paginate(2);
 
                 $Userrole = Userrole::select('*') 
-                ->where('Limit','>=',round($request['InsuranceAmount'],2))
-                ->where('AccountNo',$request['CustAcctNO'])
+                ->where('Limit','>=',round($PassData[1],2))
+                ->where('AccountNo',$PassData[0])
                 ->where('active',1)
                 ->where('RoleAlias','AI')
                 ->orderBy('CName','ASC')
@@ -5519,7 +5710,7 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                 ->where('CoveragesPremium','!=',0)   
                 //->where('PerilsCode','!=','TF')             
                 ->where('OptionNo',$RequestCoverages->OptionNo)
-                ->orderBy('Sort','ASC')
+                ->orderBy('Section','ASC')
                 ->get();
                 $CoveragesTotalAmount = 0 ;  $CoveragesPremium  =0;
                 $Coverages = array();
@@ -5723,7 +5914,9 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
               $RequestDetails->CName                  = $request['FirstName'] . " " .  $request['MiddleName'] . " " . $request['LastName'];
               $RequestDetails->Barangay               = $request['Barangay'];
               $RequestDetails->City               	  = $request['City'];
+              $RequestDetails->Province               = $request['Province'];
               $RequestDetails->TINNumber              = $request['TINNumber'];
+              $RequestDetails->PlateNumber            = $request['PlateNumber'];
               $RequestDetails->EmailAddress           = $request['EmailAddress'];
               $RequestDetails->ContactNumber          = $request['ContactNumber'];
               $RequestDetails->AmountDue              = 0.00;
@@ -6076,7 +6269,7 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                   $RequestCoverages->Surcharge               = round( $Surcharge , 2) ;
                   $RequestCoverages->CoveragesPremium        = round( $ComputationPremium , 2) ;
                   $RequestCoverages->PremiumAmount           = round($PremiumAmount, 2);
-                //  $RequestCoverages->TotalPremiumAmount      = round( $TotalComputationPremium , 2);
+                //  $RequestCoverages->Passengers      = round( $TotalComputationPremium , 2);
                   $RequestCoverages->OptionNo                = $Option ;
                   $RequestCoverages->Active                  = '1' ;
                   $RequestCoverages->Status                  = 1;
@@ -6194,7 +6387,8 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
              } 
              $TowingLimit   = DefaultData::where('DefaultDataNo','2019-TL-0013')->first();
              $CoveragesDeductible   = RequestCoverages::where('RequestNo',trim($PassData))->where('OptionNo',$Option)->get();
-               foreach($CoveragesDeductible as $CoveragesDeductibles){ 
+               foreach($CoveragesDeductible as $CoveragesDeductibles){
+                         $CoveragesDeductibles->Passengers           = $GetDenomination->Passengers;
                          $CoveragesDeductibles->Deductible           = round($DeductableNew , 2);
                          $CoveragesDeductibles->TowingLimit          = round($TowingLimit->Amount, 2);
                          $CoveragesDeductibles->save(); 
@@ -6815,8 +7009,10 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
       
       $PassData   = explode(';;' ,$id);
        $ResultDefaultData =  DefaultData::select('*')
-                      ->where('LinesNo',$PassData[0])
-                      ->where('PerilsClass',$PassData[1])
+                     ->where('LinesNo',$PassData[0])
+                       ->where('PerilsClass',$PassData[1])
+                      //->where('LinesNo',"2019-CV-0002")
+                      //->where('PerilsClass',"2019-PA-0007")
                       ->where('Converter',"PremiumComp")
                       ->where('Active',"1")
                       ->first();
@@ -6881,7 +7077,7 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
 
     public function ISAPInternalAuth()  
     {
-      return view('InternalAuthentication') ;
+          return view('InternalAuthentication') ;
     
     }
 
@@ -6906,8 +7102,8 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
     }
     public function GetListNeedAuth() 
     {
-    
-      $CoveragesCustDetails =  RequestDetails::select('*')->where('Active', '1')->where('HasCTPL',1)->paginate(20);
+       
+      $CoveragesCustDetails =  RequestDetails::select('*')->where('Status', 'Approved')->where('Active', '1')->where('HasCTPL',1)->orderBy('RequestNo','DESC')->paginate(20);
         if ( $CoveragesCustDetails->total() > 0){  
           $CoveragesCustDetails1 = $CoveragesCustDetails;
             
@@ -6921,7 +7117,7 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
     public function ListPolicy() 
     {
     
-      $CoveragesCustDetails =  RequestDetails::select('*')->where('Active', '1')->where('AcceptedOption','>=',1)->paginate(20);
+      $CoveragesCustDetails =  RequestDetails::select('*')->where('Active', '1')->where('AcceptedOption','>=',1)->orderBy('RequestNo','DESC')->paginate(20);
               if ( $CoveragesCustDetails->total() > 0){  
                   $CoveragesCustDetails1 = $CoveragesCustDetails;
                     
@@ -6938,6 +7134,7 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
       $PaymentDetails  =  explode(';;',$id);
       $RequestDetails    = RequestDetails::select('*')->where('RequestNo',$PaymentDetails[4])->first();
           $RequestDetails->PaymentMode               =  'Paid';
+          $RequestDetails->PaymentGateway            =  'Dragonpay';
           $RequestDetails->save();
      
      
@@ -6969,13 +7166,26 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
     public function PaymentModePaypal($id)
     {
 
-      $PaymentDetails  =  explode(';;',$id);
-      $RequestDetails    = RequestDetails::select('*')->where('RequestNo',$PaymentDetails[4])->first();
+         $PaymentDetails  =  explode(';;',$id);
+        $RequestDetails    = RequestDetails::select('*')->where('RequestNo',$PaymentDetails[4])->first();
           $RequestDetails->PaymentMode               =  'Paid';
+          $RequestDetails->PaymentGateway            =  'Paypal';
+          $RequestDetails->save();
+     
+
+    }      
+    public function PaymentModeCashier(Request $request)
+    {
+
+         //$PaymentDetails  =  explode(';;',$id); RequestNo1 $request['Denomination']
+          $RequestDetails    = RequestDetails::select('*')->where('RequestNo',$request['RequestNo1'])->first();
+          $RequestDetails->PaymentMode               =  'Paid';
+          $RequestDetails->PaymentGateway            =  'Cashier';
           $RequestDetails->save();
      
 
     }       
+
     public function GetDefaultSurcharge()
     {
        
@@ -7184,6 +7394,7 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                  $AgentComReport = AgentComReport::select('*') 
                        ->where('AccountNo',$RequestDetailss->CustAcctNO)
                        ->where('RequestNo',$RequestDetailss->RequestNo)
+                       //->where('Class',$RequestDetailss->Denomination)
                        ->where('active',1)
                       // ->orderBy('Sort','ASC')
                        ->get();
@@ -7202,14 +7413,16 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                              'RequestNo'					          => $AgentComReports->RequestNo,
                              'AmountCom'					          => $AgentComReports->AmountCom,
                            
-                             
-                         
                          
                            ] ;
                          
                         }
               
-                            //$OldTotalAmountDue =  
+                            if ( !empty($AgentComReports->TotalAmountMaxCom)){
+                              $TotalAmountMaxCom = $AgentComReports->TotalAmountMaxCom;
+                            }else{
+                              $TotalAmountMaxCom = 0.00;
+                            }
                              $CoveragesCustDetails[] = [
                              
                                '_id'					                  => $RequestDetailss->_id,  
@@ -7220,6 +7433,7 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                                'TINNumber'					            => $RequestDetailss->TINNumber,
                                'PlateNumber'					          => $RequestDetailss->PlateNumber,
                                'Denomination'					        => $RequestDetailss->Denomination,
+                               'SubLinesName'					        => $RequestDetailss->SubLinesName,
                                'RequestNo'					            => $RequestDetailss->RequestNo,
                                'AssuredAddress'					       => $RequestDetailss->Address . " " . $RequestDetailss->Barangay ." " . $RequestDetailss->City,
                                'CarDescription'					      => $RequestDetailss->MotorYear  . " " . $RequestDetailss->MotorBrand  . " " . $RequestDetailss->MotorModel . " " . $RequestDetailss->MotorBodyType ,
@@ -7232,9 +7446,9 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                                'PaymentMode'             => $RequestDetailss->PaymentMode,
                                'DiscountAmount'             => $RequestDetailss->DiscountAmount,
                                'DiscountedAmountDue'             => $RequestDetailss->DiscountedAmountDue,
-                              // 'PaymentMode'             => $RequestDetailss->PaymentMode,
+                                'PaymentGateway'             => $RequestDetailss->PaymentGateway,
                                'CashOutMode'                  => $RequestDetailss->CashOutMode,
-                               'TotalAmountMaxCom'					   => $AgentComReports->TotalAmountMaxCom,
+                               'TotalAmountMaxCom'					   => $TotalAmountMaxCom,
                                'CommissionAmount'					      => $RequestDetailss->CommissionAmount,  
                                'CashOutPaidAmount'					      => $RequestDetailss->CashOutPaidAmount,  
                                'StatusCashOut'					      => $RequestDetailss->StatusCashOut,  
@@ -7246,43 +7460,18 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                                
                            ] ;
                  }
-                     return response()->json($CoveragesCustDetails);
+                 if (!empty($CoveragesCustDetails) ){  
+                  $CoveragesCustDetails1 = $CoveragesCustDetails;
+                    
+                }else{
+                   $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+                }
+                   return response()->json($CoveragesCustDetails1);
+
 
     }
 
-    public function GetAgentComReport($id)
-    {
-       $DataPass  =  explode(';;',$id);  $AmountCom = 0; 
-      //  $RequestCoverage   = RequestCoverages::where('RequestNo','2020-0001')->where('OptionNo',1)->get();
-       $RequestCoverage   = RequestCoverages::where('RequestNo',$DataPass[1])->where('OptionNo',round($DataPass[2]))->get();
-      // return response()->json(['success' => $RequestCoverage  ], 200); 
-      $CoveragesCustDetails = array();    
-      foreach($RequestCoverage as $RequestCoverages) {
-                  $AgentComReport = AgentCom::select('*') 
-                        ->where('AccountNo',$DataPass[0])
-                        ->where('Class',$RequestCoverages->DenominationType)
-                        ->where('PerilsCode',$RequestCoverages->PerilsCode)
-                        ->where('active',"1")                      
-                        ->get();
-             
-            foreach($AgentComReport as $AgentComReports)
-              { 
-                $AmountCom += $AgentComReports->AmountCom;
-             
-              }
-            }
-              $CoveragesCustDetails[] = [
-                 'TotalAmountComm' => $AmountCom,
-              ];
-             
-            
-              return response()->json($CoveragesCustDetails);
-              // return response()->json(['success' => $AmountCom  ], 200); 
-             
-
- 
-    }
-
+   
    
 
     public function AgentCommissionForCashOut($id)
@@ -7359,7 +7548,8 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
                        //$OldTotalAmountDue =  
                         $CoveragesCustDetails[] = [
                         
-                          '_id'					                => $RequestDetailss->_id,  
+                          '_id'					                => $RequestDetailss->_id, 
+                          'PolicyNo'					                => $RequestDetailss->PolicyNo,   
                           'FirstName'					          => $RequestDetailss->FirstName,
                           'MiddleName'					          => $RequestDetailss->MiddleName, 
                           'LastName'					            => $RequestDetailss->LastName,
@@ -8104,5 +8294,452 @@ public function  URLQueryPerilsCoveragesGroupEdit($id, request $request)
         }
         
     }
+
+  public function GetAgentTotalComReportAll($id)
+   
+    {
+       $DataPass  = trim($id) ; 
+       
+                  $AgentComReport = AgentCom::select('*') 
+                        ->where('AccountNo', $DataPass)
+                        ->where('active',"1") 
+                        ->groupBy('Class','ClassName')                  
+                        ->get();
+          
+            foreach($AgentComReport as $AgentComReports)
+              { 
+                $AmountCom1 = 0; 
+                $AgentComReport1 = AgentCom::select('*') 
+                    ->where('AccountNo',$DataPass)
+                    ->where('Class',$AgentComReports->Class)
+                    //->where('PerilsCode',$AgentComReports->PerilsCode)
+                    ->where('active',"1") 
+                    //->groupBy('Class','AccountNo','AmountCom')                  
+                    ->get();  
+                   
+                    foreach($AgentComReport1 as $AgentComReport1s)
+                    { 
+                        $AmountCom1 += $AgentComReport1s->AmountCom;
+                    } 
+
+                    $CommBreakDownQuery = AgentCom::select('*') 
+                    ->where('AccountNo',$DataPass)
+                    ->where('Class',$AgentComReports->Class)
+                    //->where('PerilsCode',$AgentComReports->PerilsCode)
+                    ->where('active',"1") 
+                    //->groupBy('Class','AccountNo','AmountCom')                  
+                    ->get();  
+                    $CommBreakdown = array();
+                    foreach($CommBreakDownQuery as $CommBreakDownQuerys)
+                    { 
+                          $CommBreakdown[] = [
+                            'Class'					              => $CommBreakDownQuerys->Class,    
+                            '_id'					                => $CommBreakDownQuerys->_id,
+                            'PerilsName'					        => $CommBreakDownQuerys->PerilsName,
+                            'PerilsNo'					          => $CommBreakDownQuerys->PerilsNo,
+                            'PerilsCode'					        => $CommBreakDownQuerys->PerilsCode,
+                            'AmountCom'					          => round($CommBreakDownQuerys->AmountCom,3),
+
+                          
+                        
+                        ] ;
+                    } 
+                   
+                  
+              $CoveragesCustDetails[] = [
+                 'TotalAmountComm' => round( $AmountCom1), //round($AmountCom1 * 100,3),
+                 'Class'           => $AgentComReports->Class,
+                 'ClassName'           => $AgentComReports->ClassName,
+                 'CommBreakdown'      => $CommBreakdown,
+              ];
+
+            }
+      if (!empty($CoveragesCustDetails)){  
+            $CoveragesCustDetails1 = $CoveragesCustDetails;
+              
+        }else{
+             $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+        }
+        return response()->json($CoveragesCustDetails1);
+              // return response()->json(['success' => $AmountCom  ], 200); 
+    }
+    public function GetAgentComReport(Request $request)
+    {
+       //$DataPass  =  explode(';;',$id);  
+         $AmountComAOG = 0;   $AmountCom = 0;
+      //  $RequestCoverage   = RequestCoverages::where('RequestNo','2020-0001')->where('OptionNo',1)->get();
+       $RequestCoverage       = RequestCoverages::where('RequestNo',$request['RequestNo'])->where('OptionNo',round($request['OptionNoByClick']))->get();
+       $RequestCoverageAOG    = RequestCoverages::where('RequestNo',$request['RequestNo'])->where('OptionNo',round($request['OptionNoByClick']))->where('PerilsCode','AOG')->first();
+       
+       if (!empty($RequestCoverageAOG )){
+            $AOGComm =  $RequestCoverageAOG->CommPremium ; 
+       }else{
+            $AOGComm = 0 ;
+       }
+      
+     // $CoveragesCustDetails = array();    
+      foreach($RequestCoverage as $RequestCoverages) {
+                   $AmountCom    += $RequestCoverages->CommPremium ;
+            
+            }
+
+              $CoveragesCustDetails[] = [
+                 'TotalAmountComm'      => round($AmountCom,2),
+                 'TotalAmountCommAOG'   => round($AmountCom -$AOGComm ,2),
+               
+              ];
+             
+              return response()->json($CoveragesCustDetails);
+              // return response()->json(['success' => $AgentComReports  ], 200); 
+             
+
+ 
+    }
+
+    public function UpdateCommCoverages(Request $request)
+    {
+       //$DataPass  =  explode(';;',$id);  
+       $AmountCom = 0;  $AmountComAOG = 0; 
+      //  $RequestCoverage   = RequestCoverages::where('RequestNo','2020-0001')->where('OptionNo',1)->get();
+       $RequestCoverage   = RequestCoverages::where('RequestNo',$request['RequestNo'])->where('CustAcctNO',$request['AcctNo'])->get();
+            
+      foreach($RequestCoverage as $RequestCoverages) {
+      
+        
+                  $AgentComReport = AgentCom::select('*') 
+                        ->where('AccountNo',$request['AcctNo']) 
+                        ->where('Class',$RequestCoverages->DenominationType)
+                        ->where('PerilsCode',$RequestCoverages->PerilsCode)
+                        ->where('active',"1")                      
+                        ->get();
+       
+            foreach($AgentComReport as $AgentComReports)
+              { 
+                
+                $AmountCom    += $RequestCoverages->CoveragesPremium *  ($AgentComReports->AmountCom / 100);
+               
+              }
+              
+              $RequestCoverages->CommPremium      = round($AmountCom,2)  ;
+              $RequestCoverages->save(); 
+             
+            
+            }
+           
+    }
+
+
+    public function  CustomerAcceptedCoverageView($id, request $request)
+    {
+      
+      $PassData = explode(';;' ,trim($id));
+      //$PassData[0] = "2020-0002";
+     // $ProductLinesPerils      = ProductLinesPerils::select('*')->where('Active','1')->orderBy('Section','ASC')->groupBy('Section')->get();
+     
+    // $RequestCoverage         = RequestCoverages::select('*')->where('RequestNo',trim($PassData[0]))->where('RequestModify',1)->whereIn('Status',[4,3])->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->get();
+     
+   //$RequestCoverage         = RequestCoverages::select('*')->where('RequestNo',trim($PassData[0]))->whereIn('Status',[4,3])->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->get();
+      $RequestCoverage         = RequestCoverages::select('*')->where('RequestNo',trim($PassData[0]))->where('CustAcctNO',trim($PassData[1]))->whereIn('Status',[4,3])->where('CoveragesPremium','!=',0)->groupBy('OptionNo')->get();
+    
+      
+    $Case = array();
+       foreach($RequestCoverage as $RequestCoverages)
+        { 
+          //echo $RequestCoverages->RequestNo;      
+           $GetAllRequestCoverages = RequestCoverages::select('*') 
+                 //->where('Active','1')   //diabled active
+                 ->whereIn('Status',[4,3])
+                 //->where('Status',4)
+                 //->where('RequestModify',1)
+                
+                 ->where('RequestNo',$PassData[0])
+                 ->where('PerilsCode','!=','TF')
+                 ->where('CoveragesPremium','!=',0)  
+               // ->where('Section',$ProductLinesPerilss->Section)              
+                ->where('OptionNo',$RequestCoverages->OptionNo)
+                ->orderBy('Section','ASC')
+                ->get();
+               
+                $Coverages = array();
+                $CoveragesTotalAmount = 0 ; $ComputeCoveragesAmount = 0 ;  $CoveragesPremium  =0;
+                    foreach($GetAllRequestCoverages as $GetAllRequestCoveragess){
+                     
+                      $CoveragesTotalAmount  += $GetAllRequestCoveragess->TotalPremiumAmount;
+                        if ( $GetAllRequestCoveragess->PerilsCode === 'OD'  ){
+                            $ComputeCoveragesAmount = $GetAllRequestCoveragess->CAmountODTF ;
+                            $CoveragesPremium       = $GetAllRequestCoveragess->PAmountODTF;
+                        }else{
+                            $ComputeCoveragesAmount  = $GetAllRequestCoveragess->CoveragesAmount;
+                            $CoveragesPremium        = $GetAllRequestCoveragess->CoveragesPremium;
+                        } 
+  
+  
+                        if ( $GetAllRequestCoveragess->PerilsCode === 'AOG'  ){
+                          $NoAOG                  = "YES";
+                          $NoAOGCoverageAmount    = $ComputeCoveragesAmount;
+                          $NoAOGCoveragePremium   = $CoveragesPremium;
+                         
+                      }else{
+                           $NoAOG                 = "NO";
+                           $NoAOGCoverageAmount    = $ComputeCoveragesAmount - $GetAllRequestCoveragess->CoveragesAmount;
+                           $NoAOGCoveragePremium   = $CoveragesPremium  - $GetAllRequestCoveragess->CoveragesPremium;
+                      } 
+                        
+               
+                        $Coverages[] = [
+                          '_id'                   => $GetAllRequestCoveragess->_id,
+                          'Status'                => $GetAllRequestCoveragess->Status,
+                          'Active'                => $GetAllRequestCoveragess->Active,
+                          //'CoveragesName'         => $CoveragesName,
+                          'CoveragesPremium'      => $CoveragesPremium, //$GetAllRequestCoveragess->CoveragesPremium, 
+                          'PremiumAmount'         => $GetAllRequestCoveragess->PremiumAmount,
+                          'CoveragesAmount'       => $GetAllRequestCoveragess->CoveragesAmount,
+                          //'TotalCoveragesPremium' => $GetAllRequestCoveragess->TotalPremiumAmount,
+                          'OptionNo'	            => $GetAllRequestCoveragess->OptionNo,
+                          'PerilsName'	          => $GetAllRequestCoveragess->PerilsName,
+                          'CoveragesTotalAmount'  => $CoveragesTotalAmount,
+                          'ApproverRemarks'	      => $GetAllRequestCoveragess->ApproverRemarksQuote,
+                          'Approver'	            => $GetAllRequestCoveragess->Approver,
+                          'ApproverName'	        => $GetAllRequestCoveragess->ApproverName,
+                          'ClientRemarks'	        => $GetAllRequestCoveragess->ClientRemarks,
+                          'CoverageRates'	        => $GetAllRequestCoveragess->CoverageRates,
+                          'ApproverRemarksDate'   => $GetAllRequestCoveragess->ApproverRemarksDate,
+                          'ClientRemarksDate'     => $GetAllRequestCoveragess->ClientRemarksDate,
+                          'PerilsCode'            => $GetAllRequestCoveragess->PerilsCode,
+                          'ComputeCoveagesAmount' => $ComputeCoveragesAmount,
+                          'Description'           => $GetAllRequestCoveragess->Description,
+                          'NoAOG'                 => $NoAOG ,
+                          'NoAOGCoverageAmount'   => $NoAOGCoverageAmount ,
+                          'NoAOGCoveragePremium'  => $NoAOGCoveragePremium ,
+                          
+                        ];
+             
+                        
+              }	
+  
+              $GetAllRequestCharges = RequestCharges::select('*')
+                ->where('Active','1')
+                ->whereIn('Status',[4,3])
+                ->where('RequestNo',$PassData[0])
+                ->where('OptionNo',$RequestCoverages->OptionNo)
+                ->orderBy('ChargesNo','ASC')
+                ->get();
+  
+                $Charges = array();
+                    foreach($GetAllRequestCharges as $GetAllRequestChargess){
+                        
+                          $Charges[] = [
+                            '_id'                   => $GetAllRequestChargess->_id,
+                            'ChargesName'           => $GetAllRequestChargess->ChargesName,
+                            'ChargesAmount'         => $GetAllRequestChargess->ChargesAmount,
+                            'ChargesPremium'        => $GetAllRequestChargess->ChargesPremium,
+                            'TotalCharges'	        => $GetAllRequestChargess->TotalCharges,
+                            'ChargesType'	          => $GetAllRequestChargess->ChargesType,
+                            'ChargesNo'	            => $GetAllRequestChargess->ChargesNo,
+                            'OptionNo'	            => $GetAllRequestChargess->OptionNo,
+                            'ChargesPremiumAOG'	    => $GetAllRequestChargess->ChargesPremiumAOG,
+                            
+                           
+                          ];
+              }	
+  
+  
+              $GetClause = RequestClauses::select('*')  
+                        ->where('RequestNo',$PassData[0])
+                        ->where('OptionNo',$RequestCoverages->OptionNo)
+                        ->where('Active',1)
+                        ->where('Status',1)
+                        ->get();
+  
+              $ClausesWarranties = array();
+                  foreach($GetClause as $GetClauses){
+                        $ClausesWarranties[] = [
+                          '_id'                   => $GetClauses->_id,
+                          'ClausesNo'             => $GetClauses->ClausesNo,
+                          'ClausesName'           => $GetClauses->ClausesName,
+                          'ClausesStatement'      => $GetClauses->ClausesStatement,
+                        ];
+            }	
+  
+  
+            $GetAccessories = RequestAccessories::select('*')  
+            ->where('RequestNo',$PassData[0])
+            ->where('OptionNo',$RequestCoverages->OptionNo)
+            ->where('Active',1)
+            ->where('Status',1)
+            ->get();
+  
+            $Accessories = array();
+                foreach($GetAccessories as $GetAccessoriess){
+                      $Accessories[] = [
+                        '_id'                   => $GetAccessoriess->_id,
+                        'Name'                  => $GetAccessoriess->Name,
+                        'Amount'                => $GetAccessoriess->Amount,
+                        
+                      ];
+            }	
+  
+  
+          
+          
+              //$user = Auth::user();
+              $Case[] = [
+                         '_id'                           => $RequestCoverages->_id,
+                        'OptionNo'					             => $RequestCoverages->OptionNo,
+                        'RequestNo'					             => $GetAllRequestCoveragess->RequestNo,  
+                        'CoverageRates'	        		     => $GetAllRequestCoveragess->CoverageRates,
+  
+  
+                        'TotalCoverages'	        		    => $GetAllRequestCoveragess->TotalCoverages,
+                        'TotalPremium'	        		      => $GetAllRequestCoveragess->TotalPremium,
+                        'NoAOGCoveragesTotal'	            => $GetAllRequestCoveragess->NoAOGCoveragesTotal,
+                        'NoAOGPremiumTotal'	        		  => $GetAllRequestCoveragess->NoAOGPremiumTotal,
+                        'TotalCharges'	                  => $GetAllRequestChargess->TotalCharges,
+                        'TotalAmountDue'	                => $GetAllRequestChargess->TotalAmountDue,
+                        'TotalChargesAOG'	                => $GetAllRequestChargess->TotalChargesAOG,
+                        'StatusCovetages'                 => $GetAllRequestCoveragess->Status,
+                        'Deductible'                      => $GetAllRequestCoveragess->Deductible,
+                      
+                        'ListCoverages' 		              => $Coverages,
+                        'ListCharges' 		                => $Charges,
+                        'ClausesWarranties' 		          => $ClausesWarranties,
+                        'Accessories' 		                => $Accessories,
+                
+                      ] ;						
+          
+        }
+              if (!empty($Case)){  
+                $CoveragesCustDetails1 = $Case;
+                  
+            }else{
+                $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+            }
+            return response()->json($CoveragesCustDetails1);
+     
+    }
+  
+    public function  GetDefaultRate() 
+    {
+      $Rate           = DefaultData::where('DefaultDataNo','2019-RE-0001')->where('Active','1')->first();
+   
+      if (!empty($Rate)){  
+        $CoveragesCustDetails1 = $Rate->Amount;
+          
+    }else{
+        $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+    }
+    return response()->json($CoveragesCustDetails1);
+
+    }
+
+
+    public function UnpaidPolicies() 
+    {
+    
+      $CoveragesCustDetails =  RequestDetails::select('*')->where('Active', '1')->where('PaymentMode','0')->orderBy('RequestNo','DESC')->paginate(20);
+              if ( $CoveragesCustDetails->total() > 0){  
+                  $CoveragesCustDetails1 = $CoveragesCustDetails;
+                    
+              }else{
+                  $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+              }
+              return response()->json($CoveragesCustDetails1);
+      }
+      public function PaidPolicies() 
+      {
+      
+        $CoveragesCustDetails =  RequestDetails::select('*')->where('Active', '1')->where('PaymentMode','Paid')->orderBy('RequestNo','DESC')->paginate(20);
+                if ( $CoveragesCustDetails->total() > 0){  
+                    $CoveragesCustDetails1 = $CoveragesCustDetails;
+                      
+                }else{
+                    $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+                }
+                return response()->json($CoveragesCustDetails1);
+        }
+
+        public function PADescription($id) 
+        {
+        
+          $PADescription =  PADescription::select('*')->where('active',1)->where('RequestNo',$id)->orderBy('Line1','ASC')->first();
+                  if ( !empty($PADescription)){  
+                      $CoveragesCustDetails1 = $PADescription;
+                        
+                  }else{
+                      $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+                  }
+                  return response()->json($CoveragesCustDetails1);
+        }  
+
+        public function GetPAClausesDisplay($id) 
+        {
+          
+          $ResultPAClausesDisplay =  PAClausesDisplay::select('*')->where('active',1)->where('RequestNo',$id)->first();
+                  if ( !empty($ResultPAClausesDisplay)){  
+                      $CoveragesCustDetails1 = $ResultPAClausesDisplay;
+                        
+                  }else{
+                      $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+                  }
+                  return response()->json($CoveragesCustDetails1);
+        }  
+
+        public function GetAuthData($id) 
+        {
+          
+          $ResultAuthentication =  Authentication::select('*')->where('Active',"1")->where('AuthOK',0)->where('RequestNo',$id)->first();
+                  if ( !empty($ResultAuthentication)){  
+                      $CoveragesCustDetails1 = $ResultAuthentication;
+                        
+                  }else{
+                      $CoveragesCustDetails1 = "NO RECORD FOUND" ; 
+                  }
+                  return response()->json($CoveragesCustDetails1);
+        }  
+    
+        public function SaveCocafDetails($id)  
+        {
+          $RequestDetails   = RequestDetails::where('RequestNo',$id)->where('PaymentMode',"Paid")->where('AuthSave',0)->first();
+         // $RequestDetails   = RequestDetails::where('RequestNo',$id)->first();
+       
+          
+          $CountAuth  = Authentication::count() + 1;
+          $NewCountAuth = str_pad($CountAuth, 5, '0' , STR_PAD_LEFT); 
+          //$NewCountAuth = str_pad($CountAuth, 6, '0' , STR_PAD_LEFT); 
+          $CocNo      = "086" .$NewCountAuth ."TES1";
+    
+          $Authentication                               = new Authentication;
+          $Authentication->CocNoSeqNo                   = $CountAuth;
+          $Authentication->RequestNo                    = $RequestDetails->RequestNo;
+          $Authentication->RequestType                  = $RequestDetails->RequestType;
+          $Authentication->CocNo                        = $CocNo;
+          $Authentication->AuthOK                       = 0;
+          $Authentication->AuthCode                     = '';
+          $Authentication->AuthRemarks                  = "";
+          $Authentication->Active                       = "1";
+          $Authentication->DateAuth                     = "";
+          $Authentication->Code                         = '0';
+          $Authentication->plateNo                      = $RequestDetails->PlateNumber;
+          $Authentication->mvFileNo                     = $RequestDetails->MvFileNo;
+          $Authentication->engineNo                     = $RequestDetails->EngineNo;
+          $Authentication->chassisNo                    = $RequestDetails->ChassisNo;
+          $Authentication->inceptionDate                = $RequestDetails->MotorEffectiveDate;
+          $Authentication->expiryDate                   = $RequestDetails->MotorExpiryDate;
+          $Authentication->regType                      = "R" ; ///Registration
+          $Authentication->mvType                       = $RequestDetails->mvType;
+          $Authentication->mvPremTypeDesc               = $RequestDetails->mvPremTypeDesc;
+          $Authentication->mvPremType                   = $RequestDetails->mvPremType;
+          $Authentication->taxType                      = "1";  //VAT
+          $Authentication->assuredTin                   = $RequestDetails->TINNumber;
+          $Authentication->assuredName                  = $RequestDetails->RegisteredName;
+          
+
+          $Authentication->save(); 
+    
+          $RequestDetails->AuthSave                    =  1;
+          $RequestDetails->CocNoRequest                =  $CocNo;
+          $RequestDetails->save(); 
+
+        }
 	
 }

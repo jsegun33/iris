@@ -1,14 +1,33 @@
-<template>
-    <div>
+
+<template >
+
+    <div id="MainPage" >
         <!-- Content Header (Page header) -->
-        <section class="content" v-show="isShowingLoading" >
+        <!-- <section class="content" v-show="isShowingLoading" >
+            
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
-         </section>
+         </section> -->
+           <!-- <section class="content" >
+            
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-danger" >{{ this.ConnectionStatus  }}</big></h1>
+                    <div class="spinner-border" role="status">
+                         <h1> <big class="label label-danger" > <span class="sr-only">Loading...</span></big></h1>
+                   <div class="overlay">
+                         <i class="fa fa-refresh fa-spin" style="color:#00a65a"></i>
+                 </div>
+                   
+                   
+                    </div>
+                </div>
+         </section> -->
 
-        <section class="content" v-show="isShowingRecord"    >
-            <div class="row" >
+        <section class="content DisabledSection ContentSection"    >
+             
+            
+            <div class="row"  >
                 <div class="col-md-3">
                     <div class="box box-primary">
                         <div class="box-body box-profile">
@@ -86,7 +105,7 @@
 
 
                                                     </th>
-                                                    <td> <button type="button" @click="ChangePassword()" class="btn btn-primary"><i class="fa fa-pencil"></i> Submit</button></td>
+                                                    <td> <button type="button"  @click="ChangePassword()" class="btn btn-primary"><i class="fa fa-pencil"></i> Submit</button></td>
                                                
                                                </tr>
                                                  
@@ -103,16 +122,36 @@
                                       
                                        <big class="label label-warning" v-if="this.ResultTotalCom === 'NO RECORD FOUND'">{{ this.ResultTotalCom  }} </big>
                                     <div class="table-responsive"  >
-                                            <table class="table table-bordered" v-if="this.ResultTotalCom !== 'NO RECORD FOUND'" >
+                                            <table class="table table-condensed" v-if="this.ResultTotalCom !== 'NO RECORD FOUND'" >
                                                <tr > 
                                                     <th style="text-align:center">Denomination</th>
-                                                    <th style="text-align:center">Total Commission </th>
-                                               
+                                                    <th style="text-align:center">Break -Down</th>
+                                                    <th style="text-align:center">Comm Rate Total</th>
+                                                 
                                                </tr>
                                                   <tr v-for="ResultTotalComs in ResultTotalCom" :key="ResultTotalComs._id">
                                                     <th style="text-align:center">{{ ResultTotalComs.ClassName }}</th>
-                                                    <td style="text-align:center">{{ ResultTotalComs.TotalAmountComm | peso }} </td>
-                                                </tr>
+                                                   
+                                                    <td  style="text-align:center">
+                                                        <div class="table-responsive"  >
+                                                        <table class="table table-bordered">
+                                                             <tr > 
+                                                                <th >Perils</th><th></th>
+                                                                <th >Comm. Rate %</th>
+                                                             
+                                                 
+                                                            </tr>
+                                                            <tr  v-for="BreakDown in ResultTotalComs.CommBreakdown"  :key="BreakDown._id">
+                                                                <th> {{ BreakDown.PerilsCode }}</th><th>: </th>
+                                                                <td>{{ BreakDown.AmountCom }} </td>
+                                                            </tr>
+                                                            
+                                                        </table> 
+                                                        </div>
+                                                    </td>
+                                                     <th style="text-align:center">{{ ResultTotalComs.TotalAmountComm }}</th>
+                                                  
+                                                  </tr> 
 
                                                 
                                                
@@ -127,25 +166,24 @@
 
                                  <div class="row no-print" >
                                     <div class="col-xs-12">
-
-                                         
-
-                                    
-                                   
-
-                                    
-                                    
                                         
                                     </div>
                                 </div>
+
+                                
                           
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+
+        
     </div>
+    
 </template>
+
 
 <script>
 
@@ -155,8 +193,10 @@ export default {
     mounted() {
         console.log('Component mounted.')
         axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
-        this.GetAgentComReport();
+        
         this.StartLoading();
+       // this.form.UserID = this.UserDetails.AccountNo;
+       
     },
 
     data() {
@@ -166,60 +206,66 @@ export default {
             RetrieveTimeInterval2:null,
             RetrieveTimeInterval:null,
 
-                IntervalLoading:null,
-                IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:47,
-                 timer_is_on:0,
-
-
 
 
              form: new Form({
                  NewPassword:'',
-                UserID:'',
+                UserID:''
             })
         }
     },
 
     methods: {
-
-        LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
-            },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                  }
-                    
+       async StartLoading() {
+          
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer:2000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                     this.GetAgentComReport();
+                      
+                }
+                }).then((result) => {
+               
+                })
               
             },
 
+       
+         GetAgentComReport(){ 
 
-        async GetAgentComReport(){
-            this.RetrieveTimeInterval = setInterval(() => {
-
-                                clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
-            //alert(this.UserDetails.AccountNo);
-            this.form.UserID = this.UserDetails._id;
-             axios.get("api/GetAgentTotalComReport/" + this.UserDetails.AccountNo ) .then(({ data }) => (this.ResultTotalCom = data)  ); 
-             }, 1000)
-                    this.RetrieveTimeInterval2 = setInterval(() => {
-                            clearInterval(this.RetrieveTimeInterval);  
-                 },5000) 
+            axios.get("api/GetAgentTotalComReportAll/" + this.UserDetails.AccountNo ) .then(({ data }) => (this.ResultTotalCom = data)  ); 
+         
         },
 
+        
+
        async ChangePassword(){
+           this.form.UserID = this.UserDetails.AccountNo;
                 if (!this.form.NewPassword.length )  {
                 Swal.fire({
                     icon: 'error',
@@ -248,9 +294,16 @@ export default {
                                 )
                                 this.GetAgentComReport();
                                 this.form.reset();
-                            }).catch((response) => {
-                                    alert(response);
+                                }).catch(error => {
+                                        this.fetchError = error;
+                                   
+                                        if ( error == "Error: Request failed with status code 405"){
+                                                alert( 'NO ACCESS');
+                                        }else{
+                                                alert(error);
+                                        }
                                 });
+                          
                             } 
                     })
 
@@ -273,8 +326,12 @@ export default {
 }
 </script>
 <style scoped>
+
     li.list-group-item>a {
         text-decoration: none;
         cursor: pointer;
     }
+   
+
+    
 </style>

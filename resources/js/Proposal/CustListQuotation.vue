@@ -1,25 +1,14 @@
 <template>
-    <div>
-        <!-- <section class="content-header">
-            <h1>
-                 Lists Customer Quotation
-                <small>Table of Quotation</small>
-            </h1>
-            <ol class="breadcrumb">
-                <li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fa fa-file-text"></i> Quotation / Proposal</a></li>
-                <li class="active">Proposal List</li>
-            </ol>
-        </section> -->
-
-         <section class="content" v-show="isShowingLoading" >
+    <div id="MainPage" >
+      
+         <!-- <section class="content" v-show="isShowingLoading" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
-         </section>
+         </section> -->
 
 
-     <section class="content" v-show="isShowingRecord" v-if="this.RequestQuotations === 'NO RECORD FOUND'">
+     <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations === 'NO RECORD FOUND'">
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h1>
                 </div>
@@ -27,7 +16,7 @@
          
             
        
-        <section class="content" v-show="isShowingRecord" v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
+        <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
             <div class="box box-success">
                 <div class="box-header">
                     <h3 class="box-title"><strong>List Request Proposals / Quotations</strong></h3><br/>
@@ -75,9 +64,9 @@
                                     
                                 </td>
                                
-                                <td>
-                                    <router-link :to="'/ProposalOptions?'+ RequestQuotationss.RequestNo" v-if=" RequestQuotationss.RequestModify > 0  || RequestQuotationss.OktoAccept  == 1"  class="btn btn-success" style="text-decoration: none;">
-                                        <i class="fa fa-eye"></i> 
+                                <td @mouseover="GetResquestNo(RequestQuotationss)">
+                                    <router-link :to="'/ProposalOptions?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.RequestModify > 0  || RequestQuotationss.OktoAccept  == 1"  class="btn btn-success" style="text-decoration: none;">
+                                        <i class="fa fa-eye"  > </i> 
                                         Accept
                                     </router-link>
                                     <router-link  :to="'/CustAcceptedView?'+ RequestQuotationss.RequestNo"  v-if="RequestQuotationss.AcceptedOption > 0 || RequestQuotationss.RequestModify > 0" class="btn btn-info"  style="text-decoration: none;">
@@ -89,7 +78,7 @@
                                        Pay
                                     </router-link>
 
-                                     <router-link  :to="'/Customer-Issuance?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.PaymentMode != '0' && RequestQuotationss.PolicyApproverSignature != ' '"    class="btn btn-warning"  style="text-decoration: none;">
+                                     <router-link  :to="'/Customer-Issuance?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.Status == 'Approved'"    class="btn btn-warning"  style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
                                        Policy
                                     </router-link>
@@ -120,9 +109,9 @@ export default {
 
      mounted() {
             console.log('Component mounted.')
-            //this.getResults();
+            this.StartLoading();
            axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
-          this.StartLoading();
+        
         },
          data() {
             return {
@@ -133,6 +122,8 @@ export default {
                 RetrieveTimeInterval2:null,
                  RetrieveTimeInterva3:null,
                 RetrieveTimeInterval4:null,
+
+            
                
                
                IntervalLoading:null,
@@ -146,6 +137,8 @@ export default {
          
                     form: new Form({
                        // UserLastName:[],
+                       AcctNo: '',
+                       RequestNo: '',
                         
                     }),
              }
@@ -154,34 +147,56 @@ export default {
 
 
         methods: {
+           
 
-              LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
+            GetResquestNo(RequestQuotationss){
+                this.form.RequestNo = RequestQuotationss.RequestNo;
+                //alert(RequestQuotationss.RequestNo);
+
             },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                  }
-                    
+
+          async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
               
             },
 
 
          loadRequestQuotation() {
          this.RetrieveTimeInterval = setInterval(() => {   
+             
 
-                                clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
-
-
-
-
+                this.form.AcctNo = this.UserDetails.AccountNo;
                let PassNO            = this.UserDetails.AccountNo;
                 let PassEmail         = this.UserDetails.email;	    		
                 let NewPassID         = PassNO.trim() ; 
@@ -196,10 +211,11 @@ export default {
                     //    },10000) 
 
                 });
-             }, 1000)
+             }, 200)
              this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                      },3000) 
+                          
+                      },2000) 
          } 
 
             //     let PassNO            = this.UserDetails.AccountNo;

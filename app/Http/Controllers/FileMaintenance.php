@@ -23,6 +23,7 @@ use App\CarBrand;
 use App\ProductLinesSurcharge;
 use App\ListBarangay;
 use App\ListCity;
+use App\ListProvince;
 use App\ProductLinesCharges;
 
 
@@ -974,16 +975,25 @@ public function GetPerils()
 
 public function GetBarangays($id) 
 {
-    return ListBarangay::select('*')->where('active', 1)->where('CityCode',round($id))->orderBy('BrgyName','ASC')->get();
+    return ListBarangay::select('*')->where('active',1)->where('CityCode',round($id))->orderBy('BrgyName','ASC')->get();
  
 }
 
-public function GetCities() 
+//updated by: Joleth
+//updated date: 05/19/2020
+public function GetCities($id) 
 {
-    return ListCity::select('*')->where('active', 1)->orderBy('CityName','ASC')->get();
+    return ListCity::select('*')->where('active',1)->where('ProvCode',round($id))->orderBy('CityName','ASC')->get();
  
 }
 
+//added by: Joleth
+//added date: 05/19/2020
+public function GetProvinces() 
+{
+    return ListProvince::select('*')->where('active',1)->orderBy('ProvName','ASC')->get();
+ 
+}
 
 public function AddCharges(Request $request)
     {

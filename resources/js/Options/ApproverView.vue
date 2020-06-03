@@ -46,7 +46,7 @@ td {
 
 
 <template >
-  <div>
+  <div id="MainPage">
     <!-- <section class="content-header">
       <h1>
         Quotations
@@ -64,13 +64,13 @@ td {
     </section> -->
 
     <!-- Main content -->
-    <section class="content" v-show="isShowingLoading" >
+    <!-- <section class="content" v-show="isShowingLoading" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
- </section>
+ </section> -->
 
- <section class="content" v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
+ <section class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }}</big></h1>
                 </div>
@@ -78,7 +78,7 @@ td {
 
 
 
-    <section class="content" v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'">
+    <section class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'">
       <div class="row">
         <div
           class="col-md-6"
@@ -158,7 +158,8 @@ td {
                                             <tbody>
                                                 <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id">
                                                 
-                                                    <td>{{  coverage.PerilsName }} </td>
+                                                    <td  v-if = "coverage.PerilsCode  ==='OD'">{{  coverage.PerilsName + " / Theft"}} </td>
+                                                    <td  v-if = "coverage.PerilsCode  !=='OD'">{{  coverage.PerilsName }} </td>
                                                     <td style="text-align:right" >{{  coverage.CoveragesAmount | Peso }}</td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  ==='AOG' && form.NoAOG  ==='YES'"> NONE </td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' && form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
@@ -223,6 +224,11 @@ td {
                 </div>
 
                 <div class="form-group no-print">
+                  <label>Approved by:</label>
+                  <p>{{ form.ListApproverDisplayName[URLQueryPerilsCoveragesGroups.OptionNo] }}</p>
+                </div>
+
+                <div class="form-group no-print">
                   <label>Date:</label>
                   <p>{{ form.RemarksApproverDate[URLQueryPerilsCoveragesGroups.OptionNo] | DateFormat }}</p>
                 </div>
@@ -258,6 +264,9 @@ td {
 
       <!--------<pre>{{ $data }}</pre>-------->
     </section>
+    
+      
+
   </div>
 </template>
 
@@ -276,7 +285,7 @@ export default {
     axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
     this.AutoLoadGetData();
     this.load();
-    this.StartLoading();
+   this.StartLoading();
   },
 
   data() {
@@ -295,14 +304,7 @@ export default {
       RetrieveTimeInterval1: null,
     //  RetrieveTimeInterval
 
-                  IntervalLoading:null,
-                 IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:47,
-                 timer_is_on:0,
+      ConnectionStatus:'',
 
 
       form: new Form({
@@ -359,20 +361,43 @@ export default {
   },
 
   methods: {
-     LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
-            },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                  }
-                    
+    async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
               
             },
+
+
 
     AutoLoadGetData() {
       //alert(this.AccountNoUser);
@@ -386,11 +411,11 @@ export default {
         axios
           .get("api/ListCoveragesForApproval/" + NewPassID)
           .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data));
-      }, 1000);
+      },200);
 
       this.RetrieveTimeInterval2 = setInterval(() => {
         clearInterval(this.RetrieveTimeInterval);
-      }, 3000);
+      },2000);
     },
     QueryByOPtion1(e) {
       //axios.get("api/AcceptQuotation/" + e.target.value.trim()  ) .then(({ data }) => (this.AcceptQuotation = data)  );
@@ -430,11 +455,7 @@ export default {
     load() {
       axios.get("api/wordings").then(({ data }) => (this.Wordings = data));
       this.RetrieveTimeInterval1 = setInterval(() => {
-                                clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
-
+           
         this.ResultQueryRequest.data.map(ResultRequestDetailss => {
           this.form.TINNumber = ResultRequestDetailss.TINNumber;
           this.form.EmailAddress = ResultRequestDetailss.EmailAddress;
@@ -530,7 +551,8 @@ export default {
 
       this.RetrieveTimeInterval2 = setInterval(() => {
         clearInterval(this.RetrieveTimeInterval1);
-      }, 3000);
+    
+      }, 2000);
       //this.isShowingApproval = false;
     }
   },

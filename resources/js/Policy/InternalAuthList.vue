@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="MainPage" >
         <!-- <section class="content-header">
             <h1>
                 Internal
@@ -12,13 +12,13 @@
             </ol>
         </section> -->
 
-        <section class="content" v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
+        <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
-                    <h4> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h4>
+                    <h1> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h1>
                 </div>
       </section>
      
-         <section class="content" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" >
+         <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" >
             <div class="box box-success">
                 <div class="box-header">
                     <h3 class="box-title"> Authentication Lists</h3>
@@ -43,18 +43,20 @@
                             <tr>
                                 <th>Plate Number</th>
                                 <th>Request #</th>
+                                <th>Type </th>
                                 <th>Name</th>
                                 <th>Policy No</th>
-                                <th>Denomination </th>
+                                
                                  <th> </th>
                                
                             </tr>
                             <tr v-for="RequestQuotationss in RequestQuotations.data" :key="RequestQuotationss._id">
                                 <td>{{ RequestQuotationss.PlateNumber }}</td>
                                 <td>{{ RequestQuotationss.RequestNo  }}</td>
+                                 <td>{{ RequestQuotationss.RequestType  }}</td>
                                 <td>{{ RequestQuotationss.FirstName  + " " +  RequestQuotationss.MiddleName + " " + RequestQuotationss.LastName}}  </td>
                                 <td>{{ RequestQuotationss.PolicyNo  }}</td>
-                                <td>{{ RequestQuotationss.Denomination  }}</td>
+                               
                                <td>
                                     <a v-bind:href="'/authentication-Internal?'+ RequestQuotationss.RequestNo" class="btn btn-info" style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
@@ -94,7 +96,8 @@ export default {
             console.log('Component mounted.')
 			  axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
 			 this.loadRequestQuotation();
-			 this.getResults();
+             this.getResults();
+             this.StartLoading();
         },
          data() {
             return {
@@ -104,7 +107,9 @@ export default {
 				UserDetails: {},
                 RequestQuotations1: {},
 				RetrieveTimeInterval: null,
-				 RequestQuotations: {},
+                 RequestQuotations: {},
+               
+
                 //counter:1,
                form: new Form({
 					AccountNo: "",
@@ -116,42 +121,59 @@ export default {
 
 
         methods: {
+
+        async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 5000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
+              
+            },
+
+
+
             getResults(page = 1) {
                 axios.get('api/GetListNeedAuth?page=' + page).then(response => {
                     this.RequestQuotations1 = response.data;
                 });
             },
             loadRequestQuotation() {
-			//	this.RetrieveTimeInterval = setInterval(() => {
-					let PassID = this.UserDetails.AccountNo;  //"2020-0008";
-					//alert(PassID);
-						axios.get("api/GetListNeedAuth").then(({ data }) => (this.RequestQuotations = data));
-			//}, 1000);
-			
-		// 	 this.RetrieveTimeInterval2 = setInterval(() => {
-                   
-		// 						clearInterval(this.RetrieveTimeInterval);
-        // }, 			5000);
-				
+			        axios.get("api/GetListNeedAuth").then(({ data }) => (this.RequestQuotations = data));
+		
 			},
-            ViewRequest() {
-             window.open("request"); 
-               //window.location.hostname + '/request' 
-               
-            },
+         
          
           },
 
-          
-           created() {
-		
-               
-            this.loadRequestQuotation();
-            Fire.$on('AfterCreate',() => {
-                this.loadRequestQuotation();
-            });
-        },
-
+         
          computed: {
         date() {
            let date = new Date()

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="MainPage">
         <!-- <section class="content-header">
             <h1>
                  Lists Approver Quotation
@@ -12,13 +12,13 @@
             </ol>
         </section> -->
 
-         <section class="content" v-show="isShowingLoading" >
+         <!-- <section class="content" v-show="isShowingLoading" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
-         </section>
+         </section> -->
 
-         <section class="content" v-if="this.RequestQuotations === 'NO RECORD FOUND'" v-show="isShowingRecord"  >
+         <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations === 'NO RECORD FOUND'"  >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" > {{ this.RequestQuotations   }}</big></h1>
                 </div>
@@ -26,7 +26,7 @@
 
 
 
-         <section class="content" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" v-show="isShowingRecord">
+         <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" >
               
             <div class="box box-success" >
                 <div class="box-header">
@@ -53,7 +53,7 @@
                                 <th>Plate Number</th>
                                 <th>Denomination</th>
                                 <th>Name</th>
-                                <th>Quotation #</th>
+                                <th>Request #</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -62,7 +62,7 @@
                                 <td>{{ RequestQuotationss.Denomination }}</td>
                                 <td>{{ RequestQuotationss.FirstName}}  {{ RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
                                 <td>{{ RequestQuotationss.RequestNo + '-' + RequestQuotationss.OptionNo }}</td>
-                                
+                                 <td>{{ RequestQuotationss.RequestType }}</td>
                                 <td>
                                     <span class="label label-warning">{{ RequestQuotationss.Status }} </span>
                              
@@ -86,7 +86,8 @@
             </div>
         </section>
   <!----<pre>{{ $data }}</pre>-------->
-     
+    
+       
       
     </div>
 </template>
@@ -103,12 +104,10 @@ export default {
 
 
      mounted() {
-            console.log('Component mounted.')
-            //this.getResults();
-            // axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
+            this.StartLoading();
              axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
             this.loadRequestQuotation() ;
-           this.StartLoading();
+          
         },
          data() {
             return {
@@ -116,16 +115,13 @@ export default {
                 RetrieveTimeInterval2:null,
                 IntervalLoading:null,
                 IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:47,
-                 timer_is_on:0,
+             
+               TimeLoading1:null,
+            TimeLoading:null,
+            TimeLoadingInternet:null,
+            ConnectionStatus:'',
 
 
-
-                url: '/proposal?2019-0001',
                 editmode: false,
                 RequestQuotations: {},
                UserDetails : {},
@@ -136,19 +132,49 @@ export default {
 
 
         methods: {
-
-             LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
-            },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                  }
-                    
+async StartLoading() {
+                //   this.TimeLoading= setInterval(() => {
+                //       this.ConnectionStatus = "Retrieving Data";
+                //        $('#LoadingModal').modal('show');    
+                //        $(".ContentSection").addClass("DisabledSection");
+                       
+                //    }, 200)
+                //     this.TimeLoading1 = setInterval(() => {
+                //             clearInterval(this.TimeLoading); 
+                //               $('#LoadingModal').modal('hide');
+                //               $(".ContentSection").removeClass("DisabledSection");
+                //   },5000) 
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
               
             },
 
@@ -161,24 +187,14 @@ export default {
             },
             loadRequestQuotation() {
               this.RetrieveTimeInterval = setInterval(() => {
-
-                                clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
-                                
                         let PassID =this.UserDetails.AccountNo;
-                        //console.log(this.RetrieveTimeInterval);
-						//alert(PassID);
                         axios.get("api/GetRequestQuotationApprover/" + PassID).then(({ data }) => (this.RequestQuotations = data));
                                 
-                 }, 1000)
+                 },200)
 
                   this.RetrieveTimeInterval2 = setInterval(() => {
-                            clearTimeout(this.RetrieveTimeInterval);  
-                           
-                            
-                    },5000) 
+                            clearTimeout(this.RetrieveTimeInterval); 
+                    },2000) 
             },
            
          
@@ -189,15 +205,6 @@ export default {
         }
 
 
-            
-          
-        //    created() {
-        //     this.loadRequestQuotation();
-        //     Fire.$on('AfterCreate',() => {
-        //         this.loadRequestQuotation();
-        //     });
-      //  }
-    
 }
 </script>
 

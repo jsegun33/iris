@@ -304,6 +304,7 @@ A:hover {color: white; font-weight: bold}
           <tr>
             <td width="47%"><font face="Verdana" size="1">MV Type</font></td>
             <td width="60%"><select name="mvType" id="mvType" onchange="dojo.event.topic.publish('mv_type_topic'); return false">
+            <option value="<?php echo $_GET['mvType'] ?>" selected="selected">[<?php echo $_GET['mvType'] ?>] - <?php echo $_GET['mvPremTypeDesc'] ?></option>
             <option value="C">[C] - Car</option>
             <option value="HB">[HB] - Shuttle Bus</option>
             <option value="LE">[LE] - Light Electric Vehicle</option>
@@ -314,7 +315,7 @@ A:hover {color: white; font-weight: bold}
             <option value="NV">[NV] - Non-Conventional MV (UV)</option>
             <option value="OB">[OB] - Tourist Bus</option>
             <option value="SB">[SB] - School Bus</option>
-            <option value="SV" selected="selected">[SV] - Sports Utility Vehicle</option>
+            <option value="SV">[SV] - Sports Utility Vehicle</option>
             <option value="TB">[TB] - Truck Bus</option>
             <option value="TC">[TC] - Tricycle</option>
             <option value="TK">[TK] - Truck</option>
@@ -333,7 +334,7 @@ A:hover {color: white; font-weight: bold}
               <div dojotype="struts:BindDiv" id="widget_1008165691" formid="registration" href="GetMVPremiumTypes.action" listentopics="mv_type_topic" showerror="true" parsecontent="true">
 
 <select name="mvPremType" id="mvPremType">
-    <option value="1" selected="selected">1 - Private Cars (including jeeps and AUVs) - 1 year  (Php 560.00)</option>
+    <option value="1" >1 - Private Cars (including jeeps and AUVs) - 1 year  (Php 560.00)</option>
     <option value="2">2 - Light Medium Trucks  (Own Goods) Not over 3,930 kgs. - 1 year  (Php 610.00)</option>
     <option value="4">4 - AC and Tourists Cars - 1 year  (Php 740.00)</option>
     <option value="5">5 - Taxi, PUJ and Mini bus - 1 year  (Php 1100.00)</option>

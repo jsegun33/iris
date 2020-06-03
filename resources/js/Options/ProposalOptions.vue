@@ -15,7 +15,7 @@
 
 <template >
 
-  <div>
+  <div id="MainPage" >
     <!-- <section class="content-header">
       <h1>
         Quotations
@@ -30,13 +30,13 @@
 
     <!-- Main content -->
 
-     <section class="content" v-show="isShowingLoading" >
+     <!-- <section class="content" v-show="isShowingLoading" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
- </section>
+    </section> -->
 
- <section class="content" v-show="isShowingRecord" v-if="form.AcctNo.trim() !==  UserDetails.AccountNo.trim()" >
+ <section class="content DisabledSection ContentSection" v-if="form.AcctNo.trim() !==  UserDetails.AccountNo.trim()" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >NO RECORD FOUND</big></h1>
                 </div>
@@ -44,7 +44,7 @@
 
 
 	
-    <section class="content" v-show="isShowingRecord" v-if="form.AcctNo.trim() ===  UserDetails.AccountNo.trim()"  >
+    <section class="content DisabledSection ContentSection"  v-if="form.AcctNo.trim() ===  UserDetails.AccountNo.trim()"  >
       <!-- <section class="content"  > -->
        <!-- <section class="content" > -->
         <div class="row" >
@@ -119,7 +119,8 @@
                                             <tbody>
                                                 <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id" >
                                                 
-                                                    <td>{{  coverage.PerilsName  }} </td>
+                                                    <td  v-if = "coverage.PerilsCode  ==='OD'">{{  coverage.PerilsName + " / Theft"}} </td>
+                                                    <td  v-if = "coverage.PerilsCode  !=='OD'">{{  coverage.PerilsName }} </td>
                                                     <td style="text-align:right" >{{  coverage.CoveragesAmount | Peso }}</td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  ==='AOG' && form.NoAOG  ==='YES'"> NONE </td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' &&  form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
@@ -189,7 +190,7 @@
                                 </div> 
                             </div>
                       
-                            <div class="row text-center no-print" id="AcceptWhenApproved"  v-if="(form.QuoteExpiryStatus === 1 || form.QuoteExpiryStatus === 3) && URLQueryPerilsCoveragesGroups.StatusCovetages ===3 ||  URLQueryPerilsCoveragesGroups.StatusCovetages !=='DECLINE'  "    >
+                            <div class="row text-center no-print" id="AcceptWhenApproved"  v-if="(form.QuoteExpiryStatus === 1 || form.QuoteExpiryStatus === 3) && URLQueryPerilsCoveragesGroups.StatusCovetages ===3"    >
                             
 
                             <!-- <div class="row text-center no-print"  id="AcceptWhenApproved"  >  -->
@@ -316,7 +317,7 @@
                                     <option value="" selected disabled >Select Banks</option>
 									                  <option    v-for="GetListBankss in GetListBanks" :key="GetListBankss._id"  v-bind:value="GetListBankss.BankName"  >{{ GetListBankss.BankName}}</option>
                               </select>
-                                  <input v-model="form.bankNameAddress" type="text" class="form-control input-sm" :readonly="!form.mortgage" placeholder="Enter Mortgage"/>
+                                  <input v-model="form.bankNameAddress" type="text" class="form-control input-sm" :readonly="!form.mortgage" placeholder="Enter Branch"/>
                  
                       </div>
                      
@@ -414,19 +415,24 @@
                         <label for="">Mode of Payment :</label>
                       </div>
                         <div class="col-md-1"></div>
-                        <div class="col-md-11">
+                        <div class="col-md-11"> 
                           <div class="form-group">
-                             <div class="col-md-4" style="padding: 0px 2px;">
-                                <input v-model="form.PaymentMode" type="radio" disabled id="Paymaya" value="Paymaya">
+                             <div class="col-md-3" style="padding: 0px 2px;" v-if="form.RequestType ==='Manual'">
+                                    <input v-model="form.PaymentMode" type="radio" id="Cashier" value="Cashier">
+                                      <label for="Cashier" style="margin: 0px">Cashier</label>
+                            </div>
+                             <div class="col-md-3" style="padding: 0px 2px;">
+                                      <input v-model="form.PaymentMode" type="radio" disabled id="Paymaya" value="Paymaya">
                                       <label for="Paymaya" style="margin: 0px">Paymaya</label><br/>
                                       <small>Available Soon</small>
-                          </div>
-                            <div class="col-md-4" style="padding: 0px 2px;">
+                            </div>
+                            
+                            <div class="col-md-3" style="padding: 0px 2px;">
                                     <input v-model="form.PaymentMode" type="radio" id="Paypal" value="Paypal">
                                       <label for="Paypal" style="margin: 0px">Paypal</label>
                             </div>
                            
-                           <div class="col-md-4" style="padding: 0px 2px;">
+                           <div class="col-md-3" style="padding: 0px 2px;">
                                 <input v-model="form.PaymentMode" type="radio" id="Dragonpay" value="Dragonpay">
                                       <label for="Dragonpay" style="margin: 0px">Dragonpay</label>
                           </div>
@@ -459,6 +465,28 @@
     </div>
  <!-- <pre>{{ $data }}</pre> -->
     </section>
+ <!-- Modal -->
+        <div class="modal fade" id="LoadingModal" data-backdrop="static" data-keyboard="false" href="#">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button> -->
+                        <div class="overlay" style="color:#00a65a">
+                             <h1>  <i class="fa fa-refresh fa-spin" > </i> Loading...</h1> 
+                            
+                        </div>
+                         <small>Status :  {{this.ConnectionStatus}}</small>
+                    
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+
+
   </div>
 </template>
 
@@ -499,15 +527,7 @@ export default {
               isShowingDiscount:false,
             image: '',
 
-                IntervalLoading:null,
-                 IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:47,
-                 timer_is_on:0,
-
+             ConnectionStatus:'',
 
             
             form: new Form({
@@ -577,6 +597,8 @@ export default {
                   DiscountedAmount: '',
                   TotalAmountComm: '',
                   CashOutDiscount: '0.00',
+                  OptionNoByClick: '',
+                  RequestType: '',
 				  
 
              
@@ -590,20 +612,42 @@ export default {
 
     methods: {
 
-       LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
-            },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                  }
-                  
+       async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
               
             },
+
 
       DeclineProposal(){
         
@@ -644,17 +688,21 @@ export default {
       ShowDiscount(e){
           this.isShowingDiscount  =true;
          
-          this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountComm ;
+          //this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountComm ;
          
            let OptionAmountDue       =  e.target.value.trim(); //this.form.OptionWithAOG;
             let AmountDue;let ComputeDeductedAmount;  let AmountDeduct  = this.form.DiscountDeduct;
             if (OptionAmountDue == "NO"){
                     AmountDue  = this.form.ModalDisplayWithAOG ;
                     ComputeDeductedAmount = parseFloat(AmountDue) - parseFloat(AmountDeduct);
+                    
+                     this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountCommAOG ;
                 }else{
                   
                   AmountDue  = this.form.ModalDisplayTotalAmountDue ;
                   ComputeDeductedAmount = parseFloat(AmountDue) - parseFloat(AmountDeduct);
+                   this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountComm ;
+                   
                 }
                 //  alert(OptionAmountDue);
                  this.form.DiscountedAmount =   ComputeDeductedAmount;
@@ -697,7 +745,7 @@ export default {
                  if ( parseFloat(this.form.DiscountDeduct)  >  parseFloat(this.UserDetails.CashOutDiscount )){
                      this.form.CashOutDiscount   = 0.00; //parseFloat(this.form.DiscountDeduct - this.UserDetails.CashOutDiscount); 
                  }else{
-                    this.form.CashOutDiscount   = parseFloat(this.UserDetails.CashOutDiscount - this.form.DiscountDeduct  ); 
+                     this.form.CashOutDiscount   = parseFloat(this.UserDetails.CashOutDiscount - this.form.DiscountDeduct  ); 
                  }
                  
           }
@@ -770,12 +818,12 @@ export default {
 			
 			      this.form.ModalDisplayWithAOG         =ModalDisplayWithAOG.toFixed(2);
             this.form.ModalDisplayTotalAmountDue  = GetAmountDue[3].trim();
-      
-         let PassIDCom =     this.form.AcctNo + ";;" + this.form.RequestNo + ";;" + GetAmountDue[0].trim();
+            this.form.OptionNoByClick = GetAmountDue[0].trim();
+            let PassIDCom =     this.form.AcctNo + ";;" + this.form.RequestNo + ";;" + GetAmountDue[0].trim();
            
-               axios.get("api/GetAgentComReport/" + PassIDCom ) .then(({ data }) => (this.AgentComm = data)  );     
-  
-      
+               this.form.post("api/GetAgentComReport") .then(({ data }) => (this.AgentComm = data)  );     
+        //console.log(this.AgentComm );
+       //alert(this.AgentComm );
         
         },
 
@@ -848,7 +896,7 @@ export default {
                         'success'
                     )
                     // console.log();
-                  this.$router.push('/CustAcceptedView?' + PassID); 
+                  //this.$router.push('/CustAcceptedView?' + PassID); 
                  // this.$router.push('/Payment-Mode?' + PassID) ; 
                  if ( !this.form.PaymentMode.length){   //no payment selected
                       //alert('empty ' );
@@ -856,7 +904,7 @@ export default {
                  }else{   //yes payment selected redirect to payment
                       //alert('NOt empty ' );
                       let route = this.$router.resolve({path: '/Payment-Mode?' + PassID});
-                       window.open(route.href, '_blank');
+                       window.open(route.href, '_self');
                  }
               
                   
@@ -903,13 +951,7 @@ export default {
        axios.get("api/URLQueryRequestModify/" + PassID).then(({ data })  => (this.ResultQueryRequest = data)  );
 
       this.RetrieveTimeInterval = setInterval(() => {
-
-                              clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
-
-
+            
                 this.form.TINNumber          =this.ResultQueryRequest.TINNumber;
                 this.form.RequestNo          =this.ResultQueryRequest.RequestNo;
                 this.form.EmailAddress       =this.ResultQueryRequest.EmailAddress;
@@ -943,8 +985,10 @@ export default {
                 this.form.Denomination       =this.ResultQueryRequest.Denomination;
                 this.form.Individual              = this.ResultQueryRequest.Individual;
                 this.form.RegisteredName          = this.ResultQueryRequest.RegisteredName;
+                this.form.RequestType       = this.ResultQueryRequest.RequestType;
                 this.$forceUpdate();   
           
+          this.form.post("api/UpdateCommCoverages") .then(({ data }) => (this.AgentCommUpdate = data)  ); 
 
             this.URLQueryPerilsCoveragesGroup.map(( URLQueryPerilsCoveragesGroups) => {
 			      
@@ -1002,15 +1046,16 @@ export default {
                             this.form.CoveragesPremiumDisplay[URLQueryPerilsCoveragesGroups.OptionNo]     = parseFloat(CompCoveragesAmountNoAOG).toFixed(2)
                            
                             this.form.TotalAmountDue[URLQueryPerilsCoveragesGroups.OptionNo]                = parseFloat(TotalAmountDue).toFixed(2) ;
+
+
+                 
             })
- }, 1000)
+ }, 200)
                   
-
-                     //alert(CompCoverageAmount);
-
                     this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                 },5000) 
+                           
+                 },3000) 
                  //this.isShowingApproval = false;
                
                            

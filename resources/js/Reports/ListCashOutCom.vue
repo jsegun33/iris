@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="MainPage">
         <!-- Content Header (Page header) -->
         <!-- <section class="content-header">
             <h1>
@@ -24,20 +24,20 @@
             </ol>
         </section> -->
 
-        <section class="content" v-show="isShowingLoading" >
+        <!-- <section class="content" v-show="isShowingLoading" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
-         </section>
+         </section> -->
 
 
-         <section class="content"  v-show="isShowingRecord" v-if="this.logs === 'NO RECORD FOUND'" >
+         <section class="content DisabledSection ContentSection"  v-if="this.logs === 'NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h4> <big class="label label-warning" >{{ this.logs  }} </big></h4>
                 </div>
       </section>
 
-        <section class="content" v-show="isShowingRecord" v-if="this.logs !== 'NO RECORD FOUND'" >
+        <section class="content DisabledSection ContentSection" v-if="this.logs !== 'NO RECORD FOUND'" >
             <div class="row" >
                 <div class="col-md-3">
                     <div class="box box-primary">
@@ -189,6 +189,9 @@
                 </div>
             </div>
         </section>
+
+       
+
     </div>
 </template>
 
@@ -214,15 +217,10 @@ export default {
                RetrieveTimeInterval:null,
                RetrieveTimeInterval1:null,
 
-
-               IntervalLoading:null,
-                IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:180,
-                 timer_is_on:0,
+                 TimeLoading1:null,
+            TimeLoading:null,
+            TimeLoadingInternet:null,
+            ConnectionStatus:'',
 
 
 
@@ -245,25 +243,43 @@ export default {
         
     },
     methods: {
-
-         LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
-            },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                      //this.loadCommission(); 
-                  }else{
-                        
-                  }
-                   
-                    
+            async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer:3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
               
             },
+
+
 
 
          PrintReport(){
@@ -358,6 +374,7 @@ export default {
         },
          loadCommission() {
                this.RetrieveTimeInterval =  setInterval(() => {
+                 
                         let PassData;
                         if (this.form.StartDate == '' || this.form.EndDate == ''){
                         let date = new Date();
@@ -395,13 +412,10 @@ export default {
                     // alert(this.logs.length);
                         console.log();
                    
-         } , 1000)
+         } ,200)
            this.RetrieveTimeInterval2 = setInterval(() => {
                 clearInterval(this.RetrieveTimeInterval);  
-                clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
+             
                   
             },3000) 
 

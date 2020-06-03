@@ -46,7 +46,7 @@
 
 <template >
 
-  <div>
+  <div id="MainPage">
     <!-- <section class="content-header">
       <h1>
         Quotations
@@ -60,20 +60,20 @@
     </section> -->
 
     <!-- Main content -->
- <section class="content" v-show="isShowingLoading" >
+ <!-- <section class="content" v-show="isShowingLoading" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
                 </div>
- </section>
+ </section> -->
 
-  <section class="content" v-show="isShowingRecord" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
+  <section class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }}</big></h1>
                 </div>
  </section>
 
 
-   <section class="content" v-show="isShowingRecord"  v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'">         
+   <section  class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'">         
          <div class="row" >
         <div class="col-md-6" v-for="URLQueryPerilsCoveragesGroups in URLQueryPerilsCoveragesGroup" :key="URLQueryPerilsCoveragesGroups._id" >
               <div class="box box-solid">
@@ -149,7 +149,8 @@
                                     <tbody>
                                                 <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id">
                                                 
-                                                    <td>{{  coverage.PerilsName }} </td>
+                                                    <td  v-if = "coverage.PerilsCode  ==='OD'">{{  coverage.PerilsName + " / Theft"}} </td>
+                                                    <td  v-if = "coverage.PerilsCode  !=='OD'">{{  coverage.PerilsName }} </td>
                                                     <td>{{  coverage.CoveragesAmount | Peso }}</td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  ==='AOG' && form.NoAOG  ==='YES'"> NONE </td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' && form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
@@ -210,8 +211,9 @@
                        
                               <input type="hidden"  v-model="form.AcceptQuotationPassData"  >
                               
-                              <div class="row text-center"   v-show="isShowingPass"  v-if="parseFloat(form.TxtCoverageAmount[URLQueryPerilsCoveragesGroups.OptionNo]) < parseFloat(UserDetails.ApprovedLimit)  "  >
-                                <button v-if="form.CoveragesStatus[URLQueryPerilsCoveragesGroups.OptionNo] == 1" class="btn btn-lg btn-success no-print" @click='MktgApprovedQuotation()' @mouseover="QueryByOPtion1($event)"  :value="URLQueryPerilsCoveragesGroups.OptionNo + ';;' + URLQueryPerilsCoveragesGroups.RequestNo + ';;'  + UserDetails.AccountNo + ';;' + UserDetails.CName" > Approve </button>
+                             <div class="row text-center"  v-show="isShowingPass"  v-if="parseFloat(form.TxtCoverageAmount[URLQueryPerilsCoveragesGroups.OptionNo]) < parseFloat(UserDetails.ApprovedLimit)"  > 
+
+                                <button class="btn btn-lg btn-success no-print" v-if="form.CoveragesStatus[URLQueryPerilsCoveragesGroups.OptionNo] == 1"   @click='MktgApprovedQuotation()' @mouseover="QueryByOPtion1($event)"  :value="URLQueryPerilsCoveragesGroups.OptionNo + ';;' + URLQueryPerilsCoveragesGroups.RequestNo + ';;'  + UserDetails.AccountNo + ';;' + UserDetails.CName" > Approve </button>
                             </div>
 
                              <div class="form-inline" v-if="form.CoveragesStatus[URLQueryPerilsCoveragesGroups.OptionNo] == 3" >
@@ -261,6 +263,8 @@
 <!-- -----------<pre>{{ $data }}</pre>--------- -->
       
     </section>
+
+    
   </div>
 </template>
 
@@ -270,7 +274,7 @@
 <script>
 export default {
  
-  props : ['propMessage'],
+  //props : ['propMessage'],
    mounted: function(){ 
 		console.log(this.surveyData);
        // let id = this.$route.params.id
@@ -299,14 +303,7 @@ export default {
              isShowingPass:true,
 
 
-                 IntervalLoading:null,
-                 IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:47,
-                 timer_is_on:0,
+
 
 
             form: new Form({
@@ -361,21 +358,41 @@ export default {
     },
 
     methods: {
-        LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
-            },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                  }
-                    
+       async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
               
             },
-
 
          AutoLoadGetData(){ 
          
@@ -457,11 +474,7 @@ export default {
         loadData() {
             axios.get('api/wordings').then(({data}) => this.Wordings = data)
              this.RetrieveTimeInterval = setInterval(() => {
-                                clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
-
+                   
 
             this.ResultQueryRequest.data.map((ResultRequestDetailss) => { 
                 this.form.TINNumber          =ResultRequestDetailss.TINNumber;
@@ -541,11 +554,12 @@ export default {
                             
                             this.form.TotalAmountDue[URLQueryPerilsCoveragesGroups.OptionNo]                = parseFloat(TotalAmountDue).toFixed(2) ;
             })
- }, 1000)
+ }, 200)
                  
                     this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                 },5000) 
+                           
+                 },3000) 
                  //this.isShowingApproval = false;
         }
 

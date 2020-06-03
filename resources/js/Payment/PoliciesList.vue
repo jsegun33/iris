@@ -1,12 +1,12 @@
 <template>
-    <div>
+    <div  id="MainPage" >
        
-     <section class="content" v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
+     <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h4> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h4>
                 </div>
     </section>
-         <section class="content" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" >
+         <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" >
             <div class="box box-success">
                 <div class="box-header">
                     <h3 class="box-title"> Policy Lists</h3>
@@ -61,7 +61,7 @@
             </div>
         </section>
      <!--------------<pre>{{ $data }}</pre>----------->
-     
+    
       
     </div>
 </template>
@@ -82,7 +82,8 @@ export default {
             console.log('Component mounted.')
               axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
                this.loadRequestQuotation();
-			    this.getResults();
+                this.getResults();
+                 this.StartLoading();
 			 
         },
          data() {
@@ -92,8 +93,13 @@ export default {
 				UserDetails: {},
                 RequestQuotations1: {},
 				RetrieveTimeInterval: null,
-				 RequestQuotations: {},
-                //counter:1,
+                 RequestQuotations: {},
+                 
+                TimeLoading1:null,
+                TimeLoading:null,
+                TimeLoadingInternet:null,
+                ConnectionStatus:'',
+
                form: new Form({
 					AccountNo: "",
 			}),
@@ -104,27 +110,53 @@ export default {
 
 
         methods: {
+            async StartLoading() {
+              
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 5000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
+              
+            },
+
+
             getResults(page = 1) {
                 axios.get('api/ListPolicy?page=' + page).then(response => {
                     this.RequestQuotations = response.data;
                 });
             },
             loadRequestQuotation() {
-			
-						axios.get("api/ListPolicy").then(({ data }) => (this.RequestQuotations = data));
-		
+			   axios.get("api/ListPolicy").then(({ data }) => (this.RequestQuotations = data));
 			},
            
-          
-           created() {
-		
-               
-            this.loadRequestQuotation();
-            Fire.$on('AfterCreate',() => {
-                this.loadRequestQuotation();
-            });
-        },
-
+    
          computed: {
         date() {
            let date = new Date()

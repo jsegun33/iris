@@ -194,6 +194,8 @@ if ( !empty($request['AgentType'] ) ){
             'active'              => 1,
             'status'              => 1,
             'CashOutDiscount'     => 0,
+            'MktgTaskCounter'     => 0,   
+            'MktgTaskCounterDaily'     => 0,
             
             'SubAgent'            => $request['SubAgent'],
             'AgentType'           => $request['AgentType'],
@@ -398,6 +400,9 @@ if ( !empty($request['AgentType'] ) ){
                             'CashOutDiscount'     => $Registration->CashOutDiscount,
                             'SubAgent'            => $Registration->SubAgent,
                             'AgentType'           => $Registration->AgentType,
+                            'MktgTaskCounter'            => $Registration->MktgTaskCounter,
+                            'MktgTaskCounterDaily'           => $Registration->MktgTaskCounterDaily,
+
                             'ListUserRole' 		  => $ListUserRole,	
                             'ListUserRoleAccess'  => $ListUserRoleAccess,
                             'ListUserCommission'  => $ListUserCommission,	 			  
@@ -453,6 +458,12 @@ if ( !empty($request['AgentType'] ) ){
     if (!empty($request['password'])){
         $Registration->password            = bcrypt($request['password']);
     }
+    if (!empty($request['DailyTask']) || $request['DailyTask'] != 0  ){  //0 not allowed
+        $MktgTask  = 1;   
+    }else{
+        $MktgTask  = 0;
+    }
+    
         $Registration->user_fname       =  $request['firstname'];
         $Registration->user_mname       =  $request['middlename'];
         $Registration->user_lname       =  $request['lastname'];
@@ -463,6 +474,9 @@ if ( !empty($request['AgentType'] ) ){
         $Registration->ApprovedLimit    =  round($request['LimitAmount']) ; 
         $Registration->SubAgent         =  $request['SubAgent'];
         $Registration->AgentType        =  $request['AgentType'];
+        $Registration->MktgTaskCounter  =  round($request['TotalTask']) ;
+        $Registration->MktgTaskCounterDaily       =  round($request['DailyTask']) ;
+        $Registration->MktgTask         =  $MktgTask ; //MKTG allow to accept task
         $Registration->save(); 
 
 
@@ -529,6 +543,8 @@ public function AddNewPrivileges(Request $request)
                       
                   ]);
         }
+
+        
         
     }
 }
@@ -554,7 +570,7 @@ public function AddNewCommission(Request $request)
                         'PerilsName'       =>  $request['PassDataPerilsName'][$kL],  
                         'PerilsNo'         =>  $request['PassDataPerilsNo'][$kL], 
 			            'PerilsCode'	   =>  $request['PassDataPerilsCode'][$kL],  
-                        'AmountCom'        =>  round($request['PassDataAmountPerils'][$kL],2),  
+                        'AmountCom'        =>  round($request['PassDataAmountPerils'][$kL],3),  
                        				
                         
                     ]);
@@ -618,7 +634,7 @@ public function RemoveUserCommission(Request $request)
         $CurrentDate    = date('Y-m-d H:i:s');
         if (!empty($request['NewAmountCom'] )  || round($request['NewAmountCom']) > 0) {
             $GetAgentCom =  AgentCom::select('*') ->where('_id',$request['UserCommissionID'])->first();
-            $GetAgentCom->AmountCom                 = round($request['NewAmountCom'],2) ;
+            $GetAgentCom->AmountCom                 = round($request['NewAmountCom'],3) ;
             $GetAgentCom->save(); 
 
         }
@@ -632,7 +648,7 @@ public function RemoveUserCommission(Request $request)
         $CurrentDate    = date('Y-m-d H:i:s');
         if (!empty($request['NewPassword'] ) ) {
            
-            $Registration    = Registration::select('*')->where('_id',$request['UserID'])->first();
+            $Registration    = Registration::select('*')->where('AccountNo',$request['UserID'])->first();
             $Registration->password             = bcrypt($request['NewPassword']);
             $Registration->PasswordChangeDate   = $CurrentDate ;
             $Registration->save(); 
@@ -640,6 +656,38 @@ public function RemoveUserCommission(Request $request)
         }
             
     }
+
+
+    public function GetAllUserAccessRole(Request $request)
+    { 
+            $UserRoleAccess = UserRoleAccess::select('*') 
+                            ->where('AccountNo',$request['CustAcctNo'])->get();
+            $ListUserRoleAccess= array();
+            foreach($UserRoleAccess as $UserRoleAccesss)
+            { 
+
+                        $ListUserRoleAccess[] = [
+                        'UserRoleAccessID'				  => $UserRoleAccesss->_id,
+                        'role_name_access'				  => $UserRoleAccesss->role_name_access,
+                        'role_number_url'				  => $UserRoleAccesss->role_number_url,
+                        'acctTypeSubName'				  => $UserRoleAccesss->acctTypeSubName,
+                        'acctTypeSubID'				      => $UserRoleAccesss->acctTypeSub,
+                        'status'				          => $UserRoleAccesss->status,
+                        'active'				          => $UserRoleAccesss->active,
+
+                    ] ;
+            }
+            if (!empty($ListUserRoleAccess)){  
+                $CoveragesCustDetails1 = "YES ACCESS";
+                  
+            }else{
+                 $CoveragesCustDetails1 = "NO ACCESS" ; 
+            }
+
+            return response()->json($CoveragesCustDetails1);
+        
+}
+
 
     
 

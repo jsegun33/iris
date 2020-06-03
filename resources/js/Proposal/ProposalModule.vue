@@ -1,6 +1,6 @@
 <template>
     <div>
-        <section class="content-header">
+        <!-- <section class="content-header">
             <h1>
                 Proposal
                 <small>Proposal Form</small>
@@ -15,7 +15,7 @@
                     </a>
                 </li>
             </ol>
-        </section>
+        </section> -->
 
         <section class="content">
             <div class="row">

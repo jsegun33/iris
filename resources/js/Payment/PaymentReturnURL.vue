@@ -1,38 +1,42 @@
 <template>
-    <div>
+    <div id="MainPage">
+        <!-- <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section> -->
 
 
-       
-
-         <!-- <section class="content" v-if="form.PaymentGateway === 'Dragonpay'"> -->
-             <section class="content">
-           
+        <section class="content">           
             <div class="row">
                 <div class="col-md-12">
                     <div class="box box-success">
-                        <div class="box-header">
-                            <h1 >SUCCESS </h1><br/>
-
-                                
-                                    <img src="/img/check-big.png" alt="RSILogo" id="quoteslogo" style="width:150px;">
-							  
-                                    <h1>Thank You!</h1>
-                                    <h5>You are successfully paid. 
-                                        <br>
-                                        It has been a pleasure doing business with you. We wish you the best of luck.
-                                    </h5>
-                                    
-
+                        <div class="box-header" style="text-align:center;">
+                            <!-- <h1 >Your Payment in {{ form.PaymentMode }} </h1><br/> -->
+                                <h1 >Your Payment  </h1><br/> 
+                            <img src="/img/check-big.png" alt="RSILogo" id="quoteslogo" style="width:150px;">
+                            
+                            <h1>was successful</h1>
+                            
+                            <!-- <br>{{ $data.form.PaymntDescription }}
+                            <br>with amount of {{ form.AmountDue | Peso }} has been paid
+                            <br> -->
+                            <!-- <router-link  :to="'/Customer-Issuance?'+ $data.form.RequestNo1 " style="text-decoration: none;">
+                                You can check your policy here for download.
+                            </router-link>                                -->
                         </div>
                     </div>
                 </div>
             </div>
            
-           <!-- -----------<pre>{{ $data }}</pre>--------- -->
+           <!-- -----------<pre>
+               {{ $data}}
+               {{ $data.UserDetails.CName }}
+               </pre>--------- -->
         </section>
 
 
-
+        
     </div>
 </template>
 
@@ -51,88 +55,102 @@
 
 export default {
  mounted: function(){ 
+        //  this.StartLoading();
 
-        axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
+        // axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
 	
-                    let uri         = window.location.href.split('?');
-                    let PassID      = uri[1].trim();
-                   
-        axios.get("api/URLQueryRequestModify/" + PassID ) .then(({ data }) => (this.ResultQueryRequest = data)  );
-        this.LoadDataRequest(); 
+        //             let uri         = window.location.href.split('?');
+        //             let PassID      = uri[1].trim();
+        //  axios.get("api/URLQueryRequestModify/" + PassID ) .then(({ data }) => (this.ResultQueryRequest = data)  );
+        
+        //  this.LoadDataRequest(); 
        
     },
 	 data() {
-        return {
-            ResultQueryRequest:{},
-            UserDetails:{},
+        // return {
+        //     ResultQueryRequest:{},
+        //     UserDetails:{},
+            
            
             
-            form: new Form({
-                RequestNo1:'',
-                RequestNo:'',
-                AmountDue:'',
-                PaymntDescription:'',
-                CustEmail:'',
-                PaymentGateway:'',
-                
-            
-                 
-
+        //     form: new Form({
+        //         RequestNo1:'',
+        //         RequestNo:'',
+        //         AmountDue:'',
+        //         PaymntDescription:'',
+        //         CustEmail:'',
+        //         PaymentGateway:'',
+        //         PaymentMode:'',
+        //         AcctNo:'',
              
 
-            }),
+        //     }),
 
           
           
-        }
+        // }
     },
 
 
  methods: {
-  
+            // async StartLoading() {
+            //    let timerInterval
+            //     await Swal.fire({
+            //     title: '<h3>Loading Data</h3>',
+            //     text: 'Please wait...',
+            //     timer: 5000,
+            //     timerProgressBar: true,
+            //     icon: 'info',
+              
+            //     timerProgressBarColor:"#00a65a",
+             
+            //     allowOutsideClick: false,
+            //     allowEscapeKey: false,
+            //     onBeforeOpen: () => {
+            //         Swal.showLoading()
+            //         timerInterval = setInterval(() => {
+            //         const content = Swal.getContent()
+            //         if (content) {
+            //             const b = content.querySelector('b')
+            //             if (b) {
+            //             b.textContent = Swal.getTimerLeft()
+            //             }
+            //         }
+            //         }, 100)
+            //     },
+            //     onClose: () => {
+            //         clearInterval(timerInterval)
+            //          $(".ContentSection").removeClass("DisabledSection");
+            //          this.GetAgentComReport();
+                      
+            //     }
+            //     }).then((result) => {
+               
+            //     })
+              
+            // },
 
-     DragonPayMode() {
-         //   let PassID         = this.form.RequestNo1 ;
-            let PassDataPayment  = this.form.RequestNo  + ";;" +  this.form.AmountDue  + ";;" +  this.form.PaymntDescription  + ";;" +  this.form.CustEmail  + ";;" +  this.form.RequestNo1 ;
-              //                alert(PassDataPayment);
-			Swal.fire({
-                title: "Are you sure?",
-                text: "You want to Proceed to Payment !",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, Pay Now...!"
-            }).then(result => {
-                // Send request to the server
-			
-                if (result.value) {
-					
-                              //this.$router.push('/Customer-Issuance?' + PassID); 
-                                let route = this.$router.resolve({path: 'api/PaymentMode/' + PassDataPayment});
-                                 window.open(route.href, '_blank');
-                                 console.log(PassDataPayment);
-                }
-            });		
-     },
-     LoadDataRequest() {
-        this.RetrieveTimeInterval = setInterval(() => {
-     //   alert(this.ResultQueryRequest.AccountNo);
-                     this.form.RequestNo1         = this.ResultQueryRequest.RequestNo;
-                    this.form.RequestNo          =this.ResultQueryRequest.RequestNo + "-" + this.ResultQueryRequest.AcceptedOption;
-                   this.form.PaymentMode       =this.ResultQueryRequest.PaymentGateway;
-                    this.form.PaymntDescription   = "Payment for Denomination " + this.ResultQueryRequest.SubLinesName + " under the name " +  this.ResultQueryRequest.CName  + " with Plate No. " + this.ResultQueryRequest.PlateNumber;
-                    this.form.AmountDue             =this.ResultQueryRequest.AmountDue;
-                    this.form.CustEmail              = this.ResultQueryRequest.RequestNo;
-                     this.form.PaymentGateway            = this.ResultQueryRequest.RequestNo;
-         },1000)   
-			this.RetrieveTimeInterval2 = setInterval(() => {
-                            clearInterval(this.RetrieveTimeInterval);  
-                 },5000) 
+
+    
+    //  LoadDataRequest() {
+    //     this.RetrieveTimeInterval = setInterval(() => {
+    //                  this.form.RequestNo1         = this.ResultQueryRequest.RequestNo;
+    //                  this.form.AcctNo             = this.ResultQueryRequest.CustAcctNO;
+    //                 this.form.RequestNo          =this.ResultQueryRequest.RequestNo + "-" + this.ResultQueryRequest.AcceptedOption;
+    //                this.form.PaymentMode       =this.ResultQueryRequest.PaymentGateway;
+    //                 this.form.PaymntDescription   = "Payment for Denomination " + this.ResultQueryRequest.SubLinesName + " under the name " +  this.ResultQueryRequest.CName  + " with Plate No. " + this.ResultQueryRequest.PlateNumber;
+    //                 this.form.AmountDue             =this.ResultQueryRequest.AmountDue;
+    //                 this.form.CustEmail              = this.ResultQueryRequest.RequestNo;
+    //                  this.form.PaymentGateway            = this.ResultQueryRequest.RequestNo;
+    //      },1000)   
+	// 		this.RetrieveTimeInterval2 = setInterval(() => {
+    //                         clearInterval(this.RetrieveTimeInterval);  
+                    
+    //              },4000) 
                    
                            
      
-    },
+    // },
 		
  },
  

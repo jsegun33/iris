@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="MainPage"  >
         <!-- <section class="content-header">
             <h1>
                 Proposal Lists
@@ -12,39 +12,36 @@
             </ol>
         </section>
       -->
-      <section class="content" v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
+
+      <!-- <section class="content" v-show="isShowingLoading" >
+                <div class="box-header with-border box box-success" id="quotehead" >
+                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
+                </div>
+         </section> -->
+
+
+
+      <section class="content DisabledSection ContentSection" id="ContentSection"  v-if="this.RequestQuotations === 'NO RECORD FOUND'" >
                 <div class="box-header with-border box box-success" id="quotehead" >
                     <h1> <big class="label label-warning" > {{ this.RequestQuotations  }}</big></h1>
                 </div>
          </section>
 
 
-         <section class="content" v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
+         <section class="content DisabledSection ContentSection"  v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
             <div class="box box-success">
-                <div class="box-header">
-                    <big>Request List</big><br/>
-             
-                    <div class="box-tools">
-                        <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
-                            <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
-
-                            <div class="input-group-btn">
-                                <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-                            </div>
-                            <!-- <button class="btn btn-primary pull-right" @click="newModal">
-                                <i class="fa fa-plus-circle"></i>
-                                Add New
-                            </button> -->
-                        </div>
-                    </div>
-                </div>
+            <!-- <div class="box-header"> -->
+              <h3 class="box-title">Request List</h3>
+       
+       
                 <div class="box-body table-responsive" >
                     <table class="table table-hover text-center">
                         <tbody>
                             <tr>
                                 <th>Request #</th>
+                                 <th>Type</th>
                                 <th>Plate Number</th>
-                                <th>Denomination</th>
+                                <th>Assign CRD</th>
                                 <th>Name</th>
                                 <th>Expiration</th>
                                 
@@ -53,8 +50,9 @@
                             </tr>
                             <tr v-for="RequestQuotationss in RequestQuotations.data" :key="RequestQuotationss._id">
                                 <td>{{ RequestQuotationss.RequestNo }}</td>
+                                <td>{{ RequestQuotationss.RequestType }}</td>
                                 <td>{{ RequestQuotationss.PlateNumber }}</td>
-                                <td>{{ RequestQuotationss.Denomination }}</td>
+                                <td>{{ RequestQuotationss.AssignCRD }}</td>
                                 <td>{{ RequestQuotationss.FirstName}}  {{RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
                                 
                                
@@ -67,6 +65,7 @@
                                 </td>
                                 
                                 <td><span class="label label-warning">{{ RequestQuotationss.Status }}</span></td>
+                              
                                 <td>
                                     <a v-bind:href="'/ViewQuoteList?'+ RequestQuotationss.RequestNo" @click="UpdateRequest(RequestQuotationss)" class="btn btn-info" style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
@@ -89,7 +88,6 @@
         </section>
        <!--------- <pre>{{ $data }}</pre>-------->
      
-      
     </div>
 </template>
 		
@@ -98,37 +96,102 @@
 
 <script>
 
- 
-//import udmodal  from './Proposal'
+$(document).ready(function() {
+     
 
-
+ });   
 export default {
 
 
      mounted() {
+           this.StartLoading();
+             axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
             console.log('Component mounted.')
             this.getResults();
+           
+              this.loadRequestQuotation();
         },
          data() {
             return {
+                UserDetails:{},
+                 TimeLoading1:null,
+         
+                 
+
                 editmode: false,
                 RequestQuotations: {},
-                //counter:1,
-               
+
+
+                form: new Form({
+                CustAcctNO: "",
+                RoleAlias: "",
+                })
                 
             }
         },
 
 
         methods: {
+ async StartLoading() {
+               let timerInterval
+                await Swal.fire({
+                title: '<h3>Loading Data</h3>',
+                text: 'Please wait...',
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'info',
+               // background: '#f39c12',
+                timerProgressBarColor:"#00a65a",
+             
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                    const content = Swal.getContent()
+                    if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                        b.textContent = Swal.getTimerLeft()
+                        }
+                    }
+                    }, 100)
+                },
+                onClose: () => {
+                    clearInterval(timerInterval)
+                     $(".ContentSection").removeClass("DisabledSection");
+                }
+                }).then((result) => {
+               
+                })
+              
+            },
+
+
+
+
+
             getResults(page = 1) {
                 axios.get('api/GetRequestQuotation?page=' + page).then(response => {
                     this.RequestQuotations = response.data;
                 });
             },
             loadRequestQuotation() {
-                axios.get("api/GetRequestQuotation"  ).then(({ data }) => (this.RequestQuotations = data));
+                this.RetrieveTimeInterval = setInterval(() => {  
+                    this.form.CustAcctNO = this.UserDetails.AccountNo;
+                    this.form.RoleAlias = this.UserDetails.RoleAlias;
+                     
+                     this.form.post("api/GetRequestQuotation"  ).then(({ data }) => (this.RequestQuotations = data));
+                 }, 200);
+				 
+				  this.RetrieveTimeInterval2 = setInterval(() => {
+                                clearInterval(this.RetrieveTimeInterval);
+                }, 3000);
+
             },
+
+
+            
             UpdateRequest(RequestQuotationss) {
               let  PassID  =RequestQuotationss.RequestNo;
                 axios.get("api/UpdateRequest/" + PassID   ).then(({ data }) => (this.RequestQuotations = data));
@@ -137,14 +200,7 @@ export default {
          
           },
 
-          
-           created() {
-               
-            this.loadRequestQuotation();
-            Fire.$on('AfterCreate',() => {
-                this.loadRequestQuotation();
-            });
-        },
+        
 
          computed: {
         date() {
@@ -159,3 +215,4 @@ export default {
     
 }
 </script>
+

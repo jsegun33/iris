@@ -1,7 +1,6 @@
-
-<!DOCTYPE html>
+<!DOCTYPE html   >
 <html>
-<head>
+<head >
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!-- Tell the browser to be responsive to screen width -->
@@ -28,6 +27,8 @@
   <link rel="stylesheet" href="{{asset('adminlte/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css')}}">
   <!-- Vue MultiSelect -->
   <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
+
+  <link rel="stylesheet" href="{{asset('css/main.css')}}">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -244,7 +245,7 @@
                         </a> -->
                     </div>
                 </div>
-                <form action="#" method="get" class="sidebar-form">
+                {{-- <form action="#" method="get" class="sidebar-form">
                     <div class="input-group">
                         <input type="text" name="q" class="form-control" placeholder="Search...">
                         <span class="input-group-btn">
@@ -253,7 +254,7 @@
                             </button>
                         </span>
                     </div>
-                </form>
+                </form> --}}
                 <!-- sidebar menu: : style can be found in sidebar.less -->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Dashboard</li>
@@ -762,7 +763,7 @@
             <router-view></router-view>
         </div>
 
-        <footer class="main-footer">
+        <footer class="main-footer no-print">
             <div class="pull-right hidden-xs">
                 <b>Version</b> 1.0.0
             </div>
@@ -771,8 +772,9 @@
             </strong> All rights reserved.
         </footer>
     </div>
-
+  
 <script src="/js/app.js"></script>
+
 <!-- jQuery 3 -->
 <script src="{{asset('adminlte/bower_components/jquery/dist/jquery.min.js')}}"></script>
 <!-- jQuery UI 1.11.4 -->
@@ -791,6 +793,15 @@
 <script src="{{asset('adminlte/bower_components/fastclick/lib/fastclick.js')}}"></script>
 <!-- AdminLTE App -->
 <script src="{{asset('adminlte/dist/js/adminlte.min.js')}}"></script>
+{{-- <script src="{{asset('adminlte/bower_components/datatables.net/js/jquery.dataTables.min.js')}}"></script>
+<script src="{{asset('adminlte/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js')}}"></script> --}}
+
 <script src="{{asset('js/vue.min.js')}}"></script>
+{{-- <script src="{{asset('js/mainjs.js')}}"></script> --}}
+
+
+
+
+
 </body>
 </html>

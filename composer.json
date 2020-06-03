@@ -9,7 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.2",
-        "artisaninweb/laravel-soap": "0.3.0.*",  
+        "artisaninweb/laravel-soap": "0.3.0.*",          
         "crazymeeks/dragonpay": "v1.1.4",
         "fideloper/proxy": "^4.0",
         "intervention/image": "dev-master",
