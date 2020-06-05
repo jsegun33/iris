@@ -33,28 +33,32 @@
                             </label>
                             <input type="text"  class="form-control"    v-model="form.PlateNumber" placeholder="Plate Number" required />                                
                         </div>
-                        <div class="col-sm-4" > 
-                            <label class="col-form-label"><big style="color:red"> * </big> Denomination: </label>
-                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select DENOMINATION on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a>
-                            <input type="text" v-model="form.DenominationDis" @change="ChangeDenomination(),DenominationOnly($event)" autocomplete="off" @focus="filterDen = true"  class="form-control" placeholder="Enter / Select Denomination" required>
-                            <div v-if="DataDenominations && filterDen" class="custom">
-                                <ul>
-                                    <li v-for="value in DataDenominations" :key="value._id" @click="setValueDenomination(value)">{{value.SubLinesName}}</li>
-                                </ul>
+
+                        <!-- Updated By: Joleth -->
+                        <!-- Updated Date: 06/05/2020 -->
+                        <div class="col-sm-4" >
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>Denomination:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select DENOMINATION">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="form.DenominationDis" @change="setValueDenomination($event)">                                                                    
+                                    <option value='0' disabled>Select Denomination</option>
+                                    <option v-for='value in DataDenominations' :key="value._id">{{ value.SubLinesName }}</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="col-sm-4" >
-                            <label class=" col-form-label"><big style="color:red"> * </big> Car Purchased Amount / Market Value: </label>
-                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select PURCHASED AMOUNT on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a>                            
-                            <input type="number" oninput="validity.valid||(value='');"  v-model="form.POAMount" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filter = true"   class="form-control" placeholder="Enter / Select Car Purchase Amount" required>
-                            <div v-if="MarketValues && filter" class="custom">
-                                <ul>
-                                    <li v-for="value in MarketValues" :key="value._id" @click="setValue(value.CarAmount)">{{value.CarAmount | Peso}}</li>
-                                </ul>
+
+                        <div class="col-sm-4" >                            
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>Car Purchased Amount / Market Value:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select PURCHASED AMOUNT">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="form.POAMount" @change="setValue($event)">                                                                    
+                                    <option value='0' disabled>Select Amount</option>
+                                    <option v-for='value in MarketValues' :value="value.CarAmount" :key="value._id">{{ value.CarAmount | Peso}}</option>
+                                </select>
                             </div>
                             <small class="label label-guide-2">Depreciation Amount : {{ form.DepreciativeAmount | Peso}}</small> 
                         </div>
@@ -62,54 +66,64 @@
 
                     <div class="form-group row">                         
                         <div class="col-sm-3">
-                            <label class="col-form-label"><big style="color:red"> * </big> Year</label>
-                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select YEAR Purchased  on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a>   
-                            <input type="number" oninput="validity.valid||(value='');" v-model="form.YearPO" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filterYear = true"  class="form-control" placeholder="Enter / Select Year Purchased" required>
-                            <div v-if="yearD && filterYear" class="custom">
-                                <ul>
-                                    <li  v-for="yearDs in yearD" :value="yearDs" :key="yearDs" @click="setValueYear(yearDs)">{{ yearDs }} </li>
-                                </ul>
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>Year:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select PURCHASED YEAR">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="form.YearPO" @change="setValueYear($event)">                                                                    
+                                    <option value='0' disabled>Select Year</option>
+                                    <option v-for='yearDs in yearD' :value="yearDs" :key="yearDs">{{ yearDs }}</option>
+                                </select>
                             </div>
                             <big class="label label-guide">Min. Year: {{ form.YearMinValue}} To Be Accepted, <br> otherwise call our telephone no. 8-243-0261 loc.139 or 213</big>
                         </div>
-                            <div class="col-sm-3">
-                            <label class="col-form-label"><big style="color:red"> * </big> Brand:</label>
-                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select BRAND  on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a>                            
-                            <input type="text" v-model="form.CarBrand"  @change="ChangeDenomination()"  autocomplete="off" @focus="filterCarBrands = true"  class="form-control" placeholder="Enter / Select Year Car Brand" required>
-                            <div v-if="DataCarBrands && filterCarBrands" class="custom">
-                                <ul>
-                                    <li  v-for="DataCarBrandss in DataCarBrands" :value="DataCarBrandss.BrandName" :key="DataCarBrandss._id"  @click="setValueCarBrands(DataCarBrandss)">{{ DataCarBrandss.BrandName }} </li>
-                                </ul>
-                            </div>
-                        </div>
-                            <div class="col-sm-3">
-                            <label class="col-form-label"><big style="color:red"> * </big> Model:</label>
-                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select MODEL on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a>
-                            <input type="text" v-model="form.CarModel" @change="ChangeDenomination()"   autocomplete="off" @focus="filterCarModels = true"  class="form-control" placeholder="Enter / Select Car Model" required>
-                            <div v-if="DataCarModelsList && filterCarModels" class="custom">
-                                <ul>
-                                    <li  v-for="DataCarModelss in DataCarModelsList" :value="DataCarModelss.ModelName" :key="DataCarModelss._id" @click="setValueCarModel(DataCarModelss)">{{ DataCarModelss.ModelName }} </li>
-                                </ul>
-                            </div>
-                        </div>
+
                         <div class="col-sm-3">
-                            <label class="col-form-label"><big style="color:red"> * </big> Body Type</label>
-                            <a data-toggle="tooltip" data-placement="right" title="Pls. Select BODY TYPE on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a>
-                            <input type="text" v-model="form.BodyType" @change="ChangeDenomination()"  autocomplete="off" @focus="filterCarBodyType = true"  class="form-control" placeholder="Enter / Select Body Type" required>
-                            <div v-if="DataCarBodyType && filterCarBodyType" class="custom">
-                                <ul>
-                                    <li  v-for="DataCarBodyTypes in DataCarBodyType" :value="DataCarBodyTypes.BodyTypeName" :key="DataCarBodyTypes" @click="setValueCarBodyType(DataCarBodyTypes)">{{ DataCarBodyTypes.BodyTypeName }} </li>
-                                </ul>
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>Brand:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select BRAND / MAKE">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="ddCarBrand" @change="setValueCarBrands($event)">                                                                    
+                                    <option value='0' disabled>Select Brand / Make</option>
+                                    <option value='Others'>Others</option>
+                                    <option v-for='DataCarBrandss in DataCarBrands' :value="DataCarBrandss.BrandName" :key="DataCarBrandss._id">{{ DataCarBrandss.BrandName }}</option>
+                                </select>
+                                <input v-show="OtherBrand" class="form-control" style="margin-top:5px;" v-model="txtOtherBrand" @change="setValueOtherBrand()">
                             </div>
                         </div>
+
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>Model:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select MODEL / SERIES">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="ddCarModel" @change="setValueCarModel($event)">                                                                    
+                                    <option value='0' disabled>Select Model / Series</option>
+                                    <option value='Others'>Others</option>
+                                    <option v-for='DataCarModelss in DataCarModelsList' :value="DataCarModelss.ModelName" :key="DataCarModelss._id">{{ DataCarModelss.ModelName }}</option>
+                                </select>                                
+                                <input v-show="OtherModel" class="form-control" style="margin-top:5px;" v-model="txtOtherModel" @change="setValueOtherModel()">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>Body Type:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select BODY TYPE">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="ddBodyType" @change="setValueCarBodyType($event)">                                                                    
+                                    <option value='0' disabled>Select Body Type</option>
+                                    <option value='Others'>Others</option>
+                                    <option v-for='DataCarBodyTypes in DataCarBodyType' :value="DataCarBodyTypes.BodyTypeName" :key="DataCarBodyTypes">{{ DataCarBodyTypes.BodyTypeName }}</option>
+                                </select>
+                                <input v-show="OtherBodyType" class="form-control" style="margin-top:5px;" v-model="txtOtherBodyType" @change="setValueOtherBodyType()" @blur="setValueOtherBarangay()">
+                            </div>
+                        </div>
+                        
                     </div>
 
                     <div class="form-group row">
@@ -303,16 +317,17 @@
                         </div>
 
                         <div class="col-sm-6">
-                            <label class="col-form-label"><big style="color:red"> * </big>Address Province:</label>
-                            <a data-toggle="tooltip" data-placement="right"  title="Pls. Select Province on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a>  
-                            <input type="text" v-model="form.ProvName" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyProvince = true"  class="form-control" placeholder="Enter / Select Province" required>
-
-                            <div v-if="DataProvinces && filterPropertyProvince" class="custom">
-                                <ul>
-                                    <li v-for="DataProvincess in DataProvinces"   :value="DataProvincess.ProvName"  :key="DataProvincess._id" @click="setValuePropertyProvince(DataProvincess)">{{DataProvincess.ProvName}}</li>
-                                </ul>
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>Province:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select Province">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="ddProvince" @change="setValuePropertyProvince()">                                                                    
+                                    <option value='0' disabled>Select Province</option>
+                                    <option value='Others'>Others</option>
+                                    <option v-for='DataProvincess in DataProvinces' :value="{ id : DataProvincess.ProvCode, text : DataProvincess.ProvName }">{{ DataProvincess.ProvName }}</option>
+                                </select>
+                                <input v-show="OtherProvince" class="form-control" style="margin-top:5px;" v-model="txtOtherProvince" @change="setValueOtherProvince()">
                             </div>
                         </div>
 
@@ -320,32 +335,34 @@
                     
                     <div class="form-group row col-sm-12" >   
 
-                        <div class="col-sm-6">
-                            <label class="col-form-label"><big style="color:red"> * </big>Address City:</label>
-                            <a data-toggle="tooltip" data-placement="right"  title="Pls.Select CITY on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a>  
-                            <input type="text" v-model="form.CityName" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyCity = true"  class="form-control" placeholder="Enter / Select City" required>                            
-                            
-                            <div v-if="DataCities && filterPropertyCity" class="custom">
-                                <ul>
-                                    <li v-for="DataCitiess in DataCities"   :value="DataCitiess.CityName"  :key="DataCitiess._id" @click="setValuePropertyCity(DataCitiess)">{{DataCitiess.CityName}}</li>
-                                </ul>
+                        <div class="col-sm-6">                            
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>City:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select City">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="ddCity" @change="setValuePropertyCity()">                                                                    
+                                    <option value='0' disabled>Select City</option>
+                                    <option value='Others'>Others</option>
+                                    <option v-for='DataCitiess in DataCities' :value="{ id : DataCitiess.Code, text : DataCitiess.CityName }">{{ DataCitiess.CityName }}</option>
+                                </select>
+                                <input v-show="OtherCity" class="form-control" style="margin-top:5px;" v-model="txtOtherCity" @change="setValueOtherCity()">
                             </div>
                         </div>
 
                         <div class="col-sm-6">
-                            <label class="col-form-label" ><big style="color:red"> * </big>Address Barangay:</label>
-                            <a data-toggle="tooltip" data-placement="right"  title="Pls. Select BARANGAY on the list otherwise SPECIFY ">
-                                <big class="label label-guide"><i class="fa fa-info"></i> </big>
-                            </a> 
-                            <input type="text" v-model="form.Barangay" @change="ChangeDenomination()"  autocomplete="off" @focus="filterPropertyBrgy = true" class="form-control" placeholder="Enter / Select Barangay" required>
-                            
-                            <div v-if="DataListBrgy && filterPropertyBrgy" class="custom">
-                                <ul>
-                                    <li v-for="DataListBrgys in DataListBrgy"  :value="DataListBrgys.BrgyName"  :key="DataListBrgys._id" @click="setValueBarangay(DataListBrgys)">{{DataListBrgys.BrgyName}}</li>
-                                </ul>
-                            </div>                            
+                            <div class="form-group">
+                                <label><big style="color:red"> * </big>Barangay:</label>
+                                <a data-toggle="tooltip" data-placement="right" title="Pls. Select Barangay">
+                                    <big class="label label-guide"><i class="fa fa-info"></i> </big>
+                                </a>
+                                <select class='form-control' v-model="ddBarangay" @change="setValueBarangay($event)">                                                                    
+                                    <option value='0' disabled>Select Barangay</option>
+                                    <option value='Others'>Others</option>
+                                    <option v-for='DataListBrgys in DataListBrgy' :value="DataListBrgys.BrgyName">{{ DataListBrgys.BrgyName }}</option>
+                                </select>
+                                <input v-show="OtherBarangay" class="form-control" style="margin-top:5px;" v-model="txtOtherBarangay" @change="setValueOtherBarangay()">
+                            </div>                         
                         </div>
                     </div>                   
                 </div>
@@ -467,14 +484,6 @@ export default {
             DataProvinces: {},
             DataCities: {},
             DataListBrgy: {},
-            filter: false,
-            filterDen: false,
-            filterYear: false,
-            filterCarBrands: false,
-            filterCarModels: false,
-            filterCarBodyType: false,
-            filterPropertyProvince: false,
-            filterPropertyCity: false,
             filterPropertyBrgy: false,
             disabledtext: true,
             PerilsCheckbox: true,
@@ -484,16 +493,30 @@ export default {
             ShowSurcharges: false,
             effectiveDate: '',
 
-           DataPremiumType:{},
+            DataPremiumType:{},
             UserDetails:{},
             checked:true,
+
+            OtherBrand : false,
+            OtherModel : false,
+            OtherBodyType : false,
+            OtherProvince : false,
+            OtherCity : false,
+            OtherBarangay : false,
+
+            ddCarBrand : 0,
+            ddCarModel : 0,
+            ddBodyType : 0,
+            ddProvince : 0,
+            ddCity : 0,
+            ddBarangay : 0,
 
             form: new Form({
                 _id: '',
                 PlateNumber: '',
                 Denomination: '',
-                POAMount: '',
-                YearPO: '',
+                POAMount: 0,
+                YearPO: 0,
                 CarBrand: '',
                 CarModel: '',
                 BodyType: '',
@@ -503,10 +526,7 @@ export default {
                 SurchageList:[],
                 EffectiveDate: '',
                 ExpiryDate: '',
-                 department: '',
-                //AssuredAddress: '',
-               // AssuredCity: '',
-                //AssuredBarangay: '',
+                department: '',
                 passengers: '4',
                 PerilsName:[],
                 SubPerilsName:[],
@@ -528,22 +548,18 @@ export default {
                 IndividualPass: 'Individual',
                 DepreciativeAmount:'',
                 DepreciativeNumberYear:'',
-
-
-                DenominationDis:'',
+                DenominationDis:0,
                 CheckAll:'',
                 YearMinValue:'',
                 YearCurrentValue:'',
-                PremiumTypeSave:'',
-
-               
+                PremiumTypeSave:'',               
             }),
         }
     },
     
     methods: { 
     
- async StartLoading() {
+        async StartLoading() {
               
                let timerInterval
                 await Swal.fire({
@@ -577,7 +593,7 @@ export default {
                
                 })
               
-            },
+        },
 
 
 
@@ -618,52 +634,27 @@ export default {
             }
         },
 
-        ChangeDenomination(){
-
-          //  this.form.Denomination    = '2019-PC-0001;;' + this.form.DenominationDis    ///default value
-            this.filter = false;
-            this.filterDen = false;
-            this.filterYear = false;
-            this.filterCarBrands = false;
-            this.filterCarModels = false;
-            this.filterCarBodyType = false;
-            this.filterPropertyProvince = false;
-            this.filterPropertyCity = false;
-            this.filterPropertyBrgy = false;
-            if ( parseFloat(this.form.POAMount,2) < 10000){
-                  Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Pls. Select/ Input Car Purchased Amount / Market Value >= 10,000' ,          
-                })
-                this.form.POAMount = 10000;
-            }
-
-             if ( parseFloat(this.form.YearPO,2) < parseFloat(this.form.YearMinValue,2)  ||  parseFloat(this.form.YearPO,2) > parseFloat(this.form.YearCurrentValue,2) ){
-                  Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Pls. Select/ Input Year Model Between ' + this.form.YearMinValue  + " AND " + this.form.YearCurrentValue + " otherwise call our telephone no. 8-243-0261 loc.139 or 213" ,          
-                })
-                this.form.YearPO = this.form.YearMinValue;
-            }
-
-        },
-
-
-        DenominationOnly(e){
-          let DenDomination             =  e.target.value.trim();
-        
-            let   SliptDen  = DenDomination + "-none-not" ;
-                let SliptDenArr = SliptDen.split('-');
+        //UPdated by: Joleth
+        //Updated date: 05/06/2020 : DenominationOnly() Removed
+        setValueDenomination(e){
+            let DenDomination             =  e.target.value.trim();
+            let SliptDen = DenDomination + "-none-not" ;
+            let SliptDenArr = SliptDen.split('-');
              
             if (  SliptDenArr[1] === "none" && SliptDenArr[2] === "not" ){
-                 this.form.Denomination          = '2019-PC-0001;;' + DenDomination ;
+                this.form.Denomination          = '2019-PC-0001;;' + DenDomination ;
             }else{
                 this.form.Denomination          = '2019-PC-0001;;Car' ;
             }
-            
-          
+
+            var valObj = this.DataDenominations.filter( function(elem){
+                if(elem.SubLinesName == DenDomination) 
+                    return elem;
+            });
+
+            this.vallobj = valObj[0];
+            this.form.Denomination         = valObj[0].Class + ';;' + valObj[0].SubLinesName + ';;' + valObj[0].mvType + ';;' + valObj[0].mvPremType;
+            this.form.DenominationDis      = valObj[0].SubLinesName;
         },
 
         LoadUserData(){
@@ -684,7 +675,7 @@ export default {
                 this.RetrieveTimeInterval2 = setInterval(() => {
                     clearInterval(this.RetrieveTimeInterval);
                      
-            },3000); 	
+            },3000);
         
         },
 
@@ -951,21 +942,21 @@ export default {
                     title: 'Oops...',
                     text: 'Pls. Input the Registered Name',          
                 }) 
-             }else if (this.form.PremiumTypeSave === " ")  {
+            }else if (this.form.PremiumTypeSave === " ")  {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
                     text: 'Pls. Select your Purposed Description',          
                 }) 
             
-              }else{
+            }else{
                 //this.CombineAllPerils();  //Combine all perilsname 
-                    this.GetOnlyCheckPerils();
+                this.GetOnlyCheckPerils();
                 this.removeDuplicates();
                 this.ComputeDepreciativeAmount();
                 
-                    this.loading = true,
-                    Swal.fire({
+                this.loading = true,
+                Swal.fire({
                     title: "Are you sure ?",
                     text: "Add New Quotation Option",
                     icon: "success",
@@ -975,29 +966,29 @@ export default {
                     confirmButtonText: "Yes!"
                 }).then(result => {
                         //  let GetRequestNo =  this.form.RequestNoPass  + ';;'  + this.form.Denomination + ';;'  + this.form.RequestNoOptionNo  ;
-                        if (result.value) {
-                            this.form.post("api/QuotationMotor" )
-                            .then(() => {
-                                Swal.fire(
-                                    " Successfull....",
-                                    "New Quotation Submitted",
-                                    "success"
-                                );
-                                            
-                                this.$router.push("/proposal-lists-customer");
-                            })
-                            .catch(() => {
-                                Swal.fire(
-                                    "Failed",
-                                    "There was something wrong",
-                                    "warning"
-                                );
-                            });
-                        }else{
-                            this.$router.push("/request-form-new");
-                        }
-                    })
-                }
+                    if (result.value) {
+                        this.form.post("api/QuotationMotor" )
+                        .then(() => {
+                            Swal.fire(
+                                " Successfull....",
+                                "New Quotation Submitted",
+                                "success"
+                            );
+                                        
+                            this.$router.push("/proposal-lists-customer");
+                        })
+                        .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was something wrong",
+                                "warning"
+                            );
+                        });
+                    }else{
+                        this.$router.push("/request-form-new");
+                    }
+                })
+            }
         },
 
     
@@ -1069,25 +1060,23 @@ export default {
             this.form.ExpiryDate      = `${monthAdd }/${dayAdd }/${yearAdd }`
             this.form.EffectiveDate  = `${monthCurrent}/${dayCurrent}/${year}`
         },
-        setValue(value) {
-            this.form.POAMount = value
-            this.filter = false
+
+        //updated by: Joleth
+        //updated date: 06/05/2020
+        setValue(e) {
+            this.form.POAMount = e.target.value;
             this.ComputeDepreciativeAmount();
         },
 
-        setValueDenomination(value) {
-                this.form.DenominationDis      = value.SubLinesName;
-                this.form.Denomination         = value.Class + ';;' + value.SubLinesName + ';;' + value.mvType + ';;' + value.mvPremType
-                this.filterDen = false
-
-        },
-
-        setValueYear(yearDs) {
-            this.form.YearPO = yearDs;
-            this.filterYear = false;
+        //updated by: Joleth
+        //updated date: 06/05/2020
+        setValueYear(e) {
+            this.form.YearPO = e.target.value;
             this.ComputeDepreciativeAmount();
         },
 
+        //updated by: Joleth
+        //updated date: 06/05/2020
         ComputeDepreciativeAmount(){
             let POAmount = this.form.POAMount
             const CurrentYear = new Date().getFullYear(); let NumberYear ;
@@ -1100,62 +1089,177 @@ export default {
          
             let  DepreciativeAmount = 0;
             if( !(POAmount)){ ///if POamount is Empty
-                    POAmount = 100000;  //default amount
+                POAmount = 100000;  //default amount
                 DepreciativeAmount =  parseFloat( POAmount  - (POAmount * ( NumberYear * 0.10 )) );
             
             }else{
-                    DepreciativeAmount =  parseFloat( POAmount  - (POAmount * ( NumberYear * 0.10 )) );
+                DepreciativeAmount =  parseFloat( POAmount  - (POAmount * ( NumberYear * 0.10 )) );
                     
             }
-            //  alert(DepreciativeAmount);
+
             this.form.DepreciativeAmount       =  parseFloat(DepreciativeAmount,2);
             this.form.DepreciativeNumberYear   =  parseFloat(NumberYear,2);
+            
+            if ( parseFloat(this.form.POAMount,2) < 10000){
+                  Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Pls. Select/ Input Car Purchased Amount / Market Value >= 10,000' ,          
+                })
+                this.form.POAMount = 10000;
+            }
 
+             if ( parseFloat(this.form.YearPO,2) < parseFloat(this.form.YearMinValue,2)  ||  parseFloat(this.form.YearPO,2) > parseFloat(this.form.YearCurrentValue,2) ){
+                  Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Pls. Select/ Input Year Model Between ' + this.form.YearMinValue  + " AND " + this.form.YearCurrentValue + " otherwise call our telephone no. 8-243-0261 loc.139 or 213" ,          
+                })
+                this.form.YearPO = this.form.YearMinValue;
+            }
         },  
-
   
-        setValueCarBrands(DataCarBrandss) {
-            this.form.CarBrand = DataCarBrandss.BrandName
-            this.filterCarBrands = false
-
-            let PassBrandName = this.form.CarBrand;
-            axios.get("api/GetCarModels/"  +  PassBrandName) .then(({ data }) => (this.DataCarModelsList = data)  );
+        //updated by: Joleth
+        //updated date: 06/05/2020
+        setValueCarBrands(e) {
+            if(e.target.value === "Others")
+            {
+                this.OtherBrand = true;
+                this.OtherModel = true;
+                this.ddCarModel = "Others";
+                this.txtOtherBrand = '';
+                this.txtOtherModel = '';
+            }
+            else
+            {
+                this.OtherBrand = false;
+                this.OtherModel = false;
+                this.ddCarModel = "0";
+                this.form.CarBrand = e.target.value;
+                let PassBrandName = this.form.CarBrand;
+                axios.get("api/GetCarModels/"  +  PassBrandName) .then(({ data }) => (this.DataCarModelsList = data)  );
+            }
         },
 
-
-        setValueCarModel(DataCarModelss) {
-            this.form.CarModel = DataCarModelss.ModelName
-            this.filterCarModels = false
+        //Added by: Joleth
+        //Added date: 06/05/2020
+        setValueOtherBrand(){
+            this.form.CarBrand = this.txtOtherBrand;
         },
 
-        setValueCarBodyType(DataCarBodyTypes) {
-            this.form.BodyType = DataCarBodyTypes.BodyTypeName
-            this.filterCarBodyType = false
+        setValueOtherModel(){
+            this.form.CarModel = this.txtOtherModel;
         },
 
-        //added by: Joleth
-        //added date: 05/19/2020
-        setValuePropertyProvince(DataProvincess) {
-            this.form.ProvName = DataProvincess.ProvName
-            this.filterPropertyProvince = false
+        setValueOtherBodyType(){
+            this.form.BodyType = this.txtOtherBodyType;
+        },
 
-            let PassBrandName = DataProvincess.ProvCode;
-            axios.get("api/GetCities/"  +  PassBrandName) .then(({ data }) => (this.DataCities = data)  );
+        //updated by: Joleth
+        //updated date: 06/05/2020
+        setValueCarModel(e) {
+            if(e.target.value === "Others")
+            {   
+                this.OtherModel = true;
+                this.txtOtherModel = '';
+            }
+            else
+            {
+                this.OtherModel = false;
+                this.form.CarModel = e.target.value;
+            }
+        },
+
+        //updated by: Joleth
+        //updated date: 06/05/2020
+        setValueCarBodyType(e) {
+             if(e.target.value === "Others")
+            {
+                this.OtherBodyType = true;
+                this.txtOtherBodyType = '';
+            }
+            else
+            {
+                this.OtherBodyType = false;
+                this.form.BodyType = e.target.value;
+            }
+        },
+
+        //Updated by: Joleth
+        //Updated date: 06/05/2020
+        setValuePropertyProvince() {
+            if(this.ddProvince === "Others")
+            {
+                this.OtherProvince = true;
+                this.OtherCity = true;
+                this.OtherBarangay = true;
+                this.ddCity = "Others";
+                this.ddBarangay = "Others";
+                this.txtOtherProvince = '';
+                this.txtOtherCity = '';
+                this.txtOtherBarangay = '';
+            }
+            else
+            {
+                this.OtherProvince = false;
+                this.OtherCity = false;
+                this.OtherBarangay = false;
+                this.ddCity = "0";
+                this.ddBarangay = "0";
+                this.form.ProvName = this.ddProvince.text;
+                let PassProvCode = this.ddProvince.id;
+                axios.get("api/GetCities/"  +  PassProvCode) .then(({ data }) => (this.DataCities = data)  );
+            }
         },
 
         //updated by: Joleth
         //updated date: 05/19/2020
-        setValuePropertyCity(DataCitiess) {
-            this.form.CityName = DataCitiess.CityName
-            this.filterPropertyCity = false
-
-            let PassBrandName = DataCitiess.Code;
-            axios.get("api/GetBarangays/"  +  PassBrandName) .then(({ data }) => (this.DataListBrgy = data)  );
+        setValuePropertyCity() {            
+            if(this.ddCity === "Others")
+            {
+                this.OtherCity = true;
+                this.OtherBarangay = true;
+                this.ddBarangay = "Others";
+                this.txtOtherCity = '';
+                this.txtOtherBarangay = '';
+            }
+            else
+            {
+                this.OtherCity = false;
+                this.OtherBarangay = false;
+                this.ddBarangay = "0";
+                this.form.CityName = this.ddCity.text;
+                let PassCityCode = this.ddCity.id;
+                axios.get("api/GetBarangays/"  +  PassCityCode) .then(({ data }) => (this.DataListBrgy = data)  );
+            }
         },
 
-        setValueBarangay(DataListBrgys) {
-            this.form.Barangay = DataListBrgys.BrgyName
-            this.filterPropertyBrgy = false        
+        setValueBarangay(e) {
+            if(this.ddBarangay === "Others")
+            {
+                this.OtherBarangay = true;
+                this.ddBarangay = "Others";
+                this.txtOtherBarangay = '';
+            }
+            else
+            {
+                this.OtherBarangay = false;
+                this.form.Barangay = e.target.value;
+            }
+        },
+
+        //Added by: Joleth
+        //Added date: 06/05/2020
+        setValueOtherProvince(){
+            this.form.ProvName = this.txtOtherProvince;
+        },
+
+        setValueOtherCity(){
+            this.form.CityName = this.txtOtherCity;
+        },
+
+        setValueOtherBarangay(){
+            this.form.Barangay = this.txtOtherBarangay;
         },
 
         openForm() {
