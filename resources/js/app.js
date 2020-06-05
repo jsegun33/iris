@@ -32,6 +32,8 @@ import * as VueGoogleMaps from 'vue2-google-maps'
 import VueTheMask from 'vue-the-mask'
 Vue.use(VueTheMask)
 
+import MoneySpinner from 'v-money-spinner'
+Vue.use(MoneySpinner)
 
 Vue.use(VueGoogleMaps, {
     load: {

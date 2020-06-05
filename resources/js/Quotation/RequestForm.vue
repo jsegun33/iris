@@ -31,7 +31,7 @@
                                 <big class="label label-guide"><i class="fa fa-info"></i> </big>
                             </a>                                
                             </label>
-                            <input type="text"  class="form-control"    v-model="form.PlateNumber" placeholder="Plate Number" required />                                
+                            <input type="text" class="form-control" v-model="form.PlateNumber" placeholder="Plate Number" style="text-transform: uppercase;" required />
                         </div>
 
                         <!-- Updated By: Joleth -->
@@ -55,12 +55,16 @@
                                 <a data-toggle="tooltip" data-placement="right" title="Pls. Select PURCHASED AMOUNT">
                                     <big class="label label-guide"><i class="fa fa-info"></i> </big>
                                 </a>
-                                <select class='form-control' v-model="form.POAMount" @change="setValue($event)">                                                                    
+                                <select class='form-control' v-model="ddCarAmount" @change="setValue($event)" style="margin-bottom:5px;">                                                                    
                                     <option value='0' disabled>Select Amount</option>
-                                    <option v-for='value in MarketValues' :value="value.CarAmount" :key="value._id">{{ value.CarAmount | Peso}}</option>
+                                    <option value='Others'>Others</option>
+                                    <option v-for='value in MarketValues' :value="value.CarAmount">{{ value.CarAmount | Peso}}</option>
                                 </select>
+                                <!-- <input v-show="OtherCarAmount" class="form-control" v-model="txtOtherCarAmount" @change="setValueOtherCarAmount()"/> -->                                
+                                <v-money-spinner v-show="OtherCarAmount" v-model="form.POAMount" v-bind="config"></v-money-spinner>                                
+                                <label v-show="OtherCarAmount" class="label label-guide" style="font-size:8pt;">Reselect the Year everytime after changing this.</label><br> 
+                                <small class="label label-guide-2">Depreciation Amount : {{ form.DepreciativeAmount | Peso}}</small> 
                             </div>
-                            <small class="label label-guide-2">Depreciation Amount : {{ form.DepreciativeAmount | Peso}}</small> 
                         </div>
                     </div>
 
@@ -71,8 +75,7 @@
                                 <a data-toggle="tooltip" data-placement="right" title="Pls. Select PURCHASED YEAR">
                                     <big class="label label-guide"><i class="fa fa-info"></i> </big>
                                 </a>
-                                <select class='form-control' v-model="form.YearPO" @change="setValueYear($event)">                                                                    
-                                    <option value='0' disabled>Select Year</option>
+                                <select class='form-control' v-model="form.YearPO" @change="setValueYear($event)">
                                     <option v-for='yearDs in yearD' :value="yearDs" :key="yearDs">{{ yearDs }}</option>
                                 </select>
                             </div>
@@ -120,7 +123,7 @@
                                     <option value='Others'>Others</option>
                                     <option v-for='DataCarBodyTypes in DataCarBodyType' :value="DataCarBodyTypes.BodyTypeName" :key="DataCarBodyTypes">{{ DataCarBodyTypes.BodyTypeName }}</option>
                                 </select>
-                                <input v-show="OtherBodyType" class="form-control" style="margin-top:5px;" v-model="txtOtherBodyType" @change="setValueOtherBodyType()" @blur="setValueOtherBarangay()">
+                                <input v-show="OtherBodyType" class="form-control" style="margin-top:5px;" v-model="txtOtherBodyType" @change="setValueOtherBodyType()">
                             </div>
                         </div>
                         
@@ -466,7 +469,7 @@ export default {
     directives: {mask},
      mounted() {
         console.log('Component mounted.')
-         axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
+        axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));	
         this.StartLoading()
         this.LoadUserData();
           
@@ -497,6 +500,9 @@ export default {
             UserDetails:{},
             checked:true,
 
+            txtOtherCarAmount : 0,
+
+            OtherCarAmount : false,
             OtherBrand : false,
             OtherModel : false,
             OtherBodyType : false,
@@ -504,6 +510,7 @@ export default {
             OtherCity : false,
             OtherBarangay : false,
 
+            ddCarAmount : 0,
             ddCarBrand : 0,
             ddCarModel : 0,
             ddBodyType : 0,
@@ -516,7 +523,7 @@ export default {
                 PlateNumber: '',
                 Denomination: '',
                 POAMount: 0,
-                YearPO: 0,
+                YearPO: '2011',
                 CarBrand: '',
                 CarModel: '',
                 BodyType: '',
@@ -554,6 +561,21 @@ export default {
                 YearCurrentValue:'',
                 PremiumTypeSave:'',               
             }),
+
+            config: {
+                spinner: false,
+                min: 100000,
+                max: 5050000,
+                prefix: "₱ ",
+                suffix: "",
+                precision: 2,
+                decimal: '.',
+                thousands: ',',
+                bootstrap: true,
+                amend: true,
+                masked: false,
+                align: "left",
+            }
         }
     },
     
@@ -799,7 +821,9 @@ export default {
                     }  
                 }                
         },
-
+        alert(wew){
+            alert(wew);
+        },
         GetOnlyCheckPerils(){
              for (let i = 0; i < this.DataCoverages.length; i++) {
                 let  IDNO = this.DataCoverages[i].PerilsNo;
@@ -1064,7 +1088,23 @@ export default {
         //updated by: Joleth
         //updated date: 06/05/2020
         setValue(e) {
-            this.form.POAMount = e.target.value;
+            if(e.target.value === "Others")
+            {
+                this.OtherCarAmount = true;
+            }
+            else
+            {
+                this.OtherCarAmount = false;
+                this.txtOtherCarAmount = ''
+                this.form.POAMount = e.target.value;
+                this.ComputeDepreciativeAmount();
+            }
+
+        },
+
+        setValueOtherCarAmount(){            
+            let amount = this.txtOtherCarAmount;
+            this.form.POAMount = amount;
             this.ComputeDepreciativeAmount();
         },
 

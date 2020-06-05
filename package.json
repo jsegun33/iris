@@ -28,6 +28,7 @@
         "moment": "^2.24.0",
         "number-to-words": "^1.2.4",
         "sweetalert2": "^9.4.0",
+        "v-money-spinner": "^0.1.2",
         "vform": "^1.0.1",
         "vue-google-maps": "^0.1.21",
         "vue-material": "^1.0.0-beta-11",
