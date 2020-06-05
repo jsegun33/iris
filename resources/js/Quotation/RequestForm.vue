@@ -61,8 +61,7 @@
                                     <option v-for='value in MarketValues' :value="value.CarAmount">{{ value.CarAmount | Peso}}</option>
                                 </select>
                                 <!-- <input v-show="OtherCarAmount" class="form-control" v-model="txtOtherCarAmount" @change="setValueOtherCarAmount()"/> -->                                
-                                <v-money-spinner v-show="OtherCarAmount" v-model="form.POAMount" v-bind="config"></v-money-spinner>                                
-                                <label v-show="OtherCarAmount" class="label label-guide" style="font-size:8pt;">Reselect the Year everytime after changing this.</label><br> 
+                                <v-money-spinner v-show="OtherCarAmount" v-model="txtOtherCarAmount" v-bind="config" @change.native="setValueOtherCarAmount()"></v-money-spinner>  
                                 <small class="label label-guide-2">Depreciation Amount : {{ form.DepreciativeAmount | Peso}}</small> 
                             </div>
                         </div>
@@ -564,7 +563,7 @@ export default {
 
             config: {
                 spinner: false,
-                min: 100000,
+                min: 10000,
                 max: 5050000,
                 prefix: "₱ ",
                 suffix: "",
@@ -1118,7 +1117,7 @@ export default {
         //updated by: Joleth
         //updated date: 06/05/2020
         ComputeDepreciativeAmount(){
-            let POAmount = this.form.POAMount
+            let amount = this.form.POAMount
             const CurrentYear = new Date().getFullYear(); let NumberYear ;
             if( !(this.form.YearPO )){   ///if YearPO is Empty
                 NumberYear  = 1 ; //default amount for current
@@ -1127,13 +1126,13 @@ export default {
                 
             }  
          
-            let  DepreciativeAmount = 0;
-            if( !(POAmount)){ ///if POamount is Empty
-                POAmount = 100000;  //default amount
-                DepreciativeAmount =  parseFloat( POAmount  - (POAmount * ( NumberYear * 0.10 )) );
+            let DepreciativeAmount = 0;
+            if( !(amount)){ ///if POamount is Empty
+                amount = 100000;  //default amount
+                DepreciativeAmount =  parseFloat( amount  - (amount * ( NumberYear * 0.10 )) );
             
             }else{
-                DepreciativeAmount =  parseFloat( POAmount  - (POAmount * ( NumberYear * 0.10 )) );
+                DepreciativeAmount =  parseFloat( amount  - (amount * ( NumberYear * 0.10 )) );
                     
             }
 
