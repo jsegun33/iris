@@ -37,7 +37,7 @@ class ChargesController extends Controller
             'ChargesAmount'  => $request['ChargesAmount'],
             'ChargesType'    => $request['ChargesType'],
             'ChargesRemarks' => $request['ChargesRemarks'],
-            'Active'         =>  "1",
+            'Active'         => $request['Active'] = 1,
         ]);
     }
 

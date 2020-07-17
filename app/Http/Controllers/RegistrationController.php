@@ -194,8 +194,6 @@ if ( !empty($request['AgentType'] ) ){
             'active'              => 1,
             'status'              => 1,
             'CashOutDiscount'     => 0,
-            'MktgTaskCounter'     => 0,   
-            'MktgTaskCounterDaily'     => 0,
             
             'SubAgent'            => $request['SubAgent'],
             'AgentType'           => $request['AgentType'],
@@ -400,9 +398,6 @@ if ( !empty($request['AgentType'] ) ){
                             'CashOutDiscount'     => $Registration->CashOutDiscount,
                             'SubAgent'            => $Registration->SubAgent,
                             'AgentType'           => $Registration->AgentType,
-                            'MktgTaskCounter'            => $Registration->MktgTaskCounter,
-                            'MktgTaskCounterDaily'           => $Registration->MktgTaskCounterDaily,
-
                             'ListUserRole' 		  => $ListUserRole,	
                             'ListUserRoleAccess'  => $ListUserRoleAccess,
                             'ListUserCommission'  => $ListUserCommission,	 			  
@@ -450,20 +445,14 @@ if ( !empty($request['AgentType'] ) ){
             $department     =   $Registration->department ;
             $departmentID   =   $Registration->departmentID ;
     }else{
-            $department     =   $NewDepartment[0];
-            $departmentID   =   $NewDepartment[1];
+        $department     =   $NewDepartment[0];
+        $departmentID   =   $NewDepartment[1];
     }
 
 
     if (!empty($request['password'])){
         $Registration->password            = bcrypt($request['password']);
     }
-    if (!empty($request['DailyTask']) || $request['DailyTask'] != 0  ){  //0 not allowed
-        $MktgTask  = 1;   
-    }else{
-        $MktgTask  = 0;
-    }
-    
         $Registration->user_fname       =  $request['firstname'];
         $Registration->user_mname       =  $request['middlename'];
         $Registration->user_lname       =  $request['lastname'];
@@ -474,19 +463,7 @@ if ( !empty($request['AgentType'] ) ){
         $Registration->ApprovedLimit    =  round($request['LimitAmount']) ; 
         $Registration->SubAgent         =  $request['SubAgent'];
         $Registration->AgentType        =  $request['AgentType'];
-        $Registration->MktgTaskCounter  =  round($request['TotalTask']) ;
-        $Registration->MktgTaskCounterDaily       =  round($request['DailyTask']) ;
-        $Registration->MktgTask         =  $MktgTask ; //MKTG allow to accept task
         $Registration->save(); 
-
-
-        $Userrole                = Userrole::select('*')->where('AccountNo',$request['AccountNo'])->get();
-        foreach($Userrole as $Userroles)
-        { 
-            $Userroles->Limit         =  round($request['LimitAmount']) ; 
-            $Userroles->save(); 
-        }
-        
       
 }
 
@@ -543,8 +520,6 @@ public function AddNewPrivileges(Request $request)
                       
                   ]);
         }
-
-        
         
     }
 }
@@ -552,15 +527,12 @@ public function AddNewPrivileges(Request $request)
 
 public function AddNewCommission(Request $request)
 { 
-             $TotalLines                = $request['ClassName'];
-             $totalAmountComm           = $request['PassDataClassName'];
-             //$CompToalAmount            = 0;
+            $TotalLines        = $request['ClassName'];
+             $totalAmountComm        = $request['PassDataClassName'];
              for($kL=0 ;$kL < count($totalAmountComm)  ;$kL++)
             { 
 
-                    $ClassName                  = explode(";;",$request['PassDataClassName'][$kL]);
-
-                 
+                     $ClassName                  = explode(";;",$request['PassDataClassName'][$kL]);
                         AgentCom::create([
                         'AccountNo'        =>   $request['AccountNo'] ,
                         'ClassName'        =>  $ClassName[0], //$request['select_authority'][$i][$k],
@@ -570,126 +542,17 @@ public function AddNewCommission(Request $request)
                         'PerilsName'       =>  $request['PassDataPerilsName'][$kL],  
                         'PerilsNo'         =>  $request['PassDataPerilsNo'][$kL], 
 			            'PerilsCode'	   =>  $request['PassDataPerilsCode'][$kL],  
-                        'AmountCom'        =>  round($request['PassDataAmountPerils'][$kL],3),  
+                        'AmountCom'        =>  round($request['PassDataAmountPerils'][$kL]),  
                        				
                         
                     ]);
-                    
 
              }
-           
-             
 
-
-            //  $AmountCom1 =0;
-            //  for($kL1=0 ;$kL1 < count($totalAmountComm)  ;$kL1++)
-            //  { 
- 
-            //         $ClassName                  = explode(";;",$request['PassDataClassName'][$kL1]);
-            //             $AgentComReport = AgentCom::select('*') 
-            //             ->where('status',"1") 
-            //             ->where('AccountNo', $request['AccountNo'])
-            //             ->where('Class',$ClassName[1])   
-            //             ->get();
-            //             foreach($AgentComReport as $AgentComReport1s)
-            //             { 
-            //                 $AmountCom1 += $AgentComReport1s->AmountCom;
-            //             } 
-                       
-            // } 
-            // return response()->json(['success' => $AmountCom1 ], 200);            
-            
 
 }
 
 
-public function RemoveUserCommission(Request $request)
-    { 
-        date_default_timezone_set('Asia/Hong_Kong');
-        $CurrentDate    = date('Y-m-d H:i:s');
-
-        $GetAgentCom =  AgentCom::select('*') ->where('_id',$request['UserCommissionID'])->first();
-        $GetAgentCom->status                        = $request['RemarksCom'] ;
-        $GetAgentCom->RemarksRemove                 = $request['RemarksCom'] ;
-        $GetAgentCom->RemarksRemoveDate             = $CurrentDate ;
-        $GetAgentCom->save(); 
-    }
-
-    public function RestoreUserCommission(Request $request)
-    { 
-        date_default_timezone_set('Asia/Hong_Kong');
-        $CurrentDate    = date('Y-m-d H:i:s');
-
-        $GetAgentCom =  AgentCom::select('*') ->where('_id',$request['UserCommissionID'])->first();
-        $GetAgentCom->status                        = '1';
-        $GetAgentCom->RemarksRemove                 = $request['RemarksCom'] ;
-        $GetAgentCom->RemarksRemoveDate             = $CurrentDate ;
-        $GetAgentCom->save(); 
-    }
-
-
-    public function EditUserCommission(Request $request)
-    { 
-        date_default_timezone_set('Asia/Hong_Kong');
-        $CurrentDate    = date('Y-m-d H:i:s');
-        if (!empty($request['NewAmountCom'] )  || round($request['NewAmountCom']) > 0) {
-            $GetAgentCom =  AgentCom::select('*') ->where('_id',$request['UserCommissionID'])->first();
-            $GetAgentCom->AmountCom                 = round($request['NewAmountCom'],3) ;
-            $GetAgentCom->save(); 
-
-        }
-            
-    }
-
-
-    public function ChangePassword(Request $request)
-    { 
-        date_default_timezone_set('Asia/Hong_Kong');
-        $CurrentDate    = date('Y-m-d H:i:s');
-        if (!empty($request['NewPassword'] ) ) {
-           
-            $Registration    = Registration::select('*')->where('AccountNo',$request['UserID'])->first();
-            $Registration->password             = bcrypt($request['NewPassword']);
-            $Registration->PasswordChangeDate   = $CurrentDate ;
-            $Registration->save(); 
-
-        }
-            
-    }
-
-
-    public function GetAllUserAccessRole(Request $request)
-    { 
-            $UserRoleAccess = UserRoleAccess::select('*') 
-                            ->where('AccountNo',$request['CustAcctNo'])->get();
-            $ListUserRoleAccess= array();
-            foreach($UserRoleAccess as $UserRoleAccesss)
-            { 
-
-                        $ListUserRoleAccess[] = [
-                        'UserRoleAccessID'				  => $UserRoleAccesss->_id,
-                        'role_name_access'				  => $UserRoleAccesss->role_name_access,
-                        'role_number_url'				  => $UserRoleAccesss->role_number_url,
-                        'acctTypeSubName'				  => $UserRoleAccesss->acctTypeSubName,
-                        'acctTypeSubID'				      => $UserRoleAccesss->acctTypeSub,
-                        'status'				          => $UserRoleAccesss->status,
-                        'active'				          => $UserRoleAccesss->active,
-
-                    ] ;
-            }
-            if (!empty($ListUserRoleAccess)){  
-                $CoveragesCustDetails1 = "YES ACCESS";
-                  
-            }else{
-                 $CoveragesCustDetails1 = "NO ACCESS" ; 
-            }
-
-            return response()->json($CoveragesCustDetails1);
-        
-}
-
-
-    
 
 
 }
