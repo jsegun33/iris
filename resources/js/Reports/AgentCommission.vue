@@ -1,7 +1,7 @@
 <template>
-    <div id="MainPage">
+    <div>
         <!-- Content Header (Page header) -->
-        <!-- <section class="content-header">
+        <section class="content-header">
             <h1>
                 Report Commission
                 <small>Table of Commission</small>
@@ -20,21 +20,8 @@
                 </li>
                  
             </ol>
-        </section> -->
-
-        <!-- <section class="content" v-show="isShowingLoading">
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-         </section> -->
-
-
-          <section class="content DisabledSection ContentSection"  v-if="this.logs === 'NO RECORD FOUND'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h4> <big class="label label-warning" >{{ this.logs  }} </big></h4>
-                </div>
         </section>
-        <section class="content DisabledSection ContentSection"  v-if="this.logs !== 'NO RECORD FOUND'">
+        <section class="content">
             <div class="row">
                 <div class="col-md-12">
                     <div class="box box-success">
@@ -45,7 +32,7 @@
                                 </a>
                               
                             </p>
-                          
+                            <h3 class="box-title">Agent Commission</h3><br>
                             <div class="box-tools col-md-10 no-print">
                                 
                              <div class="col-md-3">
@@ -168,10 +155,6 @@
                 </div>
             </div>
         </section>
-
-         
-
-
     </div>
 </template>
 
@@ -179,19 +162,14 @@
 export default {
      mounted: function() {
            axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
-          
-           this.StartLoading();
-            this.loadLogs() ;
+           
     },
     data() {
         return {
             logs: {},
              UserDetails:{},
             search: '',
-            RetrieveTimeInterval:null,
-            RetrieveTimeInterval2:null,
-
-
+            RetrieveTimeInterval:'',
 
              form: new Form({
                  StartDate:'',
@@ -202,46 +180,6 @@ export default {
     },
 
     methods: {
-  async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
-
-
-
         ComWalletPage(){
                     let route = this.$router.resolve({path: 'api/PaymentMode' });
                      window.open(route.href, '_blank');
@@ -255,43 +193,63 @@ export default {
             });
         },
 
-         loadLogs() {
+        loadLogs() {
+            let PassData;
+            if (this.form.StartDate == '' || this.form.EndDate == ''){
+                 let date = new Date();
+            let day = date.getDate();
+            let month = date.getMonth() + 1;
+            let monthMinus = date.getMonth();
+            let year = date.getFullYear();
+           // let EndDate1 = `${year}-${month < 10 ? '0' + month : '' + month}-${day < 10 ? '0' + day : '' + day}`;
+            let EndDate = `${year}-${month < 10 ? '0' + month : '' + month}-${day < 10 ? '0' + day : '' + day}`;
+            let StartDate = `${year}-${monthMinus < 10 ? '0' + monthMinus : '' + monthMinus}-${day < 10 ? '0' + day : '' + day}`;
+              PassData =  this.UserDetails.AccountNo  + ";;" + StartDate  + ";;" +  EndDate; 
+            }else{
+                 PassData =  this.UserDetails.AccountNo  + ";;" + this.form.StartDate + ";;" + this.form.EndDate ;
+             
+            }
            
-             this.RetrieveTimeInterval =  setInterval(() => { 
-                     
-                                let PassData;
-                                if (this.form.StartDate == '' || this.form.EndDate == ''){
-                                    let date = new Date();
-                                let day = date.getDate();
-                                let month = date.getMonth() + 1;
-                                let monthMinus = date.getMonth();
-                                let year = date.getFullYear();
-                            // let EndDate1 = `${year}-${month < 10 ? '0' + month : '' + month}-${day < 10 ? '0' + day : '' + day}`;
-                                let EndDate = `${year}-${month < 10 ? '0' + month : '' + month}-${day < 10 ? '0' + day : '' + day}`;
-                                let StartDate = `${year}-${monthMinus < 10 ? '0' + monthMinus : '' + monthMinus}-${day < 10 ? '0' + day : '' + day}`;
-                                PassData =  this.UserDetails.AccountNo  + ";;" + StartDate  + ";;" +  EndDate; 
-                                }else{
-                                    PassData =  this.UserDetails.AccountNo  + ";;" + this.form.StartDate + ";;" + this.form.EndDate ;
-                                
-                                }
-                            
-                            
-                                axios.get('api/AgentCommissionReport/' + PassData ).then(({data}) => {
-                                    this.logs = data
-                                }).catch(() => {
+          
+            axios.get('api/AgentCommissionReport/' +PassData ).then(({data}) => {
+                this.logs = data
+            }).catch(() => {
 
-                                })
-                            // alert(this.logs.length);
-                                console.log();
-                 },200)
-                this.RetrieveTimeInterval2 = setInterval(() => {
-                            clearInterval(this.RetrieveTimeInterval);  
-                            
-                        },2000) 
-                    }
+            })
+           // alert(this.logs.length);
+            console.log();
+        }
     },
 
-    
-   
+    created() {
+      this.RetrieveTimeInterval =  setInterval(() => {
+            this.loadLogs()
+            console.log(this.loadLogs());
+        }
+        , 1000)
+
+      this.RetrieveTimeInterval2 = setInterval(() => {
+                clearInterval(this.RetrieveTimeInterval);  
+                  
+            },3000) 
+
+        
+    },
+
+    computed: {
+       
+
+        filteredLogs() {
+            if(this.search){
+                return this.logs.data.filter(value => {
+                    return value.TransactionDate.toLowerCase().includes(this.search.toLowerCase());
+                })
+            }else{
+                return this.logs.data;
+            }
+
+            console.log(filterLog);
+        }
+    }
 }
 </script>

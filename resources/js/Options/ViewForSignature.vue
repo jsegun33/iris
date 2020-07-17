@@ -37,17 +37,17 @@
 <template >
 
   <div>
-    <!-- <section class="content-header">
+    <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
-      
+        <!-----{{data}}---->
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Quotation </li>
       </ol>
-    </section> -->
+    </section>
 
     <!-- Main content -->
 	
@@ -249,12 +249,15 @@
 
 <script>
 export default {
+ 
+  props : ['propMessage'],
    mounted: function(){ 
-	
+		console.log(this.surveyData);
+       // let id = this.$route.params.id
+        //console.log('mounted' + id)
          console.log('Component mounted.')  
          	axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
             this.AutoLoadGetData();
-            this.StartLoading();
     },
 
     data() {
@@ -320,43 +323,6 @@ export default {
     },
 
     methods: {
-        async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
          AutoLoadGetData(){ 
 					axios.get("api/wordings").then(({ data }) => (this.Wordings = data));
          
@@ -522,14 +488,14 @@ export default {
                             
                             this.form.TotalAmountDue[URLQueryPerilsCoveragesGroups.OptionNo]                = parseFloat(TotalAmountDue).toFixed(2) ;
             })
- },200)
+ }, 1000)
                   
 
                      //alert(CompCoverageAmount);
 
                     this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                 },2000) 
+                 },5000) 
                  //this.isShowingApproval = false;
                
                            

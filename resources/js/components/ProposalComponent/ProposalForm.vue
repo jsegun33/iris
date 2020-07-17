@@ -1,40 +1,17 @@
 <template>
-<div id="MainPage">
-
-    <div class="col-md-12  DisabledSection ContentSection"      >
-            <div class="box box-success" v-if="this.ProposalFormEdit ==='NO RECORD FOUND'" >
-                <!-- Personal Details -->
-                <div class="box-header with-border">
-                    <h3> <big class="label label-warning">{{ this.ProposalFormEdit  }} </big></h3>
-                
-                </div>
-            </div>
-     </div>
-    <div class="col-md-12  DisabledSection ContentSection"      >
-        <div class="box box-success" v-if="this.ProposalFormEdit !=='NO RECORD FOUND'" >
+<div>
+    <div class="col-md-12" >
+        <div class="box box-success">
             <!-- Personal Details -->
             <div class="box-header with-border">
-                <h3 class="box-title"><strong>Personal Details </strong></h3>
+                <h3 class="box-title"><strong>Personal Details</strong></h3>
             </div>
             <form>
                
 
                 <div class="box-body">
                     <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="plate">Plate Number:</label>
-                                <input
-                                    v-model="form.PlateNumber"
-                                    class="form-control"
-                                    type="text"
-                                    name="PlateNumber"
-                                    id="PlateNumber"
-                                    placeholder="Enter PlateNumber" required
-                                />
-                            </div>
-                        </div>
-                          <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="tin">TIN Number:</label>
                                 <input
@@ -47,7 +24,7 @@
                                 />
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="email">Email Address:</label>
                                 <input
@@ -60,7 +37,7 @@
                                 />
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="contact">Contact Number:</label>
                                 <input
@@ -85,7 +62,7 @@
                                     type="text"
                                     name="first_name"
                                     id="first_name"
-                                    placeholder="Enter First Name" required
+                                    placeholder="Enter First Name"
                                 />
                             </div>
                         </div>
@@ -98,7 +75,7 @@
                                     type="text"
                                     name="middle_name"
                                     id="middle_name"
-                                    placeholder="Enter Middle Name" required
+                                    placeholder="Enter Middle Name"
                                 />
                             </div>
                         </div>
@@ -111,14 +88,14 @@
                                     type="text"
                                     name="last_name"
                                     id="last_name"
-                                    placeholder="Enter Last Name" required
+                                    placeholder="Enter Last Name"
                                 />
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="address">Address:</label>
                                 <input
@@ -131,43 +108,7 @@
                                 />
                             </div>
                         </div>
-
-                         <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="city">Province:</label>
-                                  <input
-                                    v-model="form.Province"
-                                    class="form-control"
-                                    type="text"
-                                    name="address"
-                                    id="address"
-                                    placeholder="Enter Province Address  "
-                                />
-                             
-                                
-                            </div>
-                            
-                        </div>
-
-                          <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="city">City:</label>
-                                  <input
-                                    v-model="form.City"
-                                    class="form-control"
-                                    type="text"
-                                    name="address"
-                                    id="address"
-                                    placeholder="Enter City Address  "
-                                />
-                             
-                                
-                            </div>
-                            
-                        </div>
-
-
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="barangay">Barangay:</label>
                                  <input
@@ -194,7 +135,35 @@
                                 </select> -->
                             </div>
                         </div>
-                      
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="city">City:</label>
+                                  <input
+                                    v-model="form.City"
+                                    class="form-control"
+                                    type="text"
+                                    name="address"
+                                    id="address"
+                                    placeholder="Enter City Address  "
+                                />
+                                <!-- <select
+                                    v-model="form.City"
+                                    class="form-control"
+                                    name="city"
+                                    id="city"
+                                >
+                                    <option value="">Select City</option>
+                                    <option value="Quezon City"
+                                        >Quezon City</option
+                                    >
+                                    <option value="Manila City"
+                                        >Manila City</option
+                                    >
+                                </select> -->
+                                
+                            </div>
+                            
+                        </div>
                        
                     </div>
                      <button type="button" class="btn btn-primary no-print" @click="UpdatePersonalDetails()"  >Update Personal Details </button>
@@ -267,7 +236,7 @@
                             <div class="form-goup">
                                 <label for="surcharge">PO AMNT:</label>
                                 <input
-                                    type="number" oninput="validity.valid||(value='');" 
+                                    type="number"
                                     v-model.number="form.MotorPOAmount" @change="ChangeAmountPO()"
                                     class="form-control"
                                 />
@@ -324,7 +293,7 @@
                                          </a>
                               
 
-                                  <input type="number" oninput="validity.valid||(value='');"  v-model="form.YearPO" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filterYear = true"  class="form-control" placeholder="Enter / Select Year Purchased" required>
+                                  <input type="number" v-model="form.YearPO" @change="ChangeDenomination(),ComputeDepreciativeAmount()"  autocomplete="off" @focus="filterYear = true"  class="form-control" placeholder="Enter / Select Year Purchased" required>
                                 <div v-if="yearD && filterYear" class="custom">
                                     <ul>
                                     <li  v-for="yearDs in yearD" :value="yearDs" :key="yearDs" @click="setValueYear(yearDs)">{{ yearDs }} </li>
@@ -396,12 +365,11 @@
                     </div>
                     
                 </div> <br/>
-                     <button type="button"  v-if="form.QuoteExpiryStatus == 0 || form.QuoteExpiryStatus == 2" class="btn btn-primary no-print" @click="UpdateMotorDetails()" >Update Motor Details </button> 
+                     <button type="button" class="btn btn-primary no-print" @click="UpdateMotorDetails()" >Update Motor Details </button> 
                 </div>     
                 <!------------New Design------------------------>
-            <!-- <div v-if="this.ProposalFormEdit !=='NO RECORD FOUND'" > -->
-              <div class="box box-success "  v-for="ProposalFormEdits  in ProposalFormEdit"   :key="ProposalFormEdits._id"> 
-                 <div class="box-header with-border">
+              <div class="box box-success "   v-for="ProposalFormEdits  in ProposalFormEdit"   :key="ProposalFormEdits._id"> 
+                 <div class="box-header with-border box box-success">
                     <h3 class="box-title">
                         <strong>Quotation #:{{ ProposalFormEdits.RequestNo + "-" + ProposalFormEdits.OptionNo}}</strong>
                     </h3>
@@ -409,7 +377,7 @@
                 <div class="box-body "  >
                     <div class="row" style="margin-left: 10px;margin-right: 10px;">
 					                
-                      <strong> Rate:</strong>    <input   type="number"    v-model="form.PassCoverageRate[ProposalFormEdits.OptionNo]" @change="ChangeRateAmount(ProposalFormEdits)"  />
+                      <strong> Rate:</strong>    <input   type="input" v-model="form.PassCoverageRate[ProposalFormEdits.OptionNo]" @change="ChangeRateAmount(ProposalFormEdits)"  />
 					         
 					
                         <div class="col-xs-12 table-responsive">
@@ -425,7 +393,7 @@
                                         <td> 
                                                     <input  @change="EditAmountUsingTxtBox(CoverageEdit)" 
                                                        
-                                                        type="number" oninput="validity.valid||(value='');"  v-model="CoverageEdit.CoveragesAmount"
+                                                        type="input" v-model="CoverageEdit.CoveragesAmount"
                                                     />
 
                                                      <input   v-model="
@@ -508,13 +476,12 @@
               </div>
                 
             </div>
-            <!-- </div> ---close v-if condition------- -->
                 <!-----------Close NEw Design--------------------------->
                 <!----------------------------Default From Request------------------------------------------------------------------->
-             <!-- ----------------------------<pre>{{ $data }} </pre> --------------------------------------- -->
+            
 					
        
-            
+            <!------------------------------<pre>{{ $data }} </pre> ----------------------------------------->
             
             </form>
             <div
@@ -560,7 +527,7 @@
     </div>
 
     <div>
-        <button class="open-button" @click="openForm()" v-if="this.ProposalFormEdit !=='NO RECORD FOUND'">Preview</button>
+        <button class="open-button" @click="openForm()">Preview</button>
 
         <div class="chat-popup" id="myForm">
             <div class="box-body form-container">
@@ -575,7 +542,7 @@
 
                 <div class="row text-center">
                     <div class="col-md-12">
-                        <h3>Request for Proposal  </h3>
+                        <h3>Request for Proposal</h3>
                     </div>
                 </div>
                 
@@ -626,42 +593,17 @@
                                 </div>
                             </div>
                             
-                          
+                           
 
 
 
                         </div>
                     </div>
-                    
                 </section>
                 <button type="button" class="btn cancel" @click="closeForm()">Close </button>
-
-                     
             </div>
         </div>
     </div>
-
-     <!-- Modal LoadingModal -->
-        <div class="modal fade" id="LoadingModal" data-backdrop="static" data-keyboard="false" href="#">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button> -->
-                        <div class="overlay" style="color:#00a65a">
-                             <h1>  <i class="fa fa-refresh fa-spin" > </i> Loading...</h1> 
-                            
-                        </div>
-                         <small>Status :  {{this.ConnectionStatus}}</small>
-                    
-                    </div>
-
-                </div>
-            </div>
-        </div>
-        <!-- Modal -->
-
 </div>
 </template>
 
@@ -669,17 +611,13 @@
 export default {
     mounted: function() {
         console.log("Component mounted.");
-          axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
-          axios.get("/api/GetDefaultRate"  ).then(({ data }) => (this.DefaultRate = data));	
         this.LoadResultData();
         this.AutoLoad();
-         this.StartLoading();
     },  
 
     data() {
         return {
             isShowing:false,
-            UserDetails: {},
             CheckBoxComp: {},
             ProposalFormEdit:{},
             ListChargesOption:{},
@@ -696,14 +634,12 @@ export default {
             UserDetails:{},
             GetPerils:{},
 
-            ConnectionStatus:'',
-
 
             filterDen: false,
             filterYear: false,
             DataDenominations: {},
 
-        
+            ///OLD--------
             
             
             URLQueryPerilsCoverages: {},
@@ -752,10 +688,6 @@ export default {
                 CoveragesRateSave: [],
                 SelectCoverageAmounts: [],
                 ProductLine: "",
-                PlateNumber: "",
-                Province: "",
-
-              
                 
 
 
@@ -874,42 +806,6 @@ export default {
     
 
     methods: {
-         async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
 
             async LoadDenomination() {
              await axios.get("api/GetDenomination").then(({ data }) => (this.DataDenominations = data));
@@ -1092,18 +988,6 @@ export default {
           }
    },         
 async ChangeRateAmount(ProposalFormEdits){
-     
-     if (!this.form.PassCoverageRate[ProposalFormEdits.OptionNo] || parseFloat(this.form.PassCoverageRate[ProposalFormEdits.OptionNo],2) <= parseFloat(this.DefaultRate,2)) {
-         // if (parseFloat(this.form.PassCoverageRate[ProposalFormEdits.OptionNo],2) <= parseFloat(this.DefaultRate,2)) {     
-               Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Value MUST be Greather than to  DEFAULT VALUE: ' + this.DefaultRate ,          
-                })
-                this.form.PassCoverageRate[ProposalFormEdits.OptionNo] =  parseFloat(this.DefaultRate);
-                this.$forceUpdate();
-              // alert(parseFloat(this.form.PassCoverageRate[ProposalFormEdits.OptionNo],2) );
-            }else{
                     this.isShowing = true; 
                      let RatePercentage             = this.form.PassCoverageRate[ProposalFormEdits.OptionNo];
                      let ArrayIndex                 =  parseFloat(ProposalFormEdits.OptionNo) - 1;
@@ -1136,8 +1020,8 @@ async ChangeRateAmount(ProposalFormEdits){
                             }
 
                     this.ComputeTotals(this.ListCoveragesOption[i]);	
-               }
-            }
+
+                  }
                   //Compute Charges---------------------
                   let CompTotalCharges = 0;
                   
@@ -1242,11 +1126,9 @@ LoadResultData(){
 							this.form.PassCoveragePremium[CoverageEdit._id]			=  CoverageEdit.CoveragesPremium ;							
 							this.form.PassCoverageAmount[CoverageEdit._id]  		=  parseFloat(CoverageEdit.CoveragesAmount);
 			}else if (CoverageEdit.PerilsNo.trim() === "2019-PA-0007" ){
-                //alert(passQuery2);
                     const response = await axios.get('api/GetPerilsDefaultData/'+passQuery2.trim()).then(  ({ data }) => (this.GetPerilsDefaultData = data)  );
-                   
+                    console.log(response);
                              let PAFormula  = this.GetPerilsDefaultData[0].Amount;
-                              console.log(response);
                             if (this.form.OptSurcharge.trim() === "Commercial Use"){
                                     CoverageEdit.CoveragesPremium                       = parseFloat(CoverageEdit.CoveragesAmount * PAFormula * UsageAmount);      
                                     this.form.PassCoveragePremium[CoverageEdit._id]		=  CoverageEdit.CoveragesPremium ;
@@ -1258,6 +1140,10 @@ LoadResultData(){
                                     this.form.PassCoverageAmount[CoverageEdit._id]  	=  parseFloat(CoverageEdit.CoveragesAmount);
 
                             }
+
+                       
+					
+					   
 							
 			}else if (CoverageEdit.PerilsNo.trim() === "2019-OD-0003" ){
                     const response = await axios.get('api/GetPerilsDefaultData/'+passQuery2.trim()).then(  ({ data }) => (this.GetPerilsDefaultData = data)  );
@@ -1765,7 +1651,6 @@ LoadDataForUpdata(){
   },
         ////OLD Codes
         AutoLoad() {
-            
             axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
 
             let uri = window.location.href.split("?");
@@ -1782,7 +1667,6 @@ LoadDataForUpdata(){
      
         load() {
             this.RetrieveTimeInterval = setInterval(() => {
-
                 this.form.CustAcctNo        =  this.UserDetails.AccountNo;
                 this.form.CustAcctCName     =  this.UserDetails.CName;
                 //this.ResultQueryRequest.data.map(ResultRequestDetailss => {
@@ -1814,10 +1698,10 @@ LoadDataForUpdata(){
                 //this.form.Deductible = ResultRequestDetailss.Deductable;
                 this.form.QuoteExpiryStatus     = this.ResultQueryRequest.QuoteExpiryStatus;
                 this.form.DepreciativeAmount    = this.ResultQueryRequest.DepreciativeAmount;
-                this.form.Province              = this.ResultQueryRequest.Province;
-                this.$forceUpdate();
 
-              
+                this.$forceUpdate();
+           // });
+			
 						 this.ProposalFormEdit.map( URLQueryPerilsCoveragesGroups => {
 							this.form.PassCoverageRate[URLQueryPerilsCoveragesGroups.OptionNo] =URLQueryPerilsCoveragesGroups.CoverageRates;
 						 
@@ -1846,12 +1730,11 @@ LoadDataForUpdata(){
 			
 
            
-        }, 500);
+        }, 1000);
 
         this.RetrieveTimeInterval2 = setInterval(() => {
             clearInterval(this.RetrieveTimeInterval);
-           
-        },3000);
+        }, 5000);
         },
 
         openForm() {
@@ -2073,10 +1956,6 @@ li:hover {
 #quoteslogo {
     width: 125px;
 }
- .DisabledSection {
-     pointer-events: none;
-        opacity: 0.4;
-    }
 </style>
 
 

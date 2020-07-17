@@ -46,35 +46,24 @@
 
 <template >
 
-  <div id="MainPage">
-    <!-- <section class="content-header">
+  <div>
+    <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
-    
+        <!-----{{data}}---->
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Quotation </li>
       </ol>
-    </section> -->
+    </section>
 
     <!-- Main content -->
- <!-- <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
- </section> -->
-
-  <section class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }}</big></h1>
-                </div>
- </section>
-
-
-   <section  class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'">         
-         <div class="row" >
+	
+<section class="content"  >
+      <div class="row"  >
+    
         <div class="col-md-6" v-for="URLQueryPerilsCoveragesGroups in URLQueryPerilsCoveragesGroup" :key="URLQueryPerilsCoveragesGroups._id" >
               <div class="box box-solid">
                 <div class="box-header with-border box box-success" id="quotehead" >
@@ -97,13 +86,7 @@
                   <div class="row">
                             <div class="table-responsive">
                                     <table style="width:100%" >
-                                            <tr><th style="text-align:left">TO</th> <th>:</th> 
-                                                    <th>
-                                                      <big v-if="form.Individual !=='Others'">   {{ form.AcctName}} </big>
-                                                      <big v-else>   {{ form.RegisteredName}} </big>
-                                                   </th>
-                                                    
-                                            </tr>
+                                            <tr><th style="text-align:left">TO</th> <th>:</th> <th>{{ form.AcctName}}</th></tr>
                                              <tr><th style="text-align:left"><br/></th></tr>
                                             <tr><th style="text-align:left">FROM</th> <th>:</th> <th>{{ form.AssignCRD}} <br/> 
                                                     <small>
@@ -149,8 +132,7 @@
                                     <tbody>
                                                 <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id">
                                                 
-                                                    <td  v-if = "coverage.PerilsCode  ==='OD'">{{  coverage.PerilsName + " / Theft"}} </td>
-                                                    <td  v-if = "coverage.PerilsCode  !=='OD'">{{  coverage.PerilsName }} </td>
+                                                    <td>{{  coverage.PerilsName }} </td>
                                                     <td>{{  coverage.CoveragesAmount | Peso }}</td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  ==='AOG' && form.NoAOG  ==='YES'"> NONE </td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' && form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
@@ -211,9 +193,8 @@
                        
                               <input type="hidden"  v-model="form.AcceptQuotationPassData"  >
                               
-                             <div class="row text-center"  v-show="isShowingPass"  v-if="parseFloat(form.TxtCoverageAmount[URLQueryPerilsCoveragesGroups.OptionNo]) < parseFloat(UserDetails.ApprovedLimit)"  > 
-
-                                <button class="btn btn-lg btn-success no-print" v-if="form.CoveragesStatus[URLQueryPerilsCoveragesGroups.OptionNo] == 1"   @click='MktgApprovedQuotation()' @mouseover="QueryByOPtion1($event)"  :value="URLQueryPerilsCoveragesGroups.OptionNo + ';;' + URLQueryPerilsCoveragesGroups.RequestNo + ';;'  + UserDetails.AccountNo + ';;' + UserDetails.CName" > Approve </button>
+                              <div class="row text-center"   v-show="isShowingPass"  v-if="parseFloat(form.TxtCoverageAmount[URLQueryPerilsCoveragesGroups.OptionNo]) < parseFloat(UserDetails.ApprovedLimit)  "  >
+                                <button v-if="form.CoveragesStatus[URLQueryPerilsCoveragesGroups.OptionNo] == 1" class="btn btn-lg btn-success no-print" @click='MktgApprovedQuotation()' @mouseover="QueryByOPtion1($event)"  :value="URLQueryPerilsCoveragesGroups.OptionNo + ';;' + URLQueryPerilsCoveragesGroups.RequestNo + ';;'  + UserDetails.AccountNo + ';;' + UserDetails.CName" > Approve </button>
                             </div>
 
                              <div class="form-inline" v-if="form.CoveragesStatus[URLQueryPerilsCoveragesGroups.OptionNo] == 3" >
@@ -258,13 +239,11 @@
                 </div>
             </div>
         </div>
-</div>
+    </div>
 		
-<!-- -----------<pre>{{ $data }}</pre>--------- -->
+<!-------------<pre>{{ $data }}</pre>----------->
       
     </section>
-
-    
   </div>
 </template>
 
@@ -274,7 +253,7 @@
 <script>
 export default {
  
-  //props : ['propMessage'],
+  props : ['propMessage'],
    mounted: function(){ 
 		console.log(this.surveyData);
        // let id = this.$route.params.id
@@ -283,7 +262,6 @@ export default {
          	axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
             this.AutoLoadGetData();
             this.loadData();
-            this.StartLoading();
 
             
     },
@@ -301,11 +279,6 @@ export default {
              isShowing:false,
              isShowingApproval:true,
              isShowingPass:true,
-
-
-
-
-
             form: new Form({
                 TINNumber:'',
                 EmailAddress:'',
@@ -358,42 +331,6 @@ export default {
     },
 
     methods: {
-       async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
          AutoLoadGetData(){ 
          
                     let uri         = window.location.href.split('?');
@@ -407,7 +344,7 @@ export default {
                         //this.URLQueryPerilsCoveragesGroup.map(( URLQueryPerilsCoveragesGroups) => {
                                         let TotalCoverages   =  parseFloat(this.form.TxtCoverageAmount[URLQueryPerilsCoveragesGroups.OptionNo]);
                                         
-                                        axios.get('api/ListApproverQuotation/' + TotalCoverages) .then(({ data }) => (this.ListApproverQuotation = data)  );
+                                        axios.get('api/ListApproverQuotation') .then(({ data }) => (this.ListApproverQuotation = data)  );
                                         this.$forceUpdate();
                                        //alert(TotalCoverages);
                             //})
@@ -474,8 +411,6 @@ export default {
         loadData() {
             axios.get('api/wordings').then(({data}) => this.Wordings = data)
              this.RetrieveTimeInterval = setInterval(() => {
-                   
-
             this.ResultQueryRequest.data.map((ResultRequestDetailss) => { 
                 this.form.TINNumber          =ResultRequestDetailss.TINNumber;
                 this.form.EmailAddress       =ResultRequestDetailss.EmailAddress;
@@ -501,9 +436,7 @@ export default {
                 this.form.Deductible         =ResultRequestDetailss.Deductable;
                 this.form.QuoteExpiryStatus  =ResultRequestDetailss.QuoteExpiryStatus;
                   this.form.AcctName           = ResultRequestDetailss.FirstName + " " + ResultRequestDetailss.MiddleName + " " + ResultRequestDetailss.LastName ;
-                this.form.RegisteredName      = ResultRequestDetailss.RegisteredName;
-               this.form.Individual          = ResultRequestDetailss.Individual;
-
+             
                  this.form.AssignCRD          = ResultRequestDetailss.AssignCRD;
                   this.form.NoAOG              =ResultRequestDetailss.WithAOG;
                 
@@ -554,12 +487,11 @@ export default {
                             
                             this.form.TotalAmountDue[URLQueryPerilsCoveragesGroups.OptionNo]                = parseFloat(TotalAmountDue).toFixed(2) ;
             })
- }, 200)
+ }, 1000)
                  
                     this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                           
-                 },3000) 
+                 },5000) 
                  //this.isShowingApproval = false;
         }
 

@@ -34,7 +34,6 @@ Route::get('/GetUserData', function() {
 		'signature'				=> $auth_user->signature,
 		'CashOutDiscount'		=> $auth_user->CashOutDiscount,
 		'TINno'					=> $auth_user->TINno,
-		'RoleAlias'				=> $auth_user->RoleAlias,
 		'CName' 	        	=>  $auth_user->user_fname . ' ' . $auth_user->user_mname . ' ' .$auth_user->user_lname ,
 	];
     return $auth;
@@ -43,7 +42,6 @@ Route::get('/GetUserData', function() {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-
 Route::get('{path}', 'HomeController@index')->where('path', '([A-z\d\-\/_.]+)?');
 
 
@@ -52,7 +50,6 @@ Route::get('/', [
 	'as'	=>   'home'
 
 ]);
-
 
 
 

@@ -35,8 +35,8 @@
 
 <template >
 
-  <div  id="MainPage">
-    <!-- <section class="content-header">
+  <div>
+    <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
@@ -46,27 +46,12 @@
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Quotation </li>
       </ol>
-         <big class="label label-warning" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'">{{ this.ResultTotalCom  }} </big>
-    </section> -->
-
-    <!-- Main content -->
-
-    <!-- <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-         </section> -->
-
-
-	<section class="content DisabledSection ContentSection"  v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }} </big></h1>
-                </div>
     </section>
 
-<section class="content DisabledSection ContentSection"   v-if="form.CustAcctNO.trim() ===  UserDetails.AccountNo.trim()">
-  
-      <div class="row"  v-if="this.URLQueryPerilsCoveragesGroup !=='NO RECORD FOUND'" >
+    <!-- Main content -->
+	
+<section class="content"  v-if="form.CustAcctNO.trim() ===  UserDetails.AccountNo.trim()">
+      <div class="row"  >
     
         <div class="col-md-6" v-for="URLQueryPerilsCoveragesGroups in URLQueryPerilsCoveragesGroup" :key="URLQueryPerilsCoveragesGroups._id" >
           
@@ -92,13 +77,7 @@
                      <div class="row">
                             <div class="table-responsive">
                                     <table style="width:100%" >
-                                            <tr><th style="text-align:left">TO</th> <th>:</th> 
-                                            <th>
-                                                <big v-if="form.Individual !=='Others'">   {{ form.AcctName}} </big>
-                                                <big v-else>   {{ form.RegisteredName}} </big>
-                                            </th>
-                                            
-                                            </tr>
+                                            <tr><th style="text-align:left">TO</th> <th>:</th> <th>{{ form.AcctName}}</th></tr>
                                              <tr><th style="text-align:left"><br/></th></tr>
                                             <tr><th style="text-align:left">FROM</th> <th>:</th> <th>{{ form.AssignCRD}} <br/> 
                                                     <small>
@@ -142,9 +121,7 @@
                                     <tbody>
                                                 <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id">
                                                 
-                                                   
-                                                    <td  v-if = "coverage.PerilsCode  ==='OD'">{{  coverage.PerilsName + " / Theft"}} </td>
-                                                    <td  v-if = "coverage.PerilsCode  !=='OD'">{{  coverage.PerilsName }} </td>
+                                                    <td>{{  coverage.PerilsName }} </td>
                                                     <td style="text-align:right">{{  coverage.CoveragesAmount | Peso }}</td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  ==='AOG' && form.NoAOG  ==='YES'"> NONE </td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' && form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
@@ -208,10 +185,9 @@
 
 </div>
 		
-<!-- ---------<pre>{{ $data }}</pre>------------- -->
+<!-----------<pre>{{ $data }}</pre>--------------->
       
     </section>
-
   </div>
 </template>
 
@@ -224,8 +200,13 @@ export default {
  // props : ['propMessage'],
    mounted: function(){ 
 	 axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
-        this.LoadData();  
-        this.StartLoading();      
+                    let uri         = window.location.href.split('?');
+                    let PassID      = uri[1].trim() + ";;0";
+                  
+			
+        axios.get("api/URLQueryRequest/" + PassID ) .then(({ data }) => (this.ResultQueryRequest = data)  );
+        axios.get("api/CustomerAcceptedCoverageView/" + PassID ) .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data)  );
+       
     },
 
     data() {
@@ -239,8 +220,6 @@ export default {
             RetrieveTimeInterval:null,
              isShowing:false,
               Wordings: {},
-            
-            ConnectionStatus:'',
             
             form: new Form({
                 TINNumber:'',
@@ -280,7 +259,6 @@ export default {
                 AcceptedOption : '',
                 OptionWithAOG:[],
                 CustAcctNO: '',
-                RequestNo: '',
             
                 
              
@@ -290,60 +268,17 @@ export default {
     },
 
     methods: {
-       async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
 
    
+ 
 
-    LoadData() {
-        
+    }, 
+   
+
+    created() {
          axios.get('api/wordings').then(({data}) => this.Wordings = data)
-         this.RetrieveTimeInterval = setInterval(() => {
-             
-
-               let uri         = window.location.href.split('?');
-               let PassID      = uri[1].trim() + ";;" + this.UserDetails.AccountNo;
-                  
-			
-                axios.get("api/URLQueryRequest/" + PassID ) .then(({ data }) => (this.ResultQueryRequest = data)  );
-               
-
-
+        this.RetrieveTimeInterval = setInterval(() => {
             this.ResultQueryRequest.data.map((ResultRequestDetailss) => { 
-
                 this.form.TINNumber          =ResultRequestDetailss.TINNumber;
                 this.form.EmailAddress       =ResultRequestDetailss.EmailAddress;
                 this.form.MotorBrand         =ResultRequestDetailss.MotorBrand;
@@ -372,14 +307,9 @@ export default {
                 this.form.OptionWithAOG      =ResultRequestDetailss.OptionWithAOG;
                 this.form.AcceptedOption     =ResultRequestDetailss.AcceptedOption;
                 this.form.CustAcctNO         =ResultRequestDetailss.CustAcctNO;
-                this.form.RequestNo         =ResultRequestDetailss.RequestNo;
-                this.form.Individual              = ResultRequestDetailss.Individual;
-                this.form.RegisteredName          = ResultRequestDetailss.RegisteredName;
                 
                 this.$forceUpdate();   
             })
-             this.form.post("api/CustomerAcceptedData" ) .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data)  );
-       
 
             this.URLQueryPerilsCoveragesGroup.map(( URLQueryPerilsCoveragesGroups) => {
                 
@@ -428,15 +358,20 @@ export default {
                             this.form.CoveragesPremiumDisplay[URLQueryPerilsCoveragesGroups.OptionNo]     =   parseFloat(CompCoveragesAmount).toFixed(2)
                             this.form.TotalAmountDue[URLQueryPerilsCoveragesGroups.OptionNo]                = parseFloat(TotalAmountDue).toFixed(2) ;
             })
- },200)
+ }, 1000)
+                  
+
+                     //alert(CompCoverageAmount);
+
                     this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                           
-                 },2000) 
+                 },5000) 
                  //this.isShowingApproval = false;
+               
+                           
+     
     },
-    
- },
+
     computed: {
         date() {
            let date = new Date()

@@ -1,8 +1,8 @@
 
 <template>
-    <div id="MainPage" >
+    <div>
         <!-- Content Header (Page header) -->
-        <!-- <section class="content-header">
+        <section class="content-header">
             <h1>
                 Agent 
                 <small>Commission Convert</small>
@@ -23,9 +23,9 @@
                     Reports
                 </li>
             </ol>
-        </section> -->
+        </section>
             
-        <section class="content DisabledSection ContentSection" >
+        <section class="content" >
             <div class="row" >
                 <div class="col-md-3">
                     <div class="box box-primary">
@@ -182,7 +182,8 @@
                 </div>
             </div>
         </section>
- 
+
+       
     </div>
 </template>
 
@@ -190,7 +191,7 @@
 export default {
     mounted: function(){ 
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-         this.StartLoading();
+         //this.loadLogs();
     },
 
 
@@ -201,8 +202,6 @@ export default {
              logs: {},
              UserValPassword: {},
                isDisabled:true,
-           
-
 
               form: new Form({
                  StartDate:'',
@@ -221,44 +220,6 @@ export default {
         
     },
     methods: {
- async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 5000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
-
          PrintReport(){
             window.print();
 
@@ -421,7 +382,6 @@ export default {
     created() {
         let uri = window.location.href.split("?");
          this.RetrieveTimeInterval =  setInterval(() => {
-         
         let PassID =  this.UserDetails.AccountNo ;
         
         axios
@@ -437,7 +397,6 @@ export default {
 
       this.RetrieveTimeInterval2 = setInterval(() => {
                 clearInterval(this.RetrieveTimeInterval);  
-           
                   
             },3000) 
     },

@@ -37,7 +37,7 @@
 <template >
 
   <div>
-    <!-- <section class="content-header">
+    <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
@@ -47,11 +47,11 @@
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Quotation </li>
       </ol>
-    </section> -->
+    </section>
 
     <!-- Main content -->
 	
-<section class="content ContentSection">
+<section class="content">
       <div class="row">
     
         <div class="col-md-6" v-for="URLQueryPerilsCoveragesGroups in URLQueryPerilsCoveragesGroup" :key="URLQueryPerilsCoveragesGroups._id" >
@@ -95,9 +95,7 @@
                                     <tbody>
                                         <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id">
                                          
-                      
-                                            <td  style="text-align:left" v-if = "coverage.PerilsCode  ==='OD'">{{  coverage.PerilsName + " / Theft"}} </td>
-                                            <td  style="text-align:left" v-if = "coverage.PerilsCode  !=='OD'">{{  coverage.PerilsName }} </td>
+                                            <td style="text-align:left"  >{{  coverage.PerilsName }} </td>
                                             <td id="coverage">{{  coverage.CoveragesAmount | peso}}</td>
                                             <td id="premium">{{  coverage.CoveragesPremium | peso}}</td>
                                      
@@ -214,29 +212,6 @@
 <!-----------------<pre>{{ $data }}</pre>---------->
       
     </section>
-
-      <!-- Modal -->
-        <div class="modal fade" id="LoadingModal" data-backdrop="static" data-keyboard="false" href="#">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button> -->
-                        <div class="overlay" style="color:#00a65a">
-                             <h1>  <i class="fa fa-refresh fa-spin" > </i> Loading...</h1> 
-                            
-                        </div>
-                         <small>Status :  {{this.ConnectionStatus}}</small>
-                    
-                    </div>
-
-                </div>
-            </div>
-        </div>
-        <!-- Modal -->
-
-
   </div>
 </template>
 
@@ -255,7 +230,6 @@ export default {
               
 			axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));		
            this.AutoLoadGetData();
-           this.StartLoading();
     },
 
     data() {
@@ -268,10 +242,6 @@ export default {
             URLQueryPerilsCoveragesGroup:'',
             RetrieveTimeInterval:null,
              isShowing:false,
-
-          
-
-
             
             form: new Form({
                 TINNumber:'',
@@ -317,43 +287,6 @@ export default {
     },
 
     methods: {
-        async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 5000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
 
          AutoLoadGetData(){ 
          
@@ -423,7 +356,6 @@ export default {
 
     created() {
         this.RetrieveTimeInterval = setInterval(() => {
-    
             this.ResultQueryRequest.data.map((ResultRequestDetailss) => { 
                 this.form.TINNumber          =ResultRequestDetailss.TINNumber;
                 this.form.EmailAddress       =ResultRequestDetailss.EmailAddress;
@@ -490,15 +422,14 @@ export default {
                             this.form.CoveragesPremiumDisplay[URLQueryPerilsCoveragesGroups.OptionNo]     =parseFloat(CompCoveragesAmount).toFixed(2)
                             this.form.TotalAmountDue[URLQueryPerilsCoveragesGroups.OptionNo]                = parseFloat(TotalAmountDue).toFixed(2) ;
             })
- }, 2000)
+ }, 1000)
                   
 
                      //alert(CompCoverageAmount);
 
                     this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                      
-                 },3000) 
+                 },5000) 
                  //this.isShowingApproval = false;
                
                            

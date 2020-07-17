@@ -1,6 +1,6 @@
 <template>
-    <div id="MainPage">
-        <!-- <section class="content-header">
+    <div>
+        <section class="content-header">
             <h1>
                  Lists Approver Quotation
                 <small>Table of Quoatation</small>
@@ -10,27 +10,13 @@
                 <li><a href="#"><i class="fa fa-file-text"></i> Quotation / Proposal</a></li>
                 <li class="active">Proposal List</li>
             </ol>
-        </section> -->
-
-         <!-- <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-         </section> -->
-
-         <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations === 'NO RECORD FOUND'"  >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" > {{ this.RequestQuotations   }}</big></h1>
-                </div>
-         </section>
+        </section>
 
 
-
-         <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations !== 'NO RECORD FOUND'" >
-              
-            <div class="box box-success" >
+         <section class="content">
+            <div class="box box-success">
                 <div class="box-header">
-                    <h3 class="box-title">List of all Request Proposals / Quotations</h3><br/>
+                    <h3 class="box-title">List of all Request Proposals / Quotations</h3>
 
                     <div class="box-tools">
                         <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
@@ -46,14 +32,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="box-body table-responsive" >
+                <div class="box-body table-responsive">
                     <table class="table table-hover text-center">
-                        <tbody >
+                        <tbody>
                             <tr>
                                 <th>Plate Number</th>
                                 <th>Denomination</th>
                                 <th>Name</th>
-                                <th>Request #</th>
+                                <th>Quotation #</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -62,7 +48,7 @@
                                 <td>{{ RequestQuotationss.Denomination }}</td>
                                 <td>{{ RequestQuotationss.FirstName}}  {{ RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
                                 <td>{{ RequestQuotationss.RequestNo + '-' + RequestQuotationss.OptionNo }}</td>
-                                 <td>{{ RequestQuotationss.RequestType }}</td>
+                                
                                 <td>
                                     <span class="label label-warning">{{ RequestQuotationss.Status }} </span>
                              
@@ -86,12 +72,12 @@
             </div>
         </section>
   <!----<pre>{{ $data }}</pre>-------->
-    
-       
+     
       
     </div>
 </template>
 		
+
 
 
 <script>
@@ -104,24 +90,18 @@ export default {
 
 
      mounted() {
-            this.StartLoading();
+            console.log('Component mounted.')
+            //this.getResults();
+            // axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
              axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
             this.loadRequestQuotation() ;
-          
         },
          data() {
             return {
                 RetrieveTimeInterval:null,
                 RetrieveTimeInterval2:null,
-                IntervalLoading:null,
-                IntervalLoading1:null,
-             
-               TimeLoading1:null,
-            TimeLoading:null,
-            TimeLoadingInternet:null,
-            ConnectionStatus:'',
-
-
+              
+                url: '/proposal?2019-0001',
                 editmode: false,
                 RequestQuotations: {},
                UserDetails : {},
@@ -132,54 +112,6 @@ export default {
 
 
         methods: {
-async StartLoading() {
-                //   this.TimeLoading= setInterval(() => {
-                //       this.ConnectionStatus = "Retrieving Data";
-                //        $('#LoadingModal').modal('show');    
-                //        $(".ContentSection").addClass("DisabledSection");
-                       
-                //    }, 200)
-                //     this.TimeLoading1 = setInterval(() => {
-                //             clearInterval(this.TimeLoading); 
-                //               $('#LoadingModal').modal('hide');
-                //               $(".ContentSection").removeClass("DisabledSection");
-                //   },5000) 
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-           
-
             getResults(page = 1) {
                 axios.get('api/GetRequestQuotationApprover?page=' + page).then(response => {
                     this.RequestQuotations = response.data;
@@ -188,23 +120,31 @@ async StartLoading() {
             loadRequestQuotation() {
               this.RetrieveTimeInterval = setInterval(() => {
                         let PassID =this.UserDetails.AccountNo;
+						//alert(PassID);
                         axios.get("api/GetRequestQuotationApprover/" + PassID).then(({ data }) => (this.RequestQuotations = data));
-                                
-                 },200)
+                 }, 1000)
 
                   this.RetrieveTimeInterval2 = setInterval(() => {
-                            clearTimeout(this.RetrieveTimeInterval); 
+                            clearInterval(this.RetrieveTimeInterval);  
                     },2000) 
             },
-           
+            ViewRequest() {
+             window.open("request"); 
+               //window.location.hostname + '/request' 
+               
+            },
          
           },
 
-          computed: {
+
             
-        }
-
-
+          
+        //    created() {
+        //     this.loadRequestQuotation();
+        //     Fire.$on('AfterCreate',() => {
+        //         this.loadRequestQuotation();
+        //     });
+      //  }
+    
 }
 </script>
-

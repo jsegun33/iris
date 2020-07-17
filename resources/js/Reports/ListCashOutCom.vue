@@ -1,7 +1,7 @@
 <template>
-    <div id="MainPage">
+    <div>
         <!-- Content Header (Page header) -->
-        <!-- <section class="content-header">
+        <section class="content-header">
             <h1>
                 Agent 
                 <small>Commission Convert</small>
@@ -22,22 +22,9 @@
                     Reports
                 </li>
             </ol>
-        </section> -->
+        </section>
 
-        <!-- <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-         </section> -->
-
-
-         <section class="content DisabledSection ContentSection"  v-if="this.logs === 'NO RECORD FOUND'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h4> <big class="label label-warning" >{{ this.logs  }} </big></h4>
-                </div>
-      </section>
-
-        <section class="content DisabledSection ContentSection" v-if="this.logs !== 'NO RECORD FOUND'" >
+        <section class="content"  >
             <div class="row" >
                 <div class="col-md-3">
                     <div class="box box-primary">
@@ -189,19 +176,13 @@
                 </div>
             </div>
         </section>
-
-       
-
     </div>
 </template>
 
 <script>
 export default {
     mounted: function(){ 
-        
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-         
-          this.StartLoading() ;
           this.loadCommission();
     },
 
@@ -216,13 +197,6 @@ export default {
                isDisabled:true,
                RetrieveTimeInterval:null,
                RetrieveTimeInterval1:null,
-
-                 TimeLoading1:null,
-            TimeLoading:null,
-            TimeLoadingInternet:null,
-            ConnectionStatus:'',
-
-
 
               form: new Form({
                  StartDate:'',
@@ -243,45 +217,6 @@ export default {
         
     },
     methods: {
-            async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer:3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
-
-
          PrintReport(){
             window.print();
         },
@@ -374,7 +309,6 @@ export default {
         },
          loadCommission() {
                this.RetrieveTimeInterval =  setInterval(() => {
-                 
                         let PassData;
                         if (this.form.StartDate == '' || this.form.EndDate == ''){
                         let date = new Date();
@@ -394,11 +328,11 @@ export default {
                             this.logs = data
                                 //  this.form.RequestNo = this.logs.RequestNo;
                         }).catch(() => {
-                            // Swal.fire(
-                            //         " No Record !",
-                            //         " FOUND ",
-                            //         "warning"
-                            //     );
+                            Swal.fire(
+                                    " No Record !",
+                                    " FOUND ",
+                                    "warning"
+                                );
 
                         })
 
@@ -412,10 +346,9 @@ export default {
                     // alert(this.logs.length);
                         console.log();
                    
-         } ,200)
+         } , 1000)
            this.RetrieveTimeInterval2 = setInterval(() => {
                 clearInterval(this.RetrieveTimeInterval);  
-             
                   
             },3000) 
 

@@ -12,7 +12,7 @@
 <template >
 
   <div>
-    <!-- <section class="content-header">
+    <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
@@ -22,7 +22,7 @@
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Quotation </li>
       </ol>
-    </section> -->
+    </section>
 
     <!-- Main content -->
 	

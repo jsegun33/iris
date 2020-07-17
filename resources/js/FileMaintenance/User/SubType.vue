@@ -95,14 +95,13 @@
                             <div class="form-group">
                                 <label for="type_name">Type/ Menu:</label>
                                 <select class="form-control" v-model="form.MainMenuType" required >
+                                    <option selected disabled  > Pls.Select</option>
                                     <option    v-for="MainTypes in MainType.data" :key="MainTypes._id"  v-bind:value="MainTypes._id + ';;' + MainTypes.type_name "  >{{ MainTypes.type_name }}</option>
                                 </select>
-                                <small>Selected :{{ form.DisMenu }} </small>
                             </div>
                             <div class="form-group">
                                 <label for="type_name">Sub Type URL:</label>
                                 <input v-model="form.SubLink_URL" type="text" name="SubLink_TypeURL" class="form-control" placeholder="URL ">
-                                
                             </div>
 
                             <div class="form-group">
@@ -167,7 +166,6 @@ export default {
                 active: '',
                 icon_display: '',
                 UserMenu:'',
-                DisMenu:'',
             }),
         }
     },
@@ -185,7 +183,7 @@ export default {
             this.form.reset();
             $('#addNew').modal('show')
             this.form.fill(type);
-               this.form.DisMenu = type.type_name;
+                //this.form.fill(type);
         },
 
         newModal() {
