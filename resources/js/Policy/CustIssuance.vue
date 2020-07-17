@@ -39,7 +39,7 @@
                         <h2 class="page-header">
                             <!-- <i class="fa fa-globe"></i> Issuance
                             <small class="pull-right">Date: {{ date }}</small> -->
-                            <img src="/img/rsilogo.png" alt="Logo" style="height: 50px;">
+                            <img :src="RSILogo" alt="Logo" style="height: 50px;" id="logoRSI">
                             <small class="pull-right  no-print">Date: {{ date }}</small>
                         </h2>
                     </div>
@@ -85,7 +85,7 @@
                     <div class="col-md-12">
                         <table class="table" style="width:80%;font-size: 12px;">
                             <tr>
-                            <td style="text-align:left;width:100px">Amount of Insurance : </td> <td colspan="2" style="text-align:left"> {{ form.InsuranceAmount | toWords  }} PESOS ONLY
+                            <td style="text-align:left;width:100px">Amount of Insurance : </td> <td id="wordAmount" colspan="2" style="text-align:left"> {{ form.InsuranceAmount | toWords  }} PESOS ONLY
                                     <br/> {{ form.InsuranceAmount |peso   }}
                             </td>
                             </tr>
@@ -186,7 +186,7 @@
 							
 						 <table class="table" style="width:100%;font-size: 12px;"  v-if="form.MortgageBankName !==null || form.MortgageBankAddrs !==null" >
                                      <tr v-if="!addBanks" >
-                                        <th style="width:100px" >  {{ form.MortgageBankName +
+                                        <th style="width:100px" id="mortgagee">  {{ form.MortgageBankName +
                                         " - " +
                                         form.MortgageBankAddrs }}</th>
                                     </tr>
@@ -304,7 +304,7 @@
                                                              
                                                       
                                                   
-                                                    <td
+                                                    <td id="coverageAmount"
                                                         style="width:150px;text-align:right;" 
                                                     >
                                                         {{
@@ -315,7 +315,7 @@
                                                     </td>
 
                                                     
-                                                    <td
+                                                    <td id="PremiumAmount"
                                                         style="text-align:right;width:150px;"
                                                     >
                                                         {{
@@ -383,7 +383,7 @@
                                         <!-----------Charges----------------------->
                                      <tr  v-for="charges in ListCharges"   :key="charges._id">
                                       
-                                        <td colspan="3" style="text-align:right;">{{ charges.ChargesName }}</td>
+                                        <td id="listCharges" colspan="3" style="text-align:right;">{{ charges.ChargesName }}</td>
                                         <td class="pull-right"  >
                                             {{  charges.ChargesPremium | peso }}
                                         </td>
@@ -480,7 +480,7 @@
                             <tr v-if="ClausesWarrantiess.ClausesNo !='2020-0012'">
                                 <td  >
                                       <p style="text-transform: uppercase;text-align:center">  {{ ClausesWarrantiess.ClausesName }}  </p> 
-                                      <p style="text-align:justify"> {{  ClausesWarrantiess.ClausesStatement }} </p> 
+                                      <p style="text-align:justify" id="clausesStatement"> {{  ClausesWarrantiess.ClausesStatement }} </p> 
                                 </td>
                             </tr><tr  v-if="ClausesWarrantiess.ClausesNo === '2020-0012' && form.FormTitleforPA === 'PA'">
                                        
@@ -568,7 +568,7 @@
                  <div class="row no-print" >
                     <div class="col-xs-12">
                       
-                     <button  @click="PrintPolicy()"
+                        <button  @click="PrintPolicy()"
                             type="button"
                             class="btn btn-info pull-right"  
                             >
@@ -576,6 +576,9 @@
                             Print Policy
                         </button>
 
+                        <button @click="downloadPDF()" type="button" class="btn btn-default pull-right" style="margin-right: 5px;">
+                            <i class="fa fa-download"></i> Generate PDF
+                        </button>
                        
                       
 						
@@ -592,7 +595,8 @@
 
 
 <script>
-
+import jsPDF from 'jspdf'
+import moment from 'moment'
 export default {
     mounted: function() {
            axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));
@@ -632,6 +636,7 @@ export default {
             TimeLoadingInternet:null,
             ConnectionStatus:'',
               PAClausesDisplay:{},
+              RSILogo: 'http://127.0.0.1:8000/img/rsilogo.png',
 
 
 
@@ -755,6 +760,162 @@ export default {
     },
 
     methods: {
+
+        downloadPDF() {
+            // let image = this.RSILogo;
+            // console.log(file);
+            var d = new Date();
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            var month = monthNames[d.getMonth()];
+            var day = d.getDate();
+            var year = d.getFullYear();
+            var Amount = document.getElementById("wordAmount").innerText;
+            var TermFrom = moment(this.form.MotorEffectiveDate).format('LL');
+            var TermTo = moment(this.form.MotorExpiryDate).format('LL');
+            var AmountCoverage = document.getElementById("coverageAmount").innerText;
+            var AmountPremium = document.getElementById("PremiumAmount").innerText;
+            var Mortgagee = document.getElementById("mortgagee").innerText;
+            var ClausesStatement = document.getElementById("clausesStatement").innerText;
+            var ListCharges = this.ListCharges;
+            var ClausesWarranties = this.ClausesWarranties;
+            var Accessories = this.Accessories;
+
+            var pdf = new jsPDF({
+                format: 'letter'
+            });
+
+            // pdf.addImage(image, 'PNG', 20, 30, 250, 250,);
+            pdf.setFontSize(10);
+            // Left Side
+            pdf.text(`Policy No. : ${this.form.QuotationNoDisplay}`, 10, 30);
+            pdf.text(`Assured : ${this.form.RegisteredName}`, 10, 35);
+            pdf.text(`Address : ${this.form.Address }`, 10, 40);
+            pdf.text(`${this.form.Barangay}`, 25, 45);
+            pdf.text(`${this.form.City}`, 25, 50);
+            pdf.text(`Amount of ${Amount}`, 10, 65);
+            pdf.setFontStyle("bold");
+            pdf.text(`Scheduled Vehicle :`, 10, 80);
+            pdf.setFontStyle("normal");
+            pdf.text(`${this.form.MotorYear} ${this.form.MotorBrand} ${this.form.MotorModel} ${this.form.MotorType}`, 10, 85);
+            pdf.text(`Plate No. : ${this.form.PlateNumber}`, 10, 95);
+            pdf.text(`Serial No. : ${this.form.ChassisNo}`, 10, 100);
+            pdf.text(`Motor No. : ${this.form.EngineNo}`, 10, 105);
+            pdf.text(`Color : ${this.form.BodyColor}`, 10, 110);
+            pdf.setFontStyle("bold");
+            pdf.text(`Accessories Covered :`, 10, 130);
+            pdf.setFontStyle("normal");
+            let YAXISS = 135
+            for (let index = 0; index < Accessories.length; index++) {
+                pdf.text(`${this.Accessories[index].Name}`, 10, 135);
+                YAXISS+=5;
+            }
+            pdf.setFontStyle("bold");
+            pdf.text(`Mortgagee :`, 10, 145);
+            pdf.setFontStyle("normal");
+            pdf.text(`${Mortgagee}`, 10, 150);
+            pdf.setFontStyle("bold");
+            pdf.text(`Clauses & Warranties :`, 10, 160);
+            pdf.setFontStyle("normal");
+            let YAXIS = 165;
+            for (let index = 0; index < ClausesWarranties.length; index++) {
+                pdf.text(`${this.ClausesWarranties[index].ClausesName}`, 10, YAXIS);
+                YAXIS+=5
+            }
+
+            // Center
+            pdf.setFontStyle("bold");
+            pdf.text(`PERILS`, 120, 80, "center");
+            pdf.setFontStyle("normal");
+            pdf.text(`${this.GetNewGroup[0].Section}`, 100, 85, "center");
+            pdf.text(`${this.GetNewGroup[0].ListCoverages[0].PerilsName}`, 120, 85, "center");
+
+            // Right Side
+            pdf.text(`Issued date : ${month} ${day},${year}`, 200, 30, "right");
+            pdf.text(`Term From : ${TermFrom}`, 200, 35, "right");
+            pdf.text(`Term To : ${TermTo}`, 200, 40, "right");
+            pdf.text(`COC No. : ${this.form.CocNoRequest}`, 200, 45, "right");
+            if (this.form.AuthCodeRequest == undefined) {
+                pdf.text(`Authentication Code : `, 200, 50, "right");
+            } else {
+                pdf.text(`Authentication Code : ${this.form.AuthCodeRequest}`, 200, 50, "right");
+            }
+            pdf.setFontStyle("bold");
+            pdf.text(`AMOUNT`, 170, 75, "right");
+            pdf.setFontStyle("normal");
+            pdf.text(`${AmountCoverage}`, 170, 85, "right"); // Not Yet Done
+            let yA = 115;
+            for (let i = 0; i < ListCharges.length; i++) {
+                yA+=5
+                let chargesName = this.ListCharges[i].ChargesName;
+                pdf.text(`${chargesName}`, 170, yA, "right");
+            }
+            pdf.setFontStyle("bold");
+            pdf.text(`Total Amount Due`, 170, 155, "right");
+            pdf.setFontStyle("normal");
+            pdf.text(`Deductible :`, 170, 170, "right");
+            pdf.text(`Towing Limit :`, 170, 175, "right");
+            pdf.text(`Auth Repair Limit :`, 170, 180, "right");
+
+            pdf.setFontStyle("bold");
+            pdf.text(`PREMIUM`, 200, 75, "right");
+            pdf.setFontSize(8);
+            pdf.text(`(INVOICE VALUE)`, 205, 80, "right");
+            pdf.setFontStyle("normal");
+            pdf.setFontSize(10);
+            pdf.text(`${AmountPremium}`, 200, 85, "right"); // Not Yet Done
+            let yAx = 115;
+            for (let i = 0; i < ListCharges.length; i++) {
+                yAx+=5;
+                let chargesPremium = Number(this.ListCharges[i].ChargesPremium).toLocaleString("ko-KR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                pdf.text(`${chargesPremium}`, 200, yAx, "right");
+                console.log(yAx);
+            }
+            pdf.text(`${Number(this.form.AmountDue).toLocaleString("ko-KR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}`, 200, 155, "right");
+            pdf.text(`${Number(this.form.Deductible).toLocaleString("ko-KR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}`, 200, 170, "right");
+            pdf.text(`${Number(this.form.TowingLimit).toLocaleString("ko-KR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}`, 200, 175, "right");
+            pdf.text(`${Number(this.form.AuthRepairLimit).toLocaleString("ko-KR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}`, 200, 180, "right");
+            pdf.text(`Authorized Signature`, 200, 250, "right");
+
+            pdf.addPage();
+            // Left Side
+            pdf.setFontStyle("bold");
+            pdf.text('Clauses & Warranties :', 10, 30);
+
+            // Center
+            pdf.setFontStyle("bold");
+            pdf.text(`ATTACHED TO AND FORMING PART OF POLICY NUMBER ${this.form.QuotationNoDisplay}`, 110, 20, "center");
+            pdf.setFontStyle("normal");
+            let yAxis1 = 40
+            let yAxis2 = 45
+            for (let index = 0; index < ClausesWarranties.length; index++) {
+                pdf.text(`${this.ClausesWarranties[index].ClausesName}`, 110, yAxis1, "center");
+                pdf.text(`${this.ClausesWarranties[index].ClausesStatement}`, 105, yAxis2, {align: "center", maxWidth:200});
+                yAxis1+=35;
+                yAxis2+=35;
+            }
+            // pdf.text(`${this.ClausesWarranties[1].ClausesName}`, 110, 75, "center");
+            // pdf.text(`${this.ClausesWarranties[1].ClausesStatement}`, 105, 80, {align: "center", maxWidth:200});
+            // pdf.text(`${this.ClausesWarranties[2].ClausesName}`, 110, 110, "center");
+            // pdf.text(`${this.ClausesWarranties[2].ClausesStatement}`, 105, 115, {align: "center", maxWidth:200});
+
+            // Right Side
+            pdf.save('sample.pdf');
+        },
 
     async StartLoading() {
               

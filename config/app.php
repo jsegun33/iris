@@ -183,6 +183,7 @@ return [
         Jenssegers\Mongodb\MongodbServiceProvider::class,
         Artisaninweb\SoapWrapper\ServiceProvider::class, 
        // App\Artisaninweb\SoapWrapper\ServiceProvider,
+        Barryvdh\DomPDF\ServiceProvider::class,
        
     ],
 
@@ -239,6 +240,7 @@ return [
         //'SoapWrapper' => 'Artisaninweb\SoapWrapper\Facade',
         'SoapClient' => SoapClient::class,
         'Curl' => Ixudra\Curl\Facades\Curl::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
 
     ],
 
