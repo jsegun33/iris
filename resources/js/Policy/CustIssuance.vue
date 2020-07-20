@@ -765,6 +765,7 @@ export default {
             var ListCharges = this.ListCharges;
             var ClausesWarranties = this.ClausesWarranties;
             var Accessories = this.Accessories;
+            // console.log(Mortgagee);
 
             var pdf = new jsPDF({
                 format: 'letter'
@@ -792,17 +793,19 @@ export default {
             pdf.setFontStyle("normal");
             let YAXISS = 135
             for (let index = 0; index < Accessories.length; index++) {
-                pdf.text(`${this.Accessories[index].Name}`, 10, 135);
+                pdf.text(`${this.Accessories[index].Name}`, 10, YAXISS);
                 YAXISS+=5;
             }
             pdf.setFontStyle("bold");
-            pdf.text(`Mortgagee :`, 10, 145);
+            pdf.text(`Mortgagee :`, 10, 160);
             pdf.setFontStyle("normal");
-            pdf.text(`${Mortgagee}`, 10, 150);
+            if (Mortgagee != 'undefined - undefined') {
+                pdf.text(`${Mortgagee}`, 10, 165);
+            }
             pdf.setFontStyle("bold");
-            pdf.text(`Clauses & Warranties :`, 10, 160);
+            pdf.text(`Clauses & Warranties :`, 10, 175);
             pdf.setFontStyle("normal");
-            let YAXIS = 165;
+            let YAXIS = 180;
             for (let index = 0; index < ClausesWarranties.length; index++) {
                 pdf.text(`${this.ClausesWarranties[index].ClausesName}`, 10, YAXIS);
                 YAXIS+=5
@@ -888,11 +891,27 @@ export default {
             pdf.setFontStyle("normal");
             let yAxis1 = 40
             let yAxis2 = 45
-            for (let index = 0; index < ClausesWarranties.length; index++) {
+            for (let index = 0; index < 5; index++) {
                 pdf.text(`${this.ClausesWarranties[index].ClausesName}`, 110, yAxis1, "center");
                 pdf.text(`${this.ClausesWarranties[index].ClausesStatement}`, 105, yAxis2, {align: "center", maxWidth:200});
                 yAxis1+=35;
                 yAxis2+=35;
+            }
+
+            pdf.addPage();
+            let yAxis11 = 30
+            let yAxis22 = 35
+            if (ClausesWarranties.length > 5) {
+                for (let index = 5; index < 7; index++) {
+                    pdf.text(`${this.ClausesWarranties[index].ClausesName}`, 110, yAxis11, "center");
+                    pdf.text(`${this.ClausesWarranties[index].ClausesStatement}`, 105, yAxis22, {align: "center", maxWidth:200,});
+                    yAxis11+=60;
+                    yAxis22+=60;
+                }
+                if (this.ClausesWarranties[7].ClausesName) {
+                    pdf.text(`${this.ClausesWarranties[7].ClausesName}`, 110, 210, "center");
+                    pdf.text(`${this.ClausesWarranties[7].ClausesStatement}`, 105, 215, {align: "center", maxWidth:200,});
+                }
             }
             // pdf.text(`${this.ClausesWarranties[1].ClausesName}`, 110, 75, "center");
             // pdf.text(`${this.ClausesWarranties[1].ClausesStatement}`, 105, 80, {align: "center", maxWidth:200});
