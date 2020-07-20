@@ -11,6 +11,6 @@ class ListBarangay extends Eloquent
     protected $collection = 'list_barangay';
 
     protected $fillable = [
-         'BrgyName', 'CityCode','active', 'ProvCode'
+         'BrgyName', 'CityName', 'CityCode','active'
     ];
 }

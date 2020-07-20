@@ -25,11 +25,4 @@ class HomeController extends Controller
     {
         return view('home');
     }
-
-
-    // public function dragonpay_return()
-    // {
-    //     return view('ReturnBackURL');
-       
-    // }
 }

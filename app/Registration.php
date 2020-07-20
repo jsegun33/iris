@@ -25,8 +25,6 @@ class Registration extends Eloquent
         'UnderSubMenu',
         'icon_display',
         'UnderSubMenuName'
-        ,'MktgTaskCounter'
-        ,'MktgTaskCounterDaily'
 
 
     ];

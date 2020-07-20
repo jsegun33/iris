@@ -1,6 +1,6 @@
 <template>
-    <div id="MainPage" >
-        <!-- <section class="content-header">
+    <div>
+        <section class="content-header">
             <h1>
                 Quotations
                 <small>List of Quotations Approved</small>
@@ -11,21 +11,9 @@
                 </li>
                 <li class="active">Quotation</li>
             </ol>
-        </section> -->
-         <!-- <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-         </section> -->
-
-
-         <section class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h4> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }} </big></h4>
-                </div>
         </section>
 
-        <section class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'" >
+        <section class="content">
                              <div v-if="selectedImage" max-width="100%" class="no-print">
                                             <!-- <img :src="selectedImage" alt="" width="100%" @click.stop="selectedImage = null"> -->
                                             <img :src="'OR-CR/' + form.UploadedORCR" alt="" width="100%" @click.stop="selectedImage = null">
@@ -33,13 +21,13 @@
                                         </div>
 
             <div class="invoice">
-                <div class="row ">
+                <div class="row no-print">
                     <div class="col-xs-12">
                         <h2 class="page-header">
                             <!-- <i class="fa fa-globe"></i> Issuance
                             <small class="pull-right">Date: {{ date }}</small> -->
                             <img src="/img/rsilogo.png" alt="Logo" style="height: 50px;">
-                            <small class="pull-right no-print">Date: {{ date }}</small>
+                            <small class="pull-right">Date: {{ date }}</small>
                         </h2>
                     </div>
                 </div>
@@ -49,9 +37,7 @@
                             <tr>
                             <td >Policy No.</td><th>:</th><th style="text-align:left">{{ form.QuotationNoDisplay}}</th>
                             </tr><tr>
-                            <td>Assured </td><th>:</th>
-                             <td style="text-align:left" v-if="form.Individual !=='Others'">  {{ form.CName }}</td>
-                                <td style="text-align:left" v-else> {{ form.RegisteredName}} </td>
+                            <td>Assured </td><th>:</th><th style="text-align:left">{{ form.LastName + ", " }} {{ form.FirstName }}  {{ form.MiddleName + ". " }} </th>
                             </tr><tr>
                             <td>Address </td><th>:</th><td style="text-align:left"> {{ form.Address }} <br/>  {{ form.Barangay }} {{ form.City }}</td>
                             </tr>
@@ -96,7 +82,7 @@
             <!--------Perils Table----------------------------->
 
                 <div class="row invoice-info" >
-                    <div class="col-sm-4 invoice-col" style="width:35%">
+                    <div class="col-sm-4 invoice-col" style="width:25%">
                           <div class="row">
                             <label style="text-decoration: underline"
                                 >Scheduled Vehicle :</label
@@ -151,12 +137,12 @@
 
                                      <tr class="no-print">
                                          <th>OR /CR :</th>
-                                          <td > 
-                                            <img :src="'OR-CR/' + form.UploadedORCR" width="100px" @click="zoom()" v-if="form.UploadedORCR !== 'none'">
-                                             <small v-if="form.UploadedORCR === 'none'">NO CR Uploaded  </small>
+                                        <td > 
+                                            <img :src="'OR-CR/' + form.UploadedORCR" width="100px" @click="zoom()">
                                         
-                                        </td>
-                                       
+
+                                         <!-------   <img v-bind:src="'/OR-CR/' + form.UploadedORCR"  alt="OR-CR" style="height: 50px;" @click="zoom(url)">-------->
+                                         </td>
                                        
                                     </tr>
 
@@ -180,15 +166,15 @@
 						</table>
 						
 						
-						  <label style="text-decoration: underline" v-if="form.MortgageBankName !==null || form.MortgageBankAddrs !==null">
-                                Mortgagee :</label>
-                            
+						 <label style="text-decoration: underline"
+                                >Mortgagee :</label
+                            >
                          
 							
 							
 						 <table class="table" style="width:100%;font-size: 12px;"  >
                                      <tr v-if="!addBanks">
-                                        <th style="width:100px" v-if="form.MortgageBankName !==null || form.MortgageBankAddrs !==null">  {{ form.MortgageBankName +
+                                        <th style="width:100px">  {{ form.MortgageBankName +
                                         " - " +
                                         form.MortgageBankAddrs }}</th>
                                     </tr>
@@ -247,7 +233,7 @@
 
                     </div>  <!-------close-col-sm-4---------------------------->
                     <!-- <div class="col-sm-1 invoice-col no-padding"></div> -->
-                    <div class="col-md-8 invoice-col no-padding pull-left" style="width:65%">
+                    <div class="col-md-8 invoice-col no-padding pull-left" style="width:75%">
                               <div class="col-xs-12 table-responsive" >
                             <table  style="width:100%;font-size: 12px;" >
                                 <tbody>
@@ -286,17 +272,10 @@
                                                     v-for="coverage in GetNewGroups.ListCoverages"
                                                     :key="coverage._id"
                                                 >
-                                                   <td style="width:650px;"  v-if="coverage.PerilsCode !== 'PA' && coverage.PerilsCode !== 'OD'">
-                                                          
+                                                    <td style="width:650px;"  v-if="coverage.PerilsCode != 'PA'">
+                                                            
                                                             {{
-                                                                coverage.PerilsName 
-                                                            }}
-                                                      
-                                                     </td> 
-                                                     <td style="width:650px;"  v-if="coverage.PerilsCode === 'OD'">
-                                                          
-                                                            {{
-                                                                coverage.PerilsName + " / Theft"
+                                                                coverage.PerilsName
                                                             }}
                                                       
                                                      </td> 
@@ -330,42 +309,47 @@
                                                         
                                                     </td>
                                                 </tr>
-                                                <div  v-for="coverage in GetNewGroups.ListCoverages" :key="coverage._id">   
-                                                                
-                                                   <tr >
-                                                    <td   v-if="coverage.PerilsCode === 'PA'" style="text-align:left;width:600px;" colspan="2" class="CLassLeftIndent1">
-                                                       {{ form.DisplayDescription1}} 
+
+                                                   <tr   v-for="coverage in GetNewGroups.ListCoverages"
+                                                    :key="coverage._id"  >
+                                                    <td  v-if="coverage.PerilsCode == 'PA'" style="text-align:left;width:600px;" colspan="2" class="CLassLeftIndent1">
+                                                        {{ form.DisplayDescription1 }} 
                                                      </td> 
                                                 </tr> 
-                                                  <tr>
-                                                    <td v-if="coverage.PerilsCode === 'PA'" style="text-align:left;width:600px;" class="CLassLeftIndent1" >
+                                                  <tr   v-for="coverage in GetNewGroups.ListCoverages"
+                                                    :key="coverage._id">
+                                                    <td  v-if="coverage.PerilsCode == 'PA'" style="text-align:left;width:600px;" class="CLassLeftIndent1" >
                                                         {{ form.DisplayDescription2 }} 
                                                      </td> 
                                                 </tr>    
-                                                  <tr v-if="coverage.PerilsCode === 'PA'">
-                                                    <td style="text-align:left;width:300px;" class="CLassLeftIndent2">
-                                                        {{ form.DisplayDescription3 }} 
+                                                  <tr   v-for="coverage in GetNewGroups.ListCoverages"
+                                                    :key="coverage._id">
+                                                    <td  v-if="coverage.PerilsCode == 'PA'" style="text-align:left;width:300px;" class="CLassLeftIndent2">
+                                                        {{ form.DisplayDescription3 }}  {{ form.DisplayDescriptionVal3 }} 
                                                      </td> 
                                                      
                                                 </tr>    
-                                                  <tr v-if="coverage.PerilsCode === 'PA'">
-                                                    <td style="text-align:left;width:300px;" class="CLassLeftIndent2" >
-                                                        {{ form.DisplayDescription4  }} 
+                                                  <tr   v-for="coverage in GetNewGroups.ListCoverages"
+                                                    :key="coverage._id">
+                                                    <td  v-if="coverage.PerilsCode == 'PA'" style="text-align:left;width:300px;" class="CLassLeftIndent2" >
+                                                        {{ form.DisplayDescription4 + " " + form.DisplayDescriptionVal4  }} 
                                                      </td> 
                                                     
                                                 </tr>    
-                                                  <tr v-if="coverage.PerilsCode === 'PA'">
-                                                    <td  style="text-align:left;width:600px;" class="CLassLeftIndent1">
+                                                  <tr   v-for="coverage in GetNewGroups.ListCoverages"
+                                                    :key="coverage._id">
+                                                    <td  v-if="coverage.PerilsCode == 'PA'" style="text-align:left;width:600px;" class="CLassLeftIndent1">
                                                         {{ form.DisplayDescription5 }} 
                                                      </td>
                                                       
                                                 </tr>    
-                                                  <tr v-if="coverage.PerilsCode === 'PA'" >
-                                                    <td  style="text-align:left;width:600px;" class="CLassLeftIndent1">
+                                                  <tr   v-for="coverage in GetNewGroups.ListCoverages"
+                                                    :key="coverage._id">
+                                                    <td  v-if="coverage.PerilsCode == 'PA'" style="text-align:left;width:600px;" class="CLassLeftIndent1">
                                                         {{ form.DisplayDescription6 }} 
                                                      </td> 
                                                 </tr>    
-                                        </div>
+
                                               
                                             </table>
                                         </td>
@@ -386,8 +370,8 @@
 
                                         <!-----------Charges----------------------->
                                      <tr  v-for="charges in ListCharges"   :key="charges._id">
-                                        
-                                        <td colspan="3" style="text-align:right;" >{{ charges.ChargesName }}</td>
+                                        <td colspan="2"></td>
+                                        <td  >{{ charges.ChargesName }}</td>
                                         <td class="pull-right"  >
                                             {{  charges.ChargesPremium | peso }}
                                         </td>
@@ -435,23 +419,24 @@
 
                
                 <div class="row">
-                    <div class="col-xs-12" v-if="form.IssuanceRemarks !== '0'">
+                    <div class="col-xs-12">
                         <div class="col-md-6">
                             <label>Remarks: </label>
                            {{ form.IssuanceRemarks}}
                         </div>
 
-                    </div><br/>
+                    </div>
 					 <div class="row">
                     <div class="col-xs-12">
-                        <div class="col-md-3 pull-right">
+                        <div class="col-xs-2 pull-right">
 					
                           <img :src="'e-signature/' + form.PolicySignature" width="100px" v-if="form.RequestStatus == 'Approved' && form.PolicySignature != null" >
                          
-                           <p style="border-top: 1px solid black;" v-if="form.PolicySignature == null"></p> 
-                             <p> Authorized Signature</p> 
+                            <p style="border-top: 1px solid black;">
+                                Authorized Signature 
+                            </p> 
 							
-                            <button class="btn btn-success pull-right no-print"  @mouseover="ViewInfoMOdal()" @click="UploadSignature()" v-if="form.RequestStatus == 'Accepted'">
+                            <button class="btn btn-success pull-right no-print" @click="UploadSignature()" v-if="form.RequestStatus == 'Accepted'">
                                 <i class="glyphicon glyphicon-pencil"></i>
                                 E-Signature
                             </button>
@@ -622,9 +607,6 @@
                 </div>
             </div>
         </section>
-
-
-
     </div>
 </template>
 
@@ -637,8 +619,7 @@ export default {
        // axios.get("api/GetListClauses/" + PassID) .then(({ data }) => (this.GetListClauses = data)  );
         axios.get("api/GetListSignatory/") .then(({ data }) => (this.GetListSignatory = data)  );
           axios.get("api/URLQueryRequestModify/" + PassID).then(({ data })  => (this.ResultQueryRequest = data)  );
-       this.StartLoading();
-         this.loadData();
+     
     },
 
     data() {
@@ -661,12 +642,6 @@ export default {
 			 ListClausesWarranties:{},
             SumUpCoveragesAmount: 0,
              selectedImage: null,
-             PAClausesDisplay:{},
-
-
-
-
-
             form: new Form({
                 TINNumber: "",
                 EmailAddress: "",
@@ -777,60 +752,12 @@ export default {
                     Deductible: '',
                  TowingLimit: '',
                  AuthRepairLimit: '',
-                 RequestType: '',
 
             })
         };
     },
 
     methods: {
-        ViewInfoMOdal1(){
-                       Swal.fire({
-                    position: 'top-end',
-                    icon: 'info',
-                    title: 'Your work has been saved',
-                    showConfirmButton: false,
-                    timer: 1500
-                    })
-        },
-      
-
-     async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
 
 
           zoom(url) {
@@ -841,105 +768,45 @@ export default {
 
 
 
-	async UploadSignature(){
-         
-         let timerInterval
-                await Swal.fire({
-                title: '<h3>TO ATTACH SIGNATURE </h3>',
-                html: '<h5><ul><li>YOU are going to APPROVE the POLICY</li> <li> Editing & Modification NOT allowed </li> <li> Authentication MAY PROCEED :' + this.form.RequestType + ' </li></ul> </h5>',
-                timer: 10000,
-                timerProgressBar: true,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                }
-                }).then((result) => {
-                /* Read more about handling dismissals below */
-                if (result.dismiss === Swal.DismissReason.timer) {
-                    console.log('I was closed by the timer')
-                }
-                })
-
+	UploadSignature(){
 	 let uri = window.location.href.split("?");
       let PassID = uri[1].trim() + ';;' + this.UserDetails.AccountNo + ';;' + this.UserDetails.CName  + ';;' + this.UserDetails.signature ;
-        const { value: text } = await Swal.fire({
-                title: 'Confirmed ?',
-                text: "Pls. Enter Your Password to Attach SIGNATURE",
-                
-                icon: 'info',
-                input: 'password',
-                inputPlaceholder: 'Enter Your Password...',
-                inputAttributes: {
-                    'aria-label': 'Password Code'
-                },
-        
+	 Swal.fire({
+                title: "Approve ?",
+                text: "",
+                icon: "success",
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes!',
-             
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes!"
             }).then(result => {
-                // console.log(result);
-                this.form.AuthCode = result.value
-               // this.loadData()
-                let AccountNo           =  this.UserDetails.AccountNo;
-                let InputUserPassword   =  result.value;
-                 let PassData           =  AccountNo + ";;" +  InputUserPassword;
+                // Send request to the server
+			
+                if (result.value) {
+					//alert(GetClausessName);
+                    axios.get("api/UploadSignature/" + PassID )
+                        .then(() => {
+                            Swal.fire(
+                                "Done Attaching Your e-Signature ",
+                                " ",
+                                "success"
+                            );
+                            // Success
+                           this.loadData();
+                           /// alert(PassID);
+                            //this.addClauses = false
+                        })
 
-                             axios.get('api/CheckUserPassword/' + PassData ).then(({data}) => {
-                                    this.UserValPassword            = data;
-                                    this.form.CorrectPassword       = data[0].Confirmed;
-                                    if (data[0].Confirmed ==  'YES') {
-                                         
-                                            axios.get("api/UploadSignature/" + PassID ).then(() => {
-                                                   Swal.fire(
-                                                            " Attached  e-Signature !",
-                                                            "Done Attaching Your e-Signature ",
-                                                            "success"
-                                                    );
-                                                
-                                                   this.loadData();
-                                                   this.$router.push('/ForSignatureList'); 
-                                                }).catch((response) => {
-                                                      //  alert(response);
-                                                
-                                                      
-
-                                                });
-                                    }else{
-                                          Swal.fire(
-                                                "Failed!",
-                                                " Invalid Password ",
-                                                "warning"
-                                            );
-
-
-                                    }
-                                })
-
-              
-                
-
-            }).catch(() => {
-               
-                Swal.fire(
-                    "Failed",
-                    "There was something wrong",
-                    "warning"
-                );
-            })
-
+                        .catch(() => {
+                            Swal.fire(
+                                "Failed",
+                                "There was Something wrong",
+                                "warning"
+                            );
+                        });
+                }
+            });
+	
 	
 	
 	},
@@ -1098,19 +965,74 @@ export default {
             this.form.ListBankName = ''
             this.addBanks = false
         },
-	  SplitDescription(){    ///for PA under perilsname
-		         this.form.DisplayDescription1 = this.GetPADescription.Line1 ;
-                this.form.DisplayDescription2 = this.GetPADescription.Line2 ;
-                this.form.DisplayDescription3 = this.GetPADescription.Line3;
-                this.form.DisplayDescription4 = this.GetPADescription.Line4 ;
-                this.form.DisplayDescription5 = this.GetPADescription.Line5 ;
-                this.form.DisplayDescription6 = this.GetPADescription.Line6 ;
+	  SplitDescription(){ 
+		// let Desc = "1 Driver & 4 Passenger/s.Coverage of each declared helper/passenger/s.(1) Accidental Death & Disablement.(2) Medical Indemnity.Disablement will abide by Schedule stated on page two(2)";
+                 let Desc           =  this.form.CoverageDescPA.trim();
+                let SplitData       = Desc.split('.');
+                let NoPassengers    = parseFloat(this.form.PassengerNo) + 1 ;
+                let Split2Compute   = parseFloat(this.form.ClausesStatementAmount)  / parseFloat(NoPassengers) ;
+                let Split3Compute   = (parseFloat(this.form.ClausesStatementAmount)  / parseFloat(NoPassengers)  * 0.10 );
+                //this.form.DisplayDescription = SplitData[0] + '\n'  + SplitData[1] + '\n'  + SplitData[2] + '    \xa0' + parseFloat(Split2Compute).toFixed(2)  + '@'  + '\n'  + SplitData[3] + '\t \t \t\t\xa0' + parseFloat(Split3Compute).toFixed(2)  + '@'  + '\n'  + SplitData[4]  + '\n'  + SplitData[5];
+                this.form.DisplayDescription1 = SplitData[0] ;
+                this.form.DisplayDescription2 = SplitData[1] ;
+                this.form.DisplayDescription3 = SplitData[2] ;
+                this.form.DisplayDescriptionVal3 = parseFloat(Split2Compute).toFixed(2)  + '@' ;
+                this.form.DisplayDescription4 = SplitData[3] ;
+                this.form.DisplayDescriptionVal4 = parseFloat(Split3Compute).toFixed(2)  + '@' ;
+                this.form.DisplayDescription5 = SplitData[4] ;
+                this.form.DisplayDescription6 = SplitData[5] ;
+               // + '\n'  + SplitData[1] + '\n'  + SplitData[2] + '    \xa0' + parseFloat(Split2Compute).toFixed(2)  + '@'  + '\n'  + SplitData[3] + '\t \t \t\t\xa0' + parseFloat(Split3Compute).toFixed(2)  + '@'  + '\n'  + SplitData[4]  + '\n'  + SplitData[5];
+       
         },
 		
 		 SplitStatementClauses(){ 
-		      
-                    let Title       = this.PAClausesDisplay.Line0.includes("PA");
-                    let Title1      = this.PAClausesDisplay.Line2.includes("Coverage");
+		          let PremiumAmount = this.form.PremiumAmount;
+		           let Desc            = this.form.ClausesStatementPA;
+				   let SplitData       = Desc.split('.');
+				//alert(PremiumAmount);
+                let NoPassengers    = parseFloat(this.form.PassengerNo) + 1 ;
+				 // alert(NoPassengers);
+               let SplitCompute1   = parseFloat(this.form.ClausesStatementAmount)  / parseFloat(NoPassengers) ;
+               let SplitCompute5to6   = parseFloat(SplitCompute1)  / 2 ;
+               let SplitCompute7   = parseFloat(SplitCompute1) * 0.12 ;
+               let SplitCompute8   = parseFloat(SplitCompute1) * 0.10 ;
+
+                
+                let NewDisplay8b ;
+               let Display1to4  =   SplitData[3]  + '\t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t' + 'Ps ' +  parseFloat(SplitCompute1).toFixed(2)  +  '@ \n' 
+                                    + SplitData[4]  + '\t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t' + 'Ps ' +  parseFloat(SplitCompute1).toFixed(2)  +  '@ \n' 
+                                    + SplitData[5] + '\t \t \t \t \t \t \t \t \t' + 'Ps ' +  parseFloat(SplitCompute1).toFixed(2)  +  '@ \n' 
+                                    + SplitData[6] + '\t' + 'Ps ' +  parseFloat(SplitCompute1).toFixed(2)  +  '@ ';
+               let Display5to6  =   SplitData[7]  + '\t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t' + 'Ps ' +  parseFloat(SplitCompute5to6).toFixed(2)  +  '@ \n' 
+                                    +  SplitData[8] + '\t \t \t \t \t \t \t \t \t \t \t \t \t \t' + 'Ps ' +  parseFloat(SplitCompute5to6).toFixed(2) + "@";
+			   let Display7     =   SplitData[9]  + '\t \t \t \t \t \xa0' + 'Ps ' +  parseFloat(SplitCompute7).toFixed(2) + "@";
+               let Display8     =   SplitData[10] + '\t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \t \xa0' + 'Ps ' +  parseFloat(SplitCompute8).toFixed(2) + "@ \n";
+			   let Display8a    =   SplitData[11] ;
+               let Display8b    =   SplitData[12] ;
+               let Display8c    =   SplitData[13] ;
+               let Display8d    =   SplitData[14] ;
+               let Display8e    =   SplitData[15] ;
+               let Display8f    =   SplitData[16] ;
+               let Display8g    =   SplitData[17] ;
+               
+              // this.form.PATitleClauses   = SplitData[0].toUpperCase()  ;
+              // this.form.PATitleClauses1  =  SplitData[2].toUpperCase();
+
+                let n = Display8b.includes("50,000");
+
+                if (n !== false){
+                   
+                     NewDisplay8b      = Display8b.replace("50,000",SplitCompute1);
+                   
+                }else{
+                     NewDisplay8b      =  Display8b;
+                }
+                       			   // let Split3Compute   = (parseFloat(coverage.CoveragesAmount)  / parseFloat(NoPassengers)  * 0.10 );
+              //  this.form.DisplayStatementClauses       =   SplitData[1]  ;
+               // this.form.DisplayStatementClauses1      =   Display1to4  + '\n' + Display5to6  + '\n' +   Display7 + '\n' +  Display8  + '\n' + Display8a + '\n' + NewDisplay8b + '\n' + Display8c + '\n' +  Display8d + '\n' +  Display8e + '\n' +  Display8f + '\n' +  Display8g;
+              
+                    let Title = SplitData[0].includes("PA");
+                    let Title1 = SplitData[2].includes("Coverage");
                      if (Title !== false){
                           this.form.FormTitleforPA="PA";
                            
@@ -1118,33 +1040,43 @@ export default {
                             this.form.FormTitleforPA1="Coverage";
                      }
 
-                  this.form.PATitleClauses                 = this.PAClausesDisplay.Line0.toUpperCase()  ;
-                  this.form.DisplayStatementClauses       =  this.PAClausesDisplay.Line1 + '\n'  ;
-                  this.form.PATitleClauses1              = this.PAClausesDisplay.Line2.toUpperCase()  ;
-              
-                     this.form.DisplayStatementClausesTD1        =   this.PAClausesDisplay.Line3;
-                     this.form.DisplayStatementClausesTDVal1     =   this.PAClausesDisplay.Line1Amount;
-                     this.form.DisplayStatementClausesTD2        =    this.PAClausesDisplay.Line4;
-                     this.form.DisplayStatementClausesTDVal2     =   this.PAClausesDisplay.Line2Amount;
-                     this.form.DisplayStatementClausesTD3        =    this.PAClausesDisplay.Line5;
-                     this.form.DisplayStatementClausesTDVal3     =    this.PAClausesDisplay.Line3Amount;
-                     this.form.DisplayStatementClausesTD4         =  this.PAClausesDisplay.Line6;
-                     this.form.DisplayStatementClausesTDVal4     =   this.PAClausesDisplay.Line4Amount;
-                     this.form.DisplayStatementClausesTD5         =   this.PAClausesDisplay.Line7;
-                     this.form.DisplayStatementClausesTDVal5     =   this.PAClausesDisplay.Line5Amount;
-                     this.form.DisplayStatementClausesTD6         =   this.PAClausesDisplay.Line8;
-                     this.form.DisplayStatementClausesTDVal6     =   this.PAClausesDisplay.Line6Amount;
-                     this.form.DisplayStatementClausesTD7        =   this.PAClausesDisplay.Line9;
-                     this.form.DisplayStatementClausesTDVal7     =   this.PAClausesDisplay.Line7Amount;
-                     this.form.DisplayStatementClausesTD8        =   this.PAClausesDisplay.Line10;
-                     this.form.DisplayStatementClausesTDVal8    =   this.PAClausesDisplay.Line8Amount;
-                     this.form.DisplayStatementClausesTD9        =   this.PAClausesDisplay.Line8b;
-                     this.form.DisplayStatementClausesTD10        = this.PAClausesDisplay.Line8a;
-                     this.form.DisplayStatementClausesTD11        = this.PAClausesDisplay.Line8c;
-                     this.form.DisplayStatementClausesTD12       =  this.PAClausesDisplay.Line8d;
-                     this.form.DisplayStatementClausesTD13       = this.PAClausesDisplay.Line8e;
-                     this.form.DisplayStatementClausesTD14       = this.PAClausesDisplay.Line8f;
-                     this.form.DisplayStatementClausesTD15       =  this.PAClausesDisplay.Line8g;
+
+
+                  this.form.PATitleClauses                 = SplitData[0].toUpperCase()  ;
+                  this.form.DisplayStatementClauses       =   SplitData[1] + '\n'  ;
+                    
+             
+                  this.form.PATitleClauses1              = SplitData[2].toUpperCase()  ;
+                 // this.form.DisplayStatementClauses1     =   Display1to4  + '\n' + Display5to6  + '\n' +   Display7 + '\n' +  Display8  + '\n' + Display8a + '\n' + NewDisplay8b + '\n' + Display8c + '\n' +  Display8d + '\n' +  Display8e + '\n' +  Display8f + '\n' +  Display8g;
+                 // this.form.DisplayStatementClauses1     =   "<td>" + Display1to4  + '\n' + Display5to6 + "</td>" + '\n' +   Display7 + '\n' +  Display8  + '\n' + Display8a + '\n' + NewDisplay8b + '\n' + Display8c + '\n' +  Display8d + '\n' +  Display8e + '\n' +  Display8f + '\n' +  Display8g;
+          
+                     this.form.DisplayStatementClausesTD1        =   SplitData[3]  + ".";
+                     this.form.DisplayStatementClausesTDVal1     =   'Ps ' +  parseFloat(SplitCompute1).toFixed(2)  +  '@' ;
+                     this.form.DisplayStatementClausesTD2        =   SplitData[4]  + "." ;
+                     this.form.DisplayStatementClausesTDVal2     =   'Ps ' +  parseFloat(SplitCompute1).toFixed(2)  +  '@' ;
+                     this.form.DisplayStatementClausesTD3        =   SplitData[5]  + "." ;
+                     this.form.DisplayStatementClausesTDVal3     =   'Ps ' +  parseFloat(SplitCompute1).toFixed(2)  +  '@' ;
+                     this.form.DisplayStatementClausesTD4         =   SplitData[6]  + "." ;
+                     this.form.DisplayStatementClausesTDVal4     =   'Ps ' +  parseFloat(SplitCompute1).toFixed(2)  +  '@' ;
+                     this.form.DisplayStatementClausesTD5         =   SplitData[7] + "." ;
+                     this.form.DisplayStatementClausesTDVal5     =   'Ps ' +  parseFloat(SplitCompute5to6).toFixed(2)  +  '@' ;
+                     this.form.DisplayStatementClausesTD6         =   SplitData[8] + "." ;
+                     this.form.DisplayStatementClausesTDVal6     =   'Ps ' +  parseFloat(SplitCompute5to6).toFixed(2)  +  '@' ;
+                     this.form.DisplayStatementClausesTD7        =   SplitData[9]  + "." ;
+                     this.form.DisplayStatementClausesTDVal7     =   'Ps ' +  parseFloat(SplitCompute7).toFixed(2)  +  '@' ;
+                     this.form.DisplayStatementClausesTD8        =   SplitData[10]  + "." ;
+                     this.form.DisplayStatementClausesTDVal8    =   'Ps ' +  parseFloat(SplitCompute8).toFixed(2)  +  '@' ;
+                     this.form.DisplayStatementClausesTD9        =    NewDisplay8b  + ".";
+                     this.form.DisplayStatementClausesTD10        =  SplitData[11]   ;
+                     this.form.DisplayStatementClausesTD11        = SplitData[13]   + "." ;
+                     this.form.DisplayStatementClausesTD12       =  SplitData[14]  + "."  ;
+                     this.form.DisplayStatementClausesTD13       = SplitData[15]  + "."  ;
+                     this.form.DisplayStatementClausesTD14       = SplitData[16]   + "." ;
+                     this.form.DisplayStatementClausesTD15       =  SplitData[17]   + "." ;
+                    
+
+            
+                 
        
        },
         
@@ -1337,7 +1269,6 @@ export default {
 
         loadData() {
           this.RetrieveTimeInterval = setInterval(() => {
-                    
                     this.form.CustAcctNO                 = this.ResultQueryRequest.CustAcctNO;
 				    this.form.RequestNo                 = this.ResultQueryRequest.RequestNo;
 					this.form.AcceptedOption 	        = this.ResultQueryRequest.AcceptedOption;
@@ -1375,7 +1306,7 @@ export default {
                     this.form.PremiumAmount             = this.ResultQueryRequest.PremiumAmount;
                     this.form.PassengerNo               =this.ResultQueryRequest.Passengers;
                     this.form.Renewal                   = this.ResultQueryRequest.Renewal;
-                    this.form.InsuranceAmount          =   parseFloat(this.ResultQueryRequest.TotalCoverages).toFixed(2) ;    
+                  //   this.form.InsuranceAmount          =   parseFloat(detail.TotalCoverages).toFixed(2) ;    
 
                     let GetDenoSplit                    = this.ResultQueryRequest.Denomination.split('-');
                     let DenoSplit                       = GetDenoSplit[1].trim();
@@ -1386,27 +1317,21 @@ export default {
                     this.form.RequestStatus             = this.ResultQueryRequest.Status;
                     this.form.CocNoRequest              =this.ResultQueryRequest.CocNoRequest;
                     this.form.AuthCodeRequest           =this.ResultQueryRequest.AuthCodeRequest;
-                    this.form.Individual              = this.ResultQueryRequest.Individual;
-                    this.form.RegisteredName          = this.ResultQueryRequest.RegisteredName;
-                    this.form.CName                    = this.ResultQueryRequest.CName;
-                      this.form.IssuanceRemarks                = this.ResultQueryRequest.IssuanceRemarks;
-                        this.form.RequestType               = this.ResultQueryRequest.RequestType;
                     this.$forceUpdate();
               
             let uri = window.location.href.split("?");
             let PassIDNew = uri[1].trim();
    
-          axios.get("api/PADescription/"+ uri[1].trim() ) .then(({ data }) => (this.GetPADescription = data)  );
-             axios.get("api/GetPAClausesDisplay/"+ uri[1].trim() ) .then(({ data }) => (this.PAClausesDisplay= data)  );
-          axios
-                .get("api/IssuanceAcceptedPolicy/" + PassIDNew)
+           // alert(PassIDNew);
+            axios
+                .get("api/CustomerAcceptedCoverage/" + PassIDNew)
                 .then(({ data }) => {
                     this.GetNewGroup = data;
                     console.log(this.GetNewGroup);
                 });
 
             axios
-                .get("api/IssuanceAcceptedPolicy/" + PassIDNew)
+                .get("api/CustomerAcceptedCoverage/" + PassIDNew)
                 .then(({ data }) => {
                     let results = (this.URLQueryPerilsCoveragesGroup = data);
                     results.map(details => {
@@ -1448,15 +1373,15 @@ export default {
                              });
                              
 				            
-                 })
-                     this.SplitStatementClauses();
-                      this.SplitDescription();
+				 })
 				  
 				 }, 1000);
 				 
 				  this.RetrieveTimeInterval2 = setInterval(() => {
-                                clearInterval(this.RetrieveTimeInterval);
-                            
+                      this.SplitStatementClauses();
+                      this.SplitDescription();
+                                                  
+								clearInterval(this.RetrieveTimeInterval);
         }, 			5000);
 				
                
@@ -1496,9 +1421,9 @@ export default {
        
     },
 
-    // created() {
-    //     this.loadData();
-    // }
+    created() {
+        this.loadData();
+    }
 };
 </script>
 

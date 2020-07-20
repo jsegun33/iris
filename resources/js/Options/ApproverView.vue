@@ -46,12 +46,12 @@ td {
 
 
 <template >
-  <div id="MainPage">
-    <!-- <section class="content-header">
+  <div>
+    <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
-      
+        <!--------{{data}}----->
       </h1>
       <ol class="breadcrumb">
         <li>
@@ -61,24 +61,11 @@ td {
         </li>
         <li class="active">Quotation</li>
       </ol>
-    </section> -->
+    </section>
 
     <!-- Main content -->
-    <!-- <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
- </section> -->
 
- <section class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup === 'NO RECORD FOUND'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >{{ this.URLQueryPerilsCoveragesGroup  }}</big></h1>
-                </div>
- </section>
-
-
-
-    <section class="content DisabledSection ContentSection" v-if="this.URLQueryPerilsCoveragesGroup !== 'NO RECORD FOUND'">
+    <section class="content">
       <div class="row">
         <div
           class="col-md-6"
@@ -105,10 +92,7 @@ td {
                <div class="row">
                             <div class="table-responsive">
                                     <table style="width:100%" >
-                                            <tr><th style="text-align:left">TO</th> <th>:</th> 
-                                                  <big v-if="form.Individual !=='Others'">   {{ form.AcctName}} </big>
-                                              <big v-else>   {{ form.RegisteredName}} </big>
-                                              </tr>
+                                            <tr><th style="text-align:left">TO</th> <th>:</th> <th>{{ form.AcctName}}</th></tr>
                                              <tr><th style="text-align:left"><br/></th></tr>
                                             <tr><th style="text-align:left">FROM</th> <th>:</th> <th>{{ form.AssignCRD}} <br/> 
                                                     <small>
@@ -158,8 +142,7 @@ td {
                                             <tbody>
                                                 <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id">
                                                 
-                                                    <td  v-if = "coverage.PerilsCode  ==='OD'">{{  coverage.PerilsName + " / Theft"}} </td>
-                                                    <td  v-if = "coverage.PerilsCode  !=='OD'">{{  coverage.PerilsName }} </td>
+                                                    <td>{{  coverage.PerilsName }} </td>
                                                     <td style="text-align:right" >{{  coverage.CoveragesAmount | Peso }}</td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  ==='AOG' && form.NoAOG  ==='YES'"> NONE </td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' && form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
@@ -224,11 +207,6 @@ td {
                 </div>
 
                 <div class="form-group no-print">
-                  <label>Approved by:</label>
-                  <p>{{ form.ListApproverDisplayName[URLQueryPerilsCoveragesGroups.OptionNo] }}</p>
-                </div>
-
-                <div class="form-group no-print">
                   <label>Date:</label>
                   <p>{{ form.RemarksApproverDate[URLQueryPerilsCoveragesGroups.OptionNo] | DateFormat }}</p>
                 </div>
@@ -264,9 +242,6 @@ td {
 
       <!--------<pre>{{ $data }}</pre>-------->
     </section>
-    
-      
-
   </div>
 </template>
 
@@ -285,7 +260,6 @@ export default {
     axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
     this.AutoLoadGetData();
     this.load();
-   this.StartLoading();
   },
 
   data() {
@@ -303,9 +277,6 @@ export default {
       RetrieveTimeInterval2: null,
       RetrieveTimeInterval1: null,
     //  RetrieveTimeInterval
-
-      ConnectionStatus:'',
-
 
       form: new Form({
         TINNumber: "",
@@ -361,44 +332,6 @@ export default {
   },
 
   methods: {
-    async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
-
     AutoLoadGetData() {
       //alert(this.AccountNoUser);
       this.RetrieveTimeInterval = setInterval(() => {
@@ -411,11 +344,11 @@ export default {
         axios
           .get("api/ListCoveragesForApproval/" + NewPassID)
           .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data));
-      },200);
+      }, 1000);
 
       this.RetrieveTimeInterval2 = setInterval(() => {
         clearInterval(this.RetrieveTimeInterval);
-      },2000);
+      }, 3000);
     },
     QueryByOPtion1(e) {
       //axios.get("api/AcceptQuotation/" + e.target.value.trim()  ) .then(({ data }) => (this.AcceptQuotation = data)  );
@@ -455,7 +388,6 @@ export default {
     load() {
       axios.get("api/wordings").then(({ data }) => (this.Wordings = data));
       this.RetrieveTimeInterval1 = setInterval(() => {
-           
         this.ResultQueryRequest.data.map(ResultRequestDetailss => {
           this.form.TINNumber = ResultRequestDetailss.TINNumber;
           this.form.EmailAddress = ResultRequestDetailss.EmailAddress;
@@ -479,9 +411,7 @@ export default {
           this.form.AmountDue = ResultRequestDetailss.AmountDue;
           this.form.ProductLine = ResultRequestDetailss.ProductLine;
           this.form.Deductible = ResultRequestDetailss.Deductable;
-           this.form.NoAOG              = ResultRequestDetailss.WithAOG;
-           this.form.Individual              = ResultRequestDetailss.Individual;
-           this.form.RegisteredName              = ResultRequestDetailss.RegisteredName;
+		       this.form.NoAOG              = ResultRequestDetailss.WithAOG;
 
           this.form.AcctName =
             ResultRequestDetailss.CName ;
@@ -551,8 +481,7 @@ export default {
 
       this.RetrieveTimeInterval2 = setInterval(() => {
         clearInterval(this.RetrieveTimeInterval1);
-    
-      }, 2000);
+      }, 3000);
       //this.isShowingApproval = false;
     }
   },

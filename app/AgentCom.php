@@ -12,6 +12,5 @@ class AgentCom extends Eloquent
 
     protected $fillable = [
        'AccountNo','ClassName', 'active','Class','status','PerilsName','PerilsNo','PerilsCode','AmountCom'
-       ,'RemarksRemove','RemarksRemoveDate'
     ];
 }

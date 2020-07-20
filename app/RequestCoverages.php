@@ -20,6 +20,6 @@ class RequestCoverages extends Eloquent
         ,'AssignRevieweeRemarks','AssignRevieweeDate','AssignRevieweeCName','AssignRevieweeAcctNO','AssignRevieweeID','DenominationType'
         ,'Description','RequestModify','RequestModifyRemarks','RequestModifyPassByAcctNo','RequestModifyPassByName','RequestModifyCoverages'
         , 'WithAOG','NoAOGPremiumTotal','NoAOGCoveragesTotal','TotalPremium','TotalCoverages','TotalAmountDue','Deductible','TowingLimit'
-        ,'Surcharge','DepreciativeAmount','UpdateRequest','Passengers'
+        ,'Surcharge','DepreciativeAmount','UpdateRequest'
     ];
 }

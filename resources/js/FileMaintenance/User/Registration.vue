@@ -1,20 +1,5 @@
 <template>
-<div>
-
-            <section class="content" v-if ="this.AllRolesList =='NO ACCESS'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >{{ this.AllRolesList }}</big></h1>
-                </div>
-           </section>
-
-           
-          <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-         </section>
-
-    <section class="content" v-show="isShowingRecord"  v-if ="this.AllRolesList =='YES ACCESS'">
+    <section class="content">
         <div class="row">
         <div class="col-md-12">
         <div class="box box-primary">
@@ -374,12 +359,11 @@
                 </div>
             </div>
         </div>
-        </div>
-      
-    </section>
-      <!-- ------<pre>{{ $data }}</pre>------- -->
 
-    </div>
+
+
+        </div>
+    </section>
 	
 </template>
 
@@ -395,8 +379,6 @@ Vue.use(VueMaterial)
 export default {
      mounted() {
         console.log('Component mounted.')
-         axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
-        	
          axios.get("api/GetPerilsComm/").then(({ data }) => 
                 (
                     this.GetPerilsComm = data
@@ -408,15 +390,11 @@ export default {
                     this.GetLinesComm = data
                   
                 )); 
-        this.LoadAllRolesList();
-        this.StartLoading();
     },
 
     data() {
         return {
             users: {},
-            UserDetails: {},
-            AllRolesList: {},
             GetPerilsComm: {},
             GetLinesComm: {},
              LoopTR: [ {}] ,
@@ -427,19 +405,7 @@ export default {
             authorities: {},  
             types: {},  
             departments:{},
-            SubTypes:{},
-            
-            IntervalLoading:null,
-                IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:47,
-                 timer_is_on:0,
-
-
-
+			SubTypes:{},			
             form: new Form({
                 _id: '',
                 firstname: '',
@@ -455,7 +421,6 @@ export default {
                 AccountNo: '',
                 AgentType: '',
                 SubAgent: '',
-                CustAcctNo: '',
 
                 AmountComm: [],
                 ClassName: [],
@@ -480,41 +445,6 @@ export default {
     },
     
     methods: {
-
-         LoadingDesign(){
-                        this.IntervalLoading  = this.clock;
-                        this.clock = this.IntervalLoading - 1;
-                        this.timer = setTimeout(this.LoadingDesign, 1000/60);
-            },
-            StartLoading() {
- 
-                  if (!this.timer_is_on) {
-                      this.timer_is_on = 1;
-                      this.LoadingDesign();
-                  }
-                    
-              
-            },
-
-
-        LoadAllRolesList(){
-             this.RetrieveTimeInterval = setInterval(() => {
-
-                                clearTimeout(this.timer);   //clear timer /loading
-                                this.timer_is_on = 0; //clear timer /loading
-                                this.isShowingLoading = false; //clear timer /loading
-                                this.isShowingRecord = true; 
-
-
-                   this.form.CustAcctNo         = this.UserDetails.AccountNo;
-                   this.form.post("api/GetAllUserAccessRole"  ).then(({ data }) => (this.AllRolesList = data));
-
-                }, 1000);    
-             this.RetrieveTimeInterval2 = setInterval(() => {
-								clearInterval(this.RetrieveTimeInterval);
-                    },5000); 	
-      
-        } ,  
         GetPerilsChange(){
               this.form.GetPerilsbyClick = this.form.AmountComm  ;
                 let PerilsNameDisp          =  this.form.GetPerilsbyClick;

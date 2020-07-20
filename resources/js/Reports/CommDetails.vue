@@ -1,7 +1,7 @@
 <template>
-    <div id="MainPage" >
+    <div>
         <!-- Content Header (Page header) -->
-        <!-- <section class="content-header">
+        <section class="content-header">
             <h1>
                 Agent 
                 <small>Details of Commission</small>
@@ -22,9 +22,9 @@
                     Reports
                 </li>
             </ol>
-        </section> -->
+        </section>
 
-        <section class="content DisabledSection ContentSection"  >
+        <section class="content" v-if="details[0].CustAcctNO.trim() ===  UserDetails.AccountNo.trim()" >
             <div class="row">
                 <div class="col-md-5">
                     <div class="box box-primary">
@@ -47,10 +47,6 @@
                                     <b>Plate #</b>
                                     <a class="pull-right">{{ details[0].PlateNumber }}</a>
                                 </li>
-                                 <li class="list-group-item">
-                                    <b>Denomination</b>
-                                    <a class="pull-right">{{ details[0].SubLinesName }}</a>
-                                </li>
                                 <li class="list-group-item">
                                     <b>Transaction Date</b>
                                     <small><a class="pull-right">{{ details[0].AcceptanceDate | DateFormat }}</a></small>
@@ -65,10 +61,10 @@
                                 </li>
                                  <li class="list-group-item">
                                     <b>Mode of Payment</b>
-                                    <a class="pull-right">{{ details[0].PaymentGateway + " : " + details[0].PaymentMode }}</a>
+                                    <a class="pull-right">{{ details[0].PaymentMode}}</a>
                                 </li>
                             </ul>
-                                <router-link :to="`/Customer-Issuance? ${details[0].RequestNo}`" v-if="details[0].Status === 'Approved'" target="_blank" class="btn btn-info" style="text-decoration: none;">
+                                <router-link :to="`/Customer-Issuance? ${details[0].RequestNo}`" target="_blank" class="btn btn-info" style="text-decoration: none;">
                                                 <i class="fa fa-eye"></i>
                                                 View Policy
                                </router-link>
@@ -137,10 +133,6 @@
                 </div>
             </div>
         </section>
-
-        
-
-
     </div>
 </template>
 
@@ -148,7 +140,6 @@
 export default {
     mounted: function(){ 
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-         this.StartLoading();
     },
 
 
@@ -156,67 +147,16 @@ export default {
         return {
             details: {},
             UserDetails:{},
-             TimeLoading1:null,
-            TimeLoading:null,
-            TimeLoadingInternet:null,
-            ConnectionStatus:'',
-
         };
     },
 
-methods: {
-   async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
-
-},
     created() {
         let uri = window.location.href.split("?");
         let PassID = uri[1].trim();
-         this.RetrieveTimeInterval =  setInterval(() => { 
-           
         axios
             .get("api/AgentCommissionReportGet/" + PassID)
             .then(({ data }) => (this.details = data));
-         },200)
-                this.RetrieveTimeInterval2 = setInterval(() => {
-                            clearInterval(this.RetrieveTimeInterval);  
-                            
-                        },2000) 
+        // console.log(PassID);
     },
 
     computed: {

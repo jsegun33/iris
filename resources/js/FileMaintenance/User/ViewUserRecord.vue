@@ -6,8 +6,8 @@
             <div class="box-header with-border">
               <h3 class="box-title">User Profile</h3>
             </div>
-             <!-- <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
-             <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css"> -->
+             <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+             <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
 
             <form @submit.prevent="">
                 <div class="box-body">
@@ -72,19 +72,6 @@
                     </div>
 
                     <div class="row">
-                         <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="name">Marketing Total Task :</label> 
-                                 <input v-model="form.TotalTask"  type="number" class="form-control"  required>
-                           </div>
-                        </div>
-                         <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="name"> Marketing Daily Task :</label> 
-                                 <input v-model="form.DailyTask"  type="number" class="form-control"   required>
-                                 <small>set 1 to start assigned task</small>
-                           </div>
-                        </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="name"> Agent Type:</label> 
@@ -123,15 +110,14 @@
                                                     <tr><th></th><th>PerilsName</th><th></th><th>Denomination</th><th>AmountCom</th></tr>
                                                     <tr v-for="UserCommission in UserProfiles.ListUserCommission" :key="UserCommission._id">
                                                       <td>
-                                                          <button  type="button" class="btn btn-warning" @click="RemoveUserCommission(UserCommission)" v-if="UserCommission.status == '1'"> <i class="fa  fa-trash"></i></button>
-                                                          <button  type="button" class="btn btn-danger" @click="RestoreUserCommission(UserCommission)" v-if="UserCommission.status != '1'"> <i class="fa  fa-mail-forward"></i></button> 
+                                                          <button  type="button" class="btn btn-warning" @click="RemoveUserAccess(UserCommission)" v-if="UserCommission.status == '1'"> <i class="fa  fa-trash"></i></button>
+                                                          <button  type="button" class="btn btn-danger" @click="RestoreUserAccess(UserCommission)" v-if="UserCommission.status != '1'"> <i class="fa  fa-mail-forward"></i></button> 
                                                      
                                                      </td>
                                                  
                                                     <td >{{  UserCommission.PerilsName }} </td> <th >: </th>
                                                     <td>{{   UserCommission.ClassName}}</td>
                                                     <td>{{   UserCommission.AmountCom}}</td>
-                                                     <td> <button  type="button" class="btn btn-primary" @click="EditUserCommission(UserCommission)" v-if="UserCommission.status == '1'"> <i class="fa  fa-pencil"></i></button>   </td>
                                                    
                                                 </tr>
                                         </table>
@@ -153,9 +139,7 @@
                                 <label for="name" v-if="Commission.PerilsCode != 'OD'"> {{ Commission.PerilsCode }}</label>
                                 <label v-if="Commission.PerilsCode == 'OD'"> {{ Commission.PerilsCode + " / TF" }}</label>
                                   
-                                <input type="number"  step="any" class="form-control"    v-model="form.AmountCommInput[Commission._id + index ]" placeholder="Amount" />
-
-                                
+                                <input type="number"  class="form-control"    v-model="form.AmountCommInput[Commission._id + index ]" placeholder="Amount" />
                                         
                             </div>
                            
@@ -188,7 +172,6 @@
                                                     <td >{{  RolesAccess.role_name_access }} </td> <th >: </th>
                                                     <td>{{   RolesAccess.role_number_url}}</td>
                                                     <td>{{   RolesAccess.acctTypeSubName}}</td>
-                                                   
                                                    
                                                 </tr>
                                         </table>
@@ -333,11 +316,6 @@ export default {
                 AssignLoopVal: [],
                 RemarksRemove:'',
                 RemarksRestore:'',
-                UserCommissionID:'',
-                RemarksCom:'',
-                NewAmountCom:'',
-                DailyTask:'',
-                TotalTask:'',
              
 
             }),
@@ -345,154 +323,6 @@ export default {
     },
     
     methods: {
-
-      async  EditUserCommission(UserCommission){  
-                this.form.UserCommissionID = UserCommission.UserCommissionID;
-               // alert(EmployeeProfiles.AccountNo);
-                    
-             const { value: text } = await Swal.fire({
-                title: " CONFIRMED ? ",
-                text: " You want to EDIT this USER's Commission ? ",
-                icon: "info",
-                input: 'text',
-                //step:'any',
-                inputPlaceholder: 'NEW amount :',
-               
-                inputAttributes: {
-                    'aria-label': 'Type your NEW amount   here'
-                },
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'YES, Input Amount'
-            }).then(result => {
-                    this.form.NewAmountCom = result.value;
-                 if (result.value) {
-
-                         
-                             this.form.post("api/EditUserCommission/" )
-                            .then(() => {
-                                Swal.fire(
-                                    " UPDATED ",
-                                    " USER's Commission has been UPDATED",
-                                    "success"
-                                );
-                                   this.LoadUsersProfileView();
-								   
-                            })
-
-                       
-                             .catch(() => {
-                            Swal.fire(
-                                "Failed",
-                                "There was something wrong",
-                                "warning"
-                            );
-                        });
-                }
-           })
-               
-                 
-        },
-
-
-
-           async  RemoveUserCommission(UserCommission){
-                this.form.UserCommissionID = UserCommission.UserCommissionID;
-               // alert(EmployeeProfiles.AccountNo);
-                    
-             const { value: text } = await Swal.fire({
-                title: " CONFIRMED ? ",
-                text: " You want to REMOVE this USER's Commission ?",
-                icon: "info",
-                input: 'textarea',
-                inputPlaceholder: 'Type your message /reason here...',
-                inputAttributes: {
-                    'aria-label': 'Type your message/reason  here'
-                },
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, leave remarks!'
-            }).then(result => {
-                    this.form.RemarksCom = result.value;
-                 if (result.value) {
-
-                         
-                             this.form.post("api/RemoveUserCommission/" )
-                            .then(() => {
-                                Swal.fire(
-                                    " REMOVE ",
-                                    " USER's Commission has been REMOVE",
-                                    "success"
-                                );
-                                   this.LoadUsersProfileView();
-								   
-                            })
-
-                       
-                             .catch(() => {
-                            Swal.fire(
-                                "Failed",
-                                "There was something wrong",
-                                "warning"
-                            );
-                        });
-                }
-           })
-               
-                 
-        },
-
-
-
- async  RestoreUserCommission(UserCommission){
-                this.form.UserCommissionID = UserCommission.UserCommissionID;
-               // alert(EmployeeProfiles.AccountNo);
-                    
-             const { value: text } = await Swal.fire({
-                title: " CONFIRMED ? ",
-                text: " You want to RESTORE this USER's Commission ?",
-                icon: "info",
-                input: 'textarea',
-                inputPlaceholder: 'Type your message /reason here...',
-                inputAttributes: {
-                    'aria-label': 'Type your message/reason  here'
-                },
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, leave remarks!'
-            }).then(result => {
-                    this.form.RemarksCom = result.value;
-                 if (result.value) {
-
-                         
-                             this.form.post("api/RestoreUserCommission/" )
-                            .then(() => {
-                                Swal.fire(
-                                    " RESTORE ",
-                                    " USER's Commission has been RESTORE",
-                                    "success"
-                                );
-                                   this.LoadUsersProfileView();
-								   
-                            })
-
-                       
-                             .catch(() => {
-                            Swal.fire(
-                                "Failed",
-                                "There was something wrong",
-                                "warning"
-                            );
-                        });
-                }
-           })
-               
-                 
-        },
-
 
          PushDataIntoArray(){
             let perilscode =  this.GetPerilsComm.length;
@@ -749,8 +579,7 @@ export default {
                                     this.form.SubAgent      =  detail.SubAgent;
                                     this.form.SubAgent      =  detail.SubAgent;
                                     this.form.LimitAmount      =  detail.ApprovedLimit;
-                                    this.form.DailyTask =  detail.MktgTaskCounterDaily;
-                                    this.form.TotalTask =  detail.MktgTaskCounter;
+                                    //this.form.select_department =  detail.department;
                                     this.form.select_department1  =  detail.department;
 
                                     this.$forceUpdate();

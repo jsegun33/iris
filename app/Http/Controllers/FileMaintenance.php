@@ -23,8 +23,6 @@ use App\CarBrand;
 use App\ProductLinesSurcharge;
 use App\ListBarangay;
 use App\ListCity;
-use App\ListProvince;
-use App\ProductLinesCharges;
 
 
 
@@ -63,7 +61,7 @@ class FileMaintenance extends Controller
         $TypeSubLinks->UserMenu 	                = round($request['UserMenu']);
         $TypeSubLinks->save();
         
-       
+
         $UserRoleAccesss	= UserRoleAccess::select('*')->where('active',1)->where('role_number_access',trim($request['_id']) )->get(); 
         foreach($UserRoleAccesss as $UserRoleAccess)
         { 
@@ -98,10 +96,10 @@ class FileMaintenance extends Controller
             $TypeSubLink->save();
         }
 
-        $UserRoleAccess			= UserRoleAccess::select('*')->where('active',1)->where('role_number_access',trim($id) )->get();  
+        $UserRoleAccess			= UserRoleAccess::select('*')->where('active',"1")->where('role_number_access',trim($id) )->get(); 
         foreach($UserRoleAccess as $UserRoleAccesss)
         { 
-            $UserRoleAccesss->active 	= 0;
+            $UserRoleAccesss->active 	= '0';
             $UserRoleAccesss->save();
         } 
 
@@ -975,43 +973,15 @@ public function GetPerils()
 
 public function GetBarangays($id) 
 {
-    return ListBarangay::select('*')->where('active',1)->where('CityCode',round($id))->orderBy('BrgyName','ASC')->get();
+    return ListBarangay::select('*')->where('active', 1)->where('CityCode',round($id))->orderBy('BrgyName','ASC')->get();
  
 }
 
-//updated by: Joleth
-//updated date: 05/19/2020
-public function GetCities($id) 
+public function GetCities() 
 {
-    return ListCity::select('*')->where('active',1)->where('ProvCode',round($id))->orderBy('CityName','ASC')->get();
+    return ListCity::select('*')->where('active', 1)->orderBy('CityName','ASC')->get();
  
 }
-
-//added by: Joleth
-//added date: 05/19/2020
-public function GetProvinces() 
-{
-    return ListProvince::select('*')->where('active',1)->orderBy('ProvName','ASC')->get();
- 
-}
-
-public function AddCharges(Request $request)
-    {
-        $currentYear  = date('Y');
-        $CountCharges    = ProductLinesCharges::count() + 1;
-        $NewCountCharges = str_pad($CountCharges, 4, '0' , STR_PAD_LEFT);
-
-        return ProductLinesCharges::create([
-            'ChargesNo'      => $currentYear."-".$request['ChargesCode']."-".$NewCountCharges,
-            'ChargesCode'    => $request['ChargesCode'],
-            'ChargesName'    => $request['ChargesName'],
-            'ChargesAmount'  => $request['ChargesAmount'],
-            'ChargesType'    => $request['ChargesType'],
-            'ChargesRemarks' => $request['ChargesRemarks'],
-            'Active'         =>  "1",
-        ]);
-    }
-
 
 
 

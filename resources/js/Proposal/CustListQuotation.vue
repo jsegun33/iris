@@ -1,26 +1,25 @@
 <template>
-    <div id="MainPage" >
-      
-         <!-- <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-         </section> -->
-
-
-     <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations === 'NO RECORD FOUND'">
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >{{ this.RequestQuotations  }} </big></h1>
-                </div>
-    </section>
+    <div>
+        <section class="content-header">
+            <h1>
+                 Lists Customer Quotation
+                <small>Table of Quotation</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fa fa-file-text"></i> Quotation / Proposal</a></li>
+                <li class="active">Proposal List</li>
+            </ol>
+        </section>
+     
          
             
        
-        <section class="content DisabledSection ContentSection" v-if="this.RequestQuotations !== 'NO RECORD FOUND'">
+        <section class="content">
             <div class="box box-success">
                 <div class="box-header">
-                    <h3 class="box-title"><strong>List Request Proposals / Quotations</strong></h3><br/>
-                   
+                    <h3 class="box-title"><strong>List of all Request Proposals / Quotations</strong></h3>
+
                     <div class="box-tools">
                         <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
                             <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
@@ -34,7 +33,7 @@
                     </div>
                 </div>
 
-                <div class="box-body table-responsive" >
+                <div class="box-body table-responsive">
                     <table class="table table-hover text-center">
                         <tbody>
                             <tr>
@@ -53,8 +52,7 @@
                                 <td>{{ RequestQuotationss.Denomination }}</td>
                                 <td>{{ RequestQuotationss.FirstName}}  {{RequestQuotationss.MiddleName}}  {{RequestQuotationss.LastName}}</td>
                                 <td>{{ RequestQuotationss.AmountDue | Peso }}</td>
-                                <td>
-                                        <small v-if="RequestQuotationss.QuoteExpiry !== '0'">{{ RequestQuotationss.QuoteExpiry | DateFormat}}  </small>  <br/> 
+                                <td>{{ RequestQuotationss.QuoteExpiry | DateFormat}}   <br/> 
                                         <span class="label label-danger"  v-if="RequestQuotationss.QuoteExpiryRemarks == 'Expired'">{{ RequestQuotationss.QuoteExpiryRemarks}}</span>
                                         <br/> <span class="label label-primary"  v-if="RequestQuotationss.CustMessage != null ">{{ RequestQuotationss.CustMessage}}</span>
                                 </td>
@@ -64,9 +62,9 @@
                                     
                                 </td>
                                
-                                <td @mouseover="GetResquestNo(RequestQuotationss)">
-                                    <router-link :to="'/ProposalOptions?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.RequestModify > 0  || RequestQuotationss.OktoAccept  == 1"  class="btn btn-success" style="text-decoration: none;">
-                                        <i class="fa fa-eye"  > </i> 
+                                <td>
+                                    <router-link :to="'/ProposalOptions?'+ RequestQuotationss.RequestNo" v-if=" RequestQuotationss.RequestModify > 0  || RequestQuotationss.OktoAccept  == 1"  class="btn btn-success" style="text-decoration: none;">
+                                        <i class="fa fa-eye"></i> 
                                         Accept
                                     </router-link>
                                     <router-link  :to="'/CustAcceptedView?'+ RequestQuotationss.RequestNo"  v-if="RequestQuotationss.AcceptedOption > 0 || RequestQuotationss.RequestModify > 0" class="btn btn-info"  style="text-decoration: none;">
@@ -78,7 +76,7 @@
                                        Pay
                                     </router-link>
 
-                                     <router-link  :to="'/Customer-Issuance?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.Status == 'Approved'"    class="btn btn-warning"  style="text-decoration: none;">
+                                     <router-link  :to="'/Customer-Issuance?'+ RequestQuotationss.RequestNo" v-if="RequestQuotationss.PaymentMode != '0' && RequestQuotationss.PolicyApproverSignature != ' '"    class="btn btn-warning"  style="text-decoration: none;">
                                         <i class="fa fa-eye"></i> 
                                        Policy
                                     </router-link>
@@ -109,9 +107,9 @@ export default {
 
      mounted() {
             console.log('Component mounted.')
-            this.StartLoading();
+            //this.getResults();
            axios.get("GetUserData"  ).then(({ data }) => (this.UserDetails = data));	
-        
+          // this.loadRequestQuotation();
         },
          data() {
             return {
@@ -122,23 +120,10 @@ export default {
                 RetrieveTimeInterval2:null,
                  RetrieveTimeInterva3:null,
                 RetrieveTimeInterval4:null,
-
-            
-               
-               
-               IntervalLoading:null,
-                IntervalLoading1:null,
-                 isShowingLoading:true,
-                 isShowingRecord:false,
-                 timedCount:5000,
-                 timer:0,
-                 clock:47,
-                 timer_is_on:0,
+                //counter:1,
          
                     form: new Form({
                        // UserLastName:[],
-                       AcctNo: '',
-                       RequestNo: '',
                         
                     }),
              }
@@ -147,56 +132,9 @@ export default {
 
 
         methods: {
-           
-
-            GetResquestNo(RequestQuotationss){
-                this.form.RequestNo = RequestQuotationss.RequestNo;
-                //alert(RequestQuotationss.RequestNo);
-
-            },
-
-          async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
 
          loadRequestQuotation() {
          this.RetrieveTimeInterval = setInterval(() => {   
-             
-
-                this.form.AcctNo = this.UserDetails.AccountNo;
                let PassNO            = this.UserDetails.AccountNo;
                 let PassEmail         = this.UserDetails.email;	    		
                 let NewPassID         = PassNO.trim() ; 
@@ -204,18 +142,19 @@ export default {
             axios.get("api/GetRequestQuotationCustomer/" + NewPassID).then(({ data }) => {
                     (this.RequestQuotations = data)
 
+                   
+             
                   }).catch((response) => {
-                    //    alert(response  + " pls. try to refresh ");
-                    //     this.RetrieveTimeInterval3 = setInterval(() => {
-                    //           this.$router.go() ;
-                    //    },10000) 
+                       alert(response  + " pls. try to refresh ");
+                        this.RetrieveTimeInterval3 = setInterval(() => {
+                              this.$router.go() ;
+                       },10000) 
 
                 });
-             }, 200)
+             }, 1000)
              this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                          
-                      },2000) 
+                      },3000) 
          } 
 
             //     let PassNO            = this.UserDetails.AccountNo;

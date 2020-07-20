@@ -1,6 +1,7 @@
-<!DOCTYPE html   >
+
+<!DOCTYPE html>
 <html>
-<head >
+<head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!-- Tell the browser to be responsive to screen width -->
@@ -27,8 +28,6 @@
   <link rel="stylesheet" href="{{asset('adminlte/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css')}}">
   <!-- Vue MultiSelect -->
   <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
-
-  <link rel="stylesheet" href="{{asset('css/main.css')}}">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -192,15 +191,10 @@
                                 <!-- Menu Footer-->
                                 <li class="user-footer">
                                     <div class="pull-left">
-                                        <a href="/Dashboard" class="btn btn-success btn-flat" style="text-decoration: none;">
+                                        <a href="#" class="btn btn-success btn-flat" style="text-decoration: none;">
                                             <i class="fa fa-user"></i>
                                             Profile
                                         </a>
-                                        {{-- <a v-bind:href="'/ViewForSignature?'+ RequestQuotationss.RequestNo" class="btn btn-warning" style="text-decoration: none;">
-                                            <i class="fa fa-user"></i> 
-                                            Profile
-                                        </a>  --}}
-
                                     </div>
                                     <div class="pull-right">
                                         <a class="btn btn-danger btn-flat" 
@@ -245,7 +239,7 @@
                         </a> -->
                     </div>
                 </div>
-                {{-- <form action="#" method="get" class="sidebar-form">
+                <form action="#" method="get" class="sidebar-form">
                     <div class="input-group">
                         <input type="text" name="q" class="form-control" placeholder="Search...">
                         <span class="input-group-btn">
@@ -254,7 +248,7 @@
                             </button>
                         </span>
                     </div>
-                </form> --}}
+                </form>
                 <!-- sidebar menu: : style can be found in sidebar.less -->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Dashboard</li>
@@ -497,7 +491,7 @@
                                     ->select('*')  
                                     ->where('AccountNo', Auth::user()->AccountNo)  
                                     ->where('active', 1)  
-                                    ->orderBy('acctTypeName','DESC')
+                                    //->where('UnderSubMenu',$GetRoles['acctType']) 
                                     ->groupBy('acctTypeName','acctType','UnderSubMenu','icon_display')  
                                     ->get();
                                      foreach ($GetRole as $GetRoles){
@@ -507,7 +501,6 @@
                                             ->where('UnderSubMenu','!=', $GetRoles['UnderSubMenu'] )  
                                             ->where('active',1)  
                                             //->groupBy('UnderSubMenu')  
-                                            ->orderBy('acctTypeName','DESC')
                                             ->first();
 
                                        if ( !empty($GetRoleTypes['UnderSubMenu'] )  ) {
@@ -520,7 +513,7 @@
                                         <i class="{{ $GetRoles['icon_display'] }}"></i>
                                         <?php  }  ?>  
                                         
-                                        {{ $GetRoles['acctTypeName'] }}   <!-------Agent Menu-------->
+                                        {{ $GetRoles['acctTypeName'] }}
                                       <span class="pull-right-container">
                                         <i class="fa fa-angle-left pull-right"></i>
                                       </span>
@@ -539,7 +532,7 @@
                                             ->get();
                                         foreach ($GetSubMenu as $GetSubMenus){
                                         ?>
-                                                  <li><router-link to="{{ $GetSubMenus['role_number_url'] }}"> <?php if ( !empty($GetSubMenus['icon_display'])) {?><i class="{{ $GetSubMenus['icon_display'] }}"></i><?php }?>{{ $GetSubMenus['role_name_access'] }}</router-link></li>  <!---ok-->
+                                                  <li><router-link to="{{ $GetSubMenus['role_number_url'] }}"> <?php if ( !empty($GetSubMenus['icon_display'])) {?><i class="{{ $GetSubMenus['icon_display'] }}"></i><?php }?>{{ $GetSubMenus['role_name_access']  }}</router-link></li>  <!---ok-->
                                         <?php }  ?>
 
 
@@ -763,7 +756,7 @@
             <router-view></router-view>
         </div>
 
-        <footer class="main-footer no-print">
+        <footer class="main-footer">
             <div class="pull-right hidden-xs">
                 <b>Version</b> 1.0.0
             </div>
@@ -772,9 +765,8 @@
             </strong> All rights reserved.
         </footer>
     </div>
-  
-<script src="/js/app.js"></script>
 
+<script src="/js/app.js"></script>
 <!-- jQuery 3 -->
 <script src="{{asset('adminlte/bower_components/jquery/dist/jquery.min.js')}}"></script>
 <!-- jQuery UI 1.11.4 -->
@@ -793,15 +785,6 @@
 <script src="{{asset('adminlte/bower_components/fastclick/lib/fastclick.js')}}"></script>
 <!-- AdminLTE App -->
 <script src="{{asset('adminlte/dist/js/adminlte.min.js')}}"></script>
-{{-- <script src="{{asset('adminlte/bower_components/datatables.net/js/jquery.dataTables.min.js')}}"></script>
-<script src="{{asset('adminlte/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js')}}"></script> --}}
-
 <script src="{{asset('js/vue.min.js')}}"></script>
-{{-- <script src="{{asset('js/mainjs.js')}}"></script> --}}
-
-
-
-
-
 </body>
 </html>

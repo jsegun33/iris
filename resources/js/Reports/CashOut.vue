@@ -1,7 +1,7 @@
 <template>
-    <div id="MainPage" >
+    <div>
         <!-- Content Header (Page header) -->
-        <!-- <section class="content-header">
+        <section class="content-header">
             <h1>
                 Agent 
                 <small>Commission Convert</small>
@@ -22,23 +22,9 @@
                     Reports
                 </li>
             </ol>
-        </section> -->
+        </section>
 
-         <!-- <section class="content DisabledSection ContentSection" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-         </section> -->
-
-
-        <section class="content DisabledSection ContentSection" v-if="this.details === 'NO RECORD FOUND'" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h4> <big class="label label-warning" >{{ this.details  }} </big></h4>
-                </div>
-      </section>
-
-
-        <section class="content DisabledSection ContentSection" v-if="this.details !== 'NO RECORD FOUND'" >
+        <section class="content" >
             <div class="row" >
                 <div class="col-md-5">
                     <div class="box box-primary">
@@ -52,11 +38,8 @@
                                 {{ details[0].FirstName + ' '+ details[0].MiddleName   + ' ' + details[0].LastName }} 
                             </h3>
 
-                            <p class="text-muted text-center" v-if="this.UserDetails.AgentType != null">
+                            <p class="text-muted text-center">
                                 {{ UserDetails.AgentType +  " : " + UserDetails.SubAgent }}
-                            </p>
-                             <p class="text-muted text-center" v-else>
-                               Department: {{ UserDetails.department  }}
                             </p>
 
 
@@ -162,10 +145,8 @@
                                     <!-- <h4>Request #:{{ values.RequestNo }}</h4> -->
                                     <div class="table-responsive"  >
                                             <table class="table table-bordered" >
-                                               <tr> 
-                                              <th>Policy No.</th>
-                                                <th>Request No </th>
-                                                
+                                               <tr> <th>Request No   {{ form.AccountNo}}</th>
+                                                <th>Plate No.</th>
                                                 <th>Status</th>
                                                 <th>Available Amount</th>
                                                 
@@ -174,9 +155,9 @@
 
 
                                                 <tr v-for="log in logs" :key="log._id">
-                                                    <td>{{log.PolicyNo}}</td>
+                                       
                                                     <td >{{log.RequestNo }} </td>
-                                                    
+                                                    <td>{{log.PlateNumber}}</td>
                                                     <td> <span class="label label-warning" >{{log.StatusCashOut}}</span></td>
                                                     <td style="text-align:right">{{log.TotalCommission | peso}}</td>
                                                     
@@ -202,9 +183,6 @@
                 </div>
             </div>
         </section>
-
-       
-
     </div>
 </template>
 
@@ -212,9 +190,7 @@
 export default {
     mounted: function(){ 
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
-        
-        this.StartLoading();
-         this.loadCommission();
+        this.loadCommission();
     },
 
 
@@ -227,14 +203,6 @@ export default {
                isDisabled:true,
                RetrieveTimeInterval:null,
                 RetrieveTimeInterval2:null,
-
-               TimeLoading1:null,
-            TimeLoading:null,
-            TimeLoadingInternet:null,
-            ConnectionStatus:'',
-
-
-
               form: new Form({
                  StartDate:'',
                  EndDate:'',
@@ -252,43 +220,6 @@ export default {
         
     },
     methods: {
-  async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
       
        async CashOutComm(){
           this.form.AccountNo =  this.UserDetails.AccountNo;
@@ -376,6 +307,10 @@ export default {
                
             // }
 
+
+
+          
+          
         let AmountDeduct          = this.form.CashOutAmount;
         let MaxComm               =  this.logs[parseFloat(this.logs.length) - 1].CompTotalCommission;
       
@@ -397,10 +332,9 @@ export default {
 
          loadCommission() {
        this.RetrieveTimeInterval =  setInterval(() => {
-                     
                         let PassID = this.UserDetails.AccountNo; // uri[1].trim();
 
-             axios.get("api/AgentCommReportCashOut/" + PassID).then(({ data }) => (this.details = data));
+                         axios.get("api/AgentCommReportCashOut/" + PassID).then(({ data }) => (this.details = data));
                 let PassData;
                     if (this.form.StartDate == '' || this.form.EndDate == ''){
                     let date = new Date();
@@ -420,30 +354,45 @@ export default {
                         this.logs = data
                     //  this.form.RequestNo = this.logs.RequestNo;
                     }).catch((response) => {
-                            // Swal.fire(
-                            //     " No Record !",
-                            //     " FOUND " + response,
-                            //     "warning"
-                            // );
+                            Swal.fire(
+                                " No Record !",
+                                " FOUND " + response,
+                                "warning"
+                            );
 
                     })
                 // alert(this.logs.length);
-                 
+                    console.log();
               
           }
-        , 200)
+        , 1000)
 
       this.RetrieveTimeInterval2 = setInterval(() => {
                 clearInterval(this.RetrieveTimeInterval);  
-             
                   
-            },2000) 
+            },5000) 
 
      }
 
     },  
 
-   
+    created() {
+    //     let uri = window.location.href.split("?");
+    //  this.RetrieveTimeInterval =  setInterval(() => {
+      
+    //   let PassID = this.UserDetails.AccountNo; 
+        
+    //     axios
+    //         .get("api/AgentCommReportCashOut/" + PassID)
+    //         .then(({ data }) => (this.details = data));
+    //     }
+    //     , 1000)
+
+    //   this.RetrieveTimeInterval2 = setInterval(() => {
+    //             clearInterval(this.RetrieveTimeInterval);  
+                  
+    //         },3000) 
+    },
 
     computed: {
         orderedOptionNo() {

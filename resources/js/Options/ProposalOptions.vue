@@ -15,8 +15,8 @@
 
 <template >
 
-  <div id="MainPage" >
-    <!-- <section class="content-header">
+  <div>
+    <section class="content-header">
       <h1>
         Quotations
         <small>List of Quotations Approved</small>
@@ -26,25 +26,11 @@
         <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
         <li class="active">Quotation </li>
       </ol>
-    </section> -->
+    </section>
 
     <!-- Main content -->
-
-     <!-- <section class="content" v-show="isShowingLoading" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >Loading... {{ this.IntervalLoading  }}</big></h1>
-                </div>
-    </section> -->
-
- <section class="content DisabledSection ContentSection" v-if="form.AcctNo.trim() !==  UserDetails.AccountNo.trim()" >
-                <div class="box-header with-border box box-success" id="quotehead" >
-                    <h1> <big class="label label-warning" >NO RECORD FOUND</big></h1>
-                </div>
- </section>
-
-
 	
-    <section class="content DisabledSection ContentSection"  v-if="form.AcctNo.trim() ===  UserDetails.AccountNo.trim()"  >
+    <section class="content" v-if="form.AcctNo.trim() ===  UserDetails.AccountNo.trim()"  >
       <!-- <section class="content"  > -->
        <!-- <section class="content" > -->
         <div class="row" >
@@ -69,10 +55,7 @@
                         <div class="row">
                             <div class="table-responsive">
                                     <table style="width:100%" >
-                                            <tr><th style="text-align:left">TO</th> <th>:</th> 
-                                                 <big v-if="form.Individual !=='Others'">   {{ form.AcctName}} </big>
-                                                  <big v-else>   {{ form.RegisteredName}} </big>
-                                            </tr>
+                                            <tr><th style="text-align:left">TO</th> <th>:</th> <th>{{ form.AcctName}}</th></tr>
                                              <tr><th style="text-align:left"><br/></th></tr>
                                             <tr><th style="text-align:left">FROM</th> <th>:</th> <th>{{ form.AssignCRD}} <br/> 
                                                     <small>
@@ -117,13 +100,12 @@
                                                 <th  style="text-align:right;border: 1px solid black;border-left:transparent;border-top:transparent;border-right:transparent">W/ AOG <br/>Premium</th>
                                             </tr>
                                             <tbody>
-                                                <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id" >
+                                                <tr v-for="coverage in URLQueryPerilsCoveragesGroups.ListCoverages" :key="coverage._id">
                                                 
-                                                    <td  v-if = "coverage.PerilsCode  ==='OD'">{{  coverage.PerilsName + " / Theft"}} </td>
-                                                    <td  v-if = "coverage.PerilsCode  !=='OD'">{{  coverage.PerilsName }} </td>
+                                                    <td>{{  coverage.PerilsName }} </td>
                                                     <td style="text-align:right" >{{  coverage.CoveragesAmount | Peso }}</td>
                                                     <td style="text-align:right"  v-if = "coverage.PerilsCode  ==='AOG' && form.NoAOG  ==='YES'"> NONE </td>
-                                                    <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' &&  form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
+                                                    <td style="text-align:right"  v-if = "coverage.PerilsCode  !='AOG' && form.NoAOG  ==='YES'">{{  coverage.CoveragesPremium | Peso }}</td>
                                                     <td style="text-align:right" >{{  coverage.CoveragesPremium | Peso }}</td>
                                                 </tr>
                                                 <!---------Total Premium--------------------->
@@ -203,7 +185,7 @@
                                     Accept  
                                 </button>
                                 <br>
-                                <a href="#" class="text-red" style="text-decoration: underline;" @mouseover="QueryByOPtion1($event)"  :value="URLQueryPerilsCoveragesGroups.OptionNo + ';;' + URLQueryPerilsCoveragesGroups.RequestNo" @click='DeclineProposal()'>Decline</a>
+                                <a href="#" class="text-red" style="text-decoration: underline;">Decline</a>
                             </div>
 
 
@@ -217,7 +199,7 @@
 
 
                             <button type="button" class="btn btn-lg btn-success no-print" @click='ComposeMessageCustomer()'  @mouseover="QueryByOPtion1($event)"  :value="URLQueryPerilsCoveragesGroups.OptionNo + ';;' + URLQueryPerilsCoveragesGroups.RequestNo + ';;' + form.CustMessage[URLQueryPerilsCoveragesGroups.OptionNo]" > Submit    </button><br>
-                            <a class="text-red" style="text-decoration: underline; no-print" @mouseover="QueryByOPtion1($event)"  :value="URLQueryPerilsCoveragesGroups.OptionNo + ';;' + URLQueryPerilsCoveragesGroups.RequestNo" @click='DeclineProposal()'>Decline</a>
+                            <a class="text-red" style="text-decoration: underline; no-print">Decline</a>
                         </div>
                     </form>
                 </div>
@@ -231,7 +213,7 @@
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Additional Details </h4>
+                <h4 class="modal-title">Additional Details</h4>
               </div>
               <div class="modal-body">
 			 <div class="row">
@@ -317,7 +299,7 @@
                                     <option value="" selected disabled >Select Banks</option>
 									                  <option    v-for="GetListBankss in GetListBanks" :key="GetListBankss._id"  v-bind:value="GetListBankss.BankName"  >{{ GetListBankss.BankName}}</option>
                               </select>
-                                  <input v-model="form.bankNameAddress" type="text" class="form-control input-sm" :readonly="!form.mortgage" placeholder="Enter Branch"/>
+                                  <input v-model="form.bankNameAddress" type="text" class="form-control input-sm" :readonly="!form.mortgage" placeholder="Enter Mortgage"/>
                  
                       </div>
                      
@@ -370,10 +352,10 @@
                 <div class="row">
                     <div class="col-md-12">
                       <div class="form-group">
-                      <!-- <label for=""> Mode of Delivery :</label> -->
+                      <label for=""> Mode of Delivery :</label>
                       </div>
                         <div class="col-md-1"> </div>
-                        <!-- <div class="col-md-12">
+                        <div class="col-md-12">
                           <div class="form-group"> 
                            
                             <div class="col-md-4" style="padding: 0px 2px;">
@@ -406,7 +388,7 @@
                               </div>
                                
                           </div>
-                        </div> -->
+                        </div>
 
 
                       <div class="row">
@@ -415,24 +397,17 @@
                         <label for="">Mode of Payment :</label>
                       </div>
                         <div class="col-md-1"></div>
-                        <div class="col-md-11"> 
+                        <div class="col-md-11">
                           <div class="form-group">
-                             <div class="col-md-3" style="padding: 0px 2px;" v-if="form.RequestType ==='Manual'">
-                                    <input v-model="form.PaymentMode" type="radio" id="Cashier" value="Cashier">
-                                      <label for="Cashier" style="margin: 0px">Cashier</label>
-                            </div>
-                             <div class="col-md-3" style="padding: 0px 2px;">
-                                      <input v-model="form.PaymentMode" type="radio" disabled id="Paymaya" value="Paymaya">
-                                      <label for="Paymaya" style="margin: 0px">Paymaya</label><br/>
-                                      <small>Available Soon</small>
-                            </div>
-                            
-                            <div class="col-md-3" style="padding: 0px 2px;">
+                            <div class="col-md-4" style="padding: 0px 2px;">
                                     <input v-model="form.PaymentMode" type="radio" id="Paypal" value="Paypal">
                                       <label for="Paypal" style="margin: 0px">Paypal</label>
                             </div>
-                           
-                           <div class="col-md-3" style="padding: 0px 2px;">
+                            <div class="col-md-4" style="padding: 0px 2px;">
+                                <input v-model="form.PaymentMode" type="radio" id="Paymaya" value="Paymaya">
+                                      <label for="Paymaya" style="margin: 0px">Paymaya</label>
+                          </div>
+                           <div class="col-md-4" style="padding: 0px 2px;">
                                 <input v-model="form.PaymentMode" type="radio" id="Dragonpay" value="Dragonpay">
                                       <label for="Dragonpay" style="margin: 0px">Dragonpay</label>
                           </div>
@@ -465,28 +440,6 @@
     </div>
  <!-- <pre>{{ $data }}</pre> -->
     </section>
- <!-- Modal -->
-        <div class="modal fade" id="LoadingModal" data-backdrop="static" data-keyboard="false" href="#">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button> -->
-                        <div class="overlay" style="color:#00a65a">
-                             <h1>  <i class="fa fa-refresh fa-spin" > </i> Loading...</h1> 
-                            
-                        </div>
-                         <small>Status :  {{this.ConnectionStatus}}</small>
-                    
-                    </div>
-
-                </div>
-            </div>
-        </div>
-        <!-- Modal -->
-
-
   </div>
 </template>
 
@@ -504,10 +457,14 @@ export default {
          console.log('Component mounted.')  
          axios.get("GetUserData").then(({ data }) => (this.UserDetails = data));
 
-              
-       this.StartLoading();
-        this.LoadData();
-      
+                    let uri         = window.location.href.split('?');
+                    let PassID      = uri[1].trim();
+        axios.get("api/URLQueryRequestModify/" + PassID ) .then(({ data }) => (this.ResultQueryRequest = data)  );
+        axios.get("api/CustomerRequestQuotation/" + PassID ) .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data)  );
+        axios.get("api/GetListBanks/") .then(({ data }) => (this.GetListBanks = data)  );
+       axios.get("api/URLQueryRequestModify/" + PassID).then(({ data })  => (this.ResultQueryRequest = data)  );
+       
+       
        
        
     },
@@ -526,12 +483,9 @@ export default {
              isShowing:false,
               isShowingDiscount:false,
             image: '',
-
-             ConnectionStatus:'',
-
             
             form: new Form({
-                RequestNo:'',
+              RequestNo:'',
                 TINNumber:'',
                 EmailAddress:'',
                 ContactNumber:'',
@@ -577,7 +531,7 @@ export default {
                     bankNameAddress: '',
                     hardCopy: '',
                     delivery: '',
-                    PaymentMode: '0',
+                    PaymentMode: '',
                     deliveryAddress: '',
                     address: '', // 
                     barangay: '',
@@ -597,8 +551,6 @@ export default {
                   DiscountedAmount: '',
                   TotalAmountComm: '',
                   CashOutDiscount: '0.00',
-                  OptionNoByClick: '',
-                  RequestType: '',
 				  
 
              
@@ -611,98 +563,20 @@ export default {
     },
 
     methods: {
-
-       async StartLoading() {
-              
-               let timerInterval
-                await Swal.fire({
-                title: '<h3>Loading Data</h3>',
-                text: 'Please wait...',
-                timer: 3000,
-                timerProgressBar: true,
-                icon: 'info',
-               // background: '#f39c12',
-                timerProgressBarColor:"#00a65a",
-             
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                onBeforeOpen: () => {
-                    Swal.showLoading()
-                    timerInterval = setInterval(() => {
-                    const content = Swal.getContent()
-                    if (content) {
-                        const b = content.querySelector('b')
-                        if (b) {
-                        b.textContent = Swal.getTimerLeft()
-                        }
-                    }
-                    }, 100)
-                },
-                onClose: () => {
-                    clearInterval(timerInterval)
-                     $(".ContentSection").removeClass("DisabledSection");
-                }
-                }).then((result) => {
-               
-                })
-              
-            },
-
-
-      DeclineProposal(){
-        
-              Swal.fire({
-                title: " CONFIRMED ?",
-                text: " Decline Quotation",
-                icon: "error",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes!"
-            }).then(result => {
-               if (result.value) {
-                    let uri         = window.location.href.split('?');
-                    let PassID      = uri[1].trim();
-                  
-                  this.form.post('api/DeclineProposal').then(() => {
-                    // Success!
-                     Swal.fire(
-                        ' Decline ! ',
-                        `Quotation Declined.`,
-                        'success'
-                    )
-                    this.LoadData();
-                   
-                }).catch((response) => {
-                        alert(response);
-
-                });
-            }
-            })
-          
-
-
-      },
-
-
       ShowDiscount(e){
           this.isShowingDiscount  =true;
          
-          //this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountComm ;
+          this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountComm ;
          
            let OptionAmountDue       =  e.target.value.trim(); //this.form.OptionWithAOG;
             let AmountDue;let ComputeDeductedAmount;  let AmountDeduct  = this.form.DiscountDeduct;
             if (OptionAmountDue == "NO"){
                     AmountDue  = this.form.ModalDisplayWithAOG ;
                     ComputeDeductedAmount = parseFloat(AmountDue) - parseFloat(AmountDeduct);
-                    
-                     this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountCommAOG ;
                 }else{
                   
                   AmountDue  = this.form.ModalDisplayTotalAmountDue ;
                   ComputeDeductedAmount = parseFloat(AmountDue) - parseFloat(AmountDeduct);
-                   this.form.TotalAmountComm  =   this.AgentComm[0].TotalAmountComm ;
-                   
                 }
                 //  alert(OptionAmountDue);
                  this.form.DiscountedAmount =   ComputeDeductedAmount;
@@ -745,7 +619,7 @@ export default {
                  if ( parseFloat(this.form.DiscountDeduct)  >  parseFloat(this.UserDetails.CashOutDiscount )){
                      this.form.CashOutDiscount   = 0.00; //parseFloat(this.form.DiscountDeduct - this.UserDetails.CashOutDiscount); 
                  }else{
-                     this.form.CashOutDiscount   = parseFloat(this.UserDetails.CashOutDiscount - this.form.DiscountDeduct  ); 
+                    this.form.CashOutDiscount   = parseFloat(this.UserDetails.CashOutDiscount - this.form.DiscountDeduct  ); 
                  }
                  
           }
@@ -818,16 +692,17 @@ export default {
 			
 			      this.form.ModalDisplayWithAOG         =ModalDisplayWithAOG.toFixed(2);
             this.form.ModalDisplayTotalAmountDue  = GetAmountDue[3].trim();
-            this.form.OptionNoByClick = GetAmountDue[0].trim();
-            let PassIDCom =     this.form.AcctNo + ";;" + this.form.RequestNo + ";;" + GetAmountDue[0].trim();
+      
+         let PassIDCom =     this.form.AcctNo + ";;" + this.form.RequestNo + ";;" + GetAmountDue[0].trim();
            
-               this.form.post("api/GetAgentComReport") .then(({ data }) => (this.AgentComm = data)  );     
-        //console.log(this.AgentComm );
-       //alert(this.AgentComm );
+               axios.get("api/GetAgentComReport/" + PassIDCom ) .then(({ data }) => (this.AgentComm = data)  );     
+       //alert(PassIDCom);
         
         },
 
          QueryByOPtion(){
+         //  alert(); Pls. Select eithe w/ AOG or w/o AOG.
+
         
          if (!this.form.OptionWithAOG.length )  {
                 Swal.fire({
@@ -864,13 +739,6 @@ export default {
                     text: 'Pls. Input Color.',
               
                 })
-          //  }else if (!this.form.PaymentMode.length)  {
-          //       Swal.fire({
-          //           icon: 'error',
-          //           title: 'Oops...',
-          //           text: 'Pls. Choose Payment Mode',
-              
-          //       })
           }else{
          
              this.loading = true,
@@ -896,17 +764,10 @@ export default {
                         'success'
                     )
                     // console.log();
-                  //this.$router.push('/CustAcceptedView?' + PassID); 
+                  this.$router.push('/CustAcceptedView?' + PassID); 
                  // this.$router.push('/Payment-Mode?' + PassID) ; 
-                 if ( !this.form.PaymentMode.length){   //no payment selected
-                      //alert('empty ' );
-                       // this.$router.push('/CustAcceptedView?' + PassID); 
-                 }else{   //yes payment selected redirect to payment
-                      //alert('NOt empty ' );
-                      let route = this.$router.resolve({path: '/Payment-Mode?' + PassID});
-                       window.open(route.href, '_self');
-                 }
-              
+               let route = this.$router.resolve({path: '/Payment-Mode?' + PassID});
+               window.open(route.href, '_blank');
                   
                   //this.form.post('api/PaymentMode').then(() => { });
                 }).catch((response) => {
@@ -938,20 +799,25 @@ export default {
                 });
        
         
+        }
+ 
+
+    }, 
+
+    filters: {
+        peso(amount) {
+            const amt = Number(amount)
+            return '₱ ' + amt.toLocaleString('ko-KR', {minimumFractionDigits: 2, maximumFractionDigits: 2})
         },
+    },
+   
 
-         LoadData() {
-          // alert();
+    created() {
         axios.get('api/wordings').then(({data}) => this.Wordings = data)
-                   let uri         = window.location.href.split('?');
-                    let PassID      = uri[1].trim();
-        axios.get("api/URLQueryRequestModify/" + PassID ) .then(({ data }) => (this.ResultQueryRequest = data)  );
-        axios.get("api/CustomerRequestQuotation/" + PassID ) .then(({ data }) => (this.URLQueryPerilsCoveragesGroup = data)  );
-        axios.get("api/GetListBanks/") .then(({ data }) => (this.GetListBanks = data)  );
-       axios.get("api/URLQueryRequestModify/" + PassID).then(({ data })  => (this.ResultQueryRequest = data)  );
-
       this.RetrieveTimeInterval = setInterval(() => {
-            
+           
+       
+
                 this.form.TINNumber          =this.ResultQueryRequest.TINNumber;
                 this.form.RequestNo          =this.ResultQueryRequest.RequestNo;
                 this.form.EmailAddress       =this.ResultQueryRequest.EmailAddress;
@@ -981,14 +847,10 @@ export default {
                  this.form.AcctNo            = this.ResultQueryRequest.CustAcctNO;
                 this.form.AcctName           = this.ResultQueryRequest.CName ;
                 this.form.AssignCRD          = this.ResultQueryRequest.AssignCRD;
-                 this.form.NoAOG             = this.ResultQueryRequest.WithAOG;
+                this.form.NoAOG              = this.ResultQueryRequest.WithAOG;
                 this.form.Denomination       =this.ResultQueryRequest.Denomination;
-                this.form.Individual              = this.ResultQueryRequest.Individual;
-                this.form.RegisteredName          = this.ResultQueryRequest.RegisteredName;
-                this.form.RequestType       = this.ResultQueryRequest.RequestType;
                 this.$forceUpdate();   
           
-          this.form.post("api/UpdateCommCoverages") .then(({ data }) => (this.AgentCommUpdate = data)  ); 
 
             this.URLQueryPerilsCoveragesGroup.map(( URLQueryPerilsCoveragesGroups) => {
 			      
@@ -1000,27 +862,18 @@ export default {
                            CompCoverageAmount  +=  parseFloat(ListCoveragesURL.CoveragesAmount ) ;
                        this.form.FormStatusCoverages[URLQueryPerilsCoveragesGroups.OptionNo]  = ListCoveragesURL.Status;
                                          if ( ListCoveragesURL.Status != 3){
-                                              if ( ListCoveragesURL.Status === 'DECLINE'){
-                                                  DisplayText = "OPTION DECLINED" ;
-                                              }else{
-                                                    DisplayText = "New Quotation" ;
-                                              }
-                                            
+                                            DisplayText = "New Quotation" ;
                                             this.isShowing =false;
                                         
                                         }else{
                                             DisplayText = " " ;
                                             this.isShowing =true;
                                         }
-                                       
-                                         
 
                                          if ( ListCoveragesURL.PerilsCode == "AOG"){
                                              CompCoveragesAmountNoAOG  = parseFloat(ListCoveragesURL.CoveragesPremium );
-                                             /// this.form.NoAOG              = "YES"; 
                                          }else{
                                               CompCoveragesAmountNoAOG  = CompCoveragesAmount ;
-                                             // this.form.NoAOG              = "NO";
                                          }
                               
                               
@@ -1046,35 +899,20 @@ export default {
                             this.form.CoveragesPremiumDisplay[URLQueryPerilsCoveragesGroups.OptionNo]     = parseFloat(CompCoveragesAmountNoAOG).toFixed(2)
                            
                             this.form.TotalAmountDue[URLQueryPerilsCoveragesGroups.OptionNo]                = parseFloat(TotalAmountDue).toFixed(2) ;
-
-
-                 
             })
- }, 200)
+ }, 1000)
                   
+
+                     //alert(CompCoverageAmount);
+
                     this.RetrieveTimeInterval2 = setInterval(() => {
                             clearInterval(this.RetrieveTimeInterval);  
-                           
-                 },3000) 
+                 },5000) 
                  //this.isShowingApproval = false;
                
                            
      
     },
-
- 
-
-    }, 
-
-    filters: {
-        peso(amount) {
-            const amt = Number(amount)
-            return '₱ ' + amt.toLocaleString('ko-KR', {minimumFractionDigits: 2, maximumFractionDigits: 2})
-        },
-    },
-   
-
-   
 
     computed: {
         date() {
