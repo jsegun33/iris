@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"iris.product_line_sub_class"},{"v":2,"unique":true,"key":{"SubLinesClassNo":1},"name":"SubLinesClassNo_1","ns":"iris.product_line_sub_class"}],"uuid":"7308b2ab1d2b44b6a22c788623e5f74a"}
