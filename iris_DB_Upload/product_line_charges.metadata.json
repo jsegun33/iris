@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"iris.product_line_charges"},{"v":2,"unique":true,"key":{"ChargesNo":1},"name":"ChargesNo_1","ns":"iris.product_line_charges"}],"uuid":"07058b45a8fe4d6b876320750c7bab9f"}

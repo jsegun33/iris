@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"iris.product_lines_sub_perils"},{"v":2,"unique":true,"key":{"PerilsNo":1},"name":"PerilsNo_1","ns":"iris.product_lines_sub_perils"}],"uuid":"c6f48eca58ed4cafac40807a5e056b40"}

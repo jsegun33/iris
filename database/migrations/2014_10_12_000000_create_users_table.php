@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\User;
-use Illuminate\Support\Facades\Hash;
 
 class CreateUsersTable extends Migration
 {
@@ -44,7 +43,7 @@ class CreateUsersTable extends Migration
             'userRole'      => 'Super Admin',
             'username'      => 'admin',
             'email'         => 'admin@iristech.ph',
-            'password'      => Hash::make('12345678'),
+            'password'      => bcrypt::make('12345678'),
             'ApprovedLimit' => 1000000,
             'AccountNo'     => $AccountNo,
             'created_at'    => now(),
