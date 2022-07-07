@@ -25,7 +25,7 @@
     },
     "dependencies": {
         "laravel-vue-pagination": "^2.3.1",
-        "moment": "^2.24.0",
+        "moment": "^2.29.4",
         "number-to-words": "^1.2.4",
         "sweetalert2": "^9.4.0",
         "vform": "^1.0.1",
